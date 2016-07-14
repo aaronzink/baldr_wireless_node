@@ -120,7 +120,7 @@
     // MRF24J40 2.4GHz IEEE 802.15.4 compliant RF transceiver. Only one
     // RF transceiver can be defined.
     /*********************************************************************/
-    #define MRF24J40
+    //#define MRF24J40
     
     
     /*********************************************************************/
@@ -135,7 +135,7 @@
     // Definition of MRF89XA enables the application to use Microchip
     // MRF89XA subGHz proprietary RF transceiver
     /*********************************************************************/
-    //#define MRF89XA
+    #define MRF89XA
 
 
 
