@@ -25,6 +25,7 @@
 #include "self_test.h"
 #include "range_demo.h"
 #include "temp_demo.h"
+#include "parser.h"
 
 
 
@@ -56,6 +57,7 @@ uint8_t myChannel = 26;
 uint8_t ConnectionEntry = 0;
 			
 bool NetFreezerEnable = false;
+bool ParseTest = false;
 
 extern uint8_t myLongAddress[MY_ADDRESS_LENGTH];
 
@@ -116,7 +118,19 @@ void main(void)
     /*******************************************************************/
     SYSTEM_Initialize();
  
- 	
+    /*******************************************************************/
+    // Testing the parser with:
+    // <config-begin>
+    // <config-addUser> ckreid asdf1234
+    // <config-master> ckreid asdf1234
+    // <config-end>
+    /*******************************************************************/
+    if( ParseTest )
+    {
+        char instruction[] = "<config-begin>\n<config-addUser> ckreid asdf1234\n<config-master> ckreid asdf1234\n<config-end>\n";
+        executeCommands(instruction);
+    }
+    
     LED0 = LED1 = LED2 = 1;
  	
     Read_MAC_Address();
