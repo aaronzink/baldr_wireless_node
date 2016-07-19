@@ -136,6 +136,8 @@ void executeCommands(const char * textFile)
     sprintf((char *)&(LCDText[16]), temp);
     LCD_Update();
     
+    DELAY_ms(5000);
+    
     for(j = 0; j<i-1; j++)
     {        
         instr_num = getInstrNum(instr[j]);
