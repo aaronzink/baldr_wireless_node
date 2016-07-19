@@ -121,5 +121,12 @@
 #define LCD_RESET           LATEbits.LATE0
 #define LCD_BKLT_TRIS       TRISEbits.TRISE1
 #define LCD_BKLT            LATEbits.LATE1
+
+// Custom defines for Baldr project
+// defines to interface with the AUX pins
+#define AUX1_PORT            PORTAbits.RA2
+#define AUX1_TRIS            TRISAbits.TRISA2
+#define AUX2_PORT            PORTAbits.RA3
+#define AUX2_TRIS            TRISAbits.TRISA3
 	
 #endif

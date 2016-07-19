@@ -177,6 +177,14 @@ void SYSTEM_Initialize(void)
     /*******************************************************************/
     INTCONbits.GIEH = 1;
     INTCONbits.GIEL = 1;
+    
+    /*******************************************************************/
+    // Custom configurations for Baldr Project
+    /*******************************************************************/
+    
+    //configure the AUX ports as inputs
+    AUX1_TRIS = 1;
+    AUX2_TRIS = 1;
 }
 
 

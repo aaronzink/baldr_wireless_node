@@ -191,6 +191,15 @@ CreateorJoin:
 
         while(1)
 		{
+            
+            /*
+             * TODO: this is an example of how to read from the AUX ports, if 
+             * you provide a voltage to one of the pins it will turn an LED on. 
+             * Move this somewhere useful later.
+             */
+            LED0 = AUX1_PORT;
+            LED1 = AUX2_PORT;
+            
     		switch_val = BUTTON_Pressed();
                 if(switch_val == SW1)
 			{
