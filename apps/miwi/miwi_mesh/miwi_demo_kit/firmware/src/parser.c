@@ -119,15 +119,15 @@ void executeCommands(const char * textFile)
     
     DELAY_ms(3000);
     
-    instr[0] = strtok(input,"\n");
+    instr[i] = strtok(input,"\n");
     
-    while(instr != NULL)
+    while(instr[i] != NULL)
     {
         i++;
         instr[i] = strtok(NULL,"\n");
     }
     
-    for(j = 0; j<i; j++)
+    for(j = 0; j<i-1; j++)
     {
         instr_num = getInstrNum(instr[j]);
         switch(instr_num)
