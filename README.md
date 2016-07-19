@@ -27,4 +27,5 @@ Using the picket 2 programmer
 5. Program the hex file to the demo board
 	* Select File>Import Hex
 	* Navigate to /apps/miwi/miwi_mesh/miwi_demo_kit/firmware/baldr_wireless_node.X/dist/miwikit_pic18f46j50_89xa/production
+6. Click the "Write" button
 
