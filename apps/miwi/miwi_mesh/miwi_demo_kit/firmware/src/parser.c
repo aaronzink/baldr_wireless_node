@@ -110,6 +110,7 @@ void executeCommands(const char * textFile)
     bool instr_er = false;
     uint8_t i = 0;
     uint8_t j = 0;
+    char * temp;
     
     LCD_BacklightON();
     LCD_Erase();
@@ -127,8 +128,16 @@ void executeCommands(const char * textFile)
         instr[i] = strtok(NULL,"\n");
     }
     
+    sprintf(temp, "               %d", i);
+    
+    LCD_BacklightON();
+    LCD_Erase();
+    sprintf((char *)LCDText, (char*)"   Parse Demo   "  );
+    sprintf((char *)&(LCDText[16]), temp);
+    LCD_Update();
+    
     for(j = 0; j<i-1; j++)
-    {
+    {        
         instr_num = getInstrNum(instr[j]);
         switch(instr_num)
         {
