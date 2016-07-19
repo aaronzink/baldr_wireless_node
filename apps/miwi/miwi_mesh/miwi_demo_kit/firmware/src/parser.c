@@ -105,9 +105,11 @@ void executeCommands(const char * textFile)
 {
     char * input; 
     strcpy(input,textFile);
-    char * instr;
+    char * instr[10];
     uint8_t instr_num = 0;
     bool instr_er = false;
+    uint8_t i = 0;
+    uint8_t j = 0;
     
     LCD_BacklightON();
     LCD_Erase();
@@ -117,11 +119,17 @@ void executeCommands(const char * textFile)
     
     DELAY_ms(3000);
     
-    instr = strtok(input,"\n");
+    instr[0] = strtok(input,"\n");
     
     while(instr != NULL)
     {
-        instr_num = getInstrNum(instr);
+        i++;
+        instr[i] = strtok(NULL,"\n");
+    }
+    
+    for(j = 0; j<i; j++)
+    {
+        instr_num = getInstrNum(instr[j]);
         switch(instr_num)
         {
             case PARSE_CMD_begin :
@@ -139,11 +147,11 @@ void executeCommands(const char * textFile)
                 break;  
             
             case PARSE_CMD_addUser :
-                addUser(instr);
+                addUser(instr[j]);
                 break;
                 
             case PARSE_CMD_master :
-                master(instr);
+                master(instr[j]);
                 break;
 
             default :
@@ -161,8 +169,6 @@ void executeCommands(const char * textFile)
         }
 
         DELAY_ms(5000);
-        
-        instr = strtok(NULL,"\n");
     }
     return;
 }
