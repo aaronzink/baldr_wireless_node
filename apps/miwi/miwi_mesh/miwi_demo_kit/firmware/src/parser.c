@@ -18,6 +18,13 @@ void addUser(char * instr)
     uint8_t stage = 0;
     bool error_flag = false;
     
+    LCD_Erase();
+    sprintf((char *)LCDText, (char*)"%16s", instr);
+    sprintf((char *)&(LCDText[16]), (char*)"ADD USER BEGIN  ");
+    LCD_Update();  
+    
+    DELAY_ms(5000);
+    
     while(token != NULL)
     {
         if(stage == 1){
@@ -28,6 +35,7 @@ void addUser(char * instr)
             error_flag = true;
         }
         stage++;
+        token = strtok(NULL, " ");
     }
     
     if(!error_flag)
@@ -63,6 +71,7 @@ void master(char * instr)
             error_flag = true;
         }
         stage++;
+        token = strtok(NULL, " ");
     }
     
     if(!error_flag)
@@ -82,10 +91,12 @@ void master(char * instr)
 //TODO: Might cause memory leak? Delete the string pointers?
 uint8_t getInstrNum(char * instr)
 {
-    char * input;
+    char input[20];
     strcpy(input, instr);
-    char * token = strtok(input," ");
+    char * token;
     uint8_t num;
+    
+    token = strtok(input," ");
     
     if(strcmp(token,"<config-begin>") == 0){
         num = PARSE_CMD_begin;
@@ -98,19 +109,30 @@ uint8_t getInstrNum(char * instr)
     }else{
         num = PARSE_CMD_error;
     }
+    /*
+    LCD_Erase();
+    sprintf((char *)LCDText, "%16s", token );
+    sprintf((char *)&(LCDText[16]), "        %01d       ", num);
+    LCD_Update();
+    */
+    
+    DELAY_ms(5000);
+    
     return num;    
 }
 
-void executeCommands(const char * textFile) 
+void executeCommands()
 {
-    char * input; 
-    strcpy(input,textFile);
+    char input[150] = "<config-begin>\n<config-addUser> ckreid asdf1234\n<config-master> ckreid asdf1234\n<config-end>";
     char * instr[10];
     uint8_t instr_num = 0;
     bool instr_er = false;
     uint8_t i = 0;
     uint8_t j = 0;
-    char * temp;
+    char * token;
+    char * userName;
+    char * password;
+    uint8_t stage = 0;
     
     LCD_BacklightON();
     LCD_Erase();
@@ -127,18 +149,16 @@ void executeCommands(const char * textFile)
         i++;
         instr[i] = strtok(NULL,"\n");
     }
-    
-    sprintf(temp, "               %d", i);
-    
-    LCD_BacklightON();
+        
+    LCD_BacklightOFF();
     LCD_Erase();
     sprintf((char *)LCDText, (char*)"   Parse Demo   "  );
-    sprintf((char *)&(LCDText[16]), temp);
+    sprintf((char *)&(LCDText[16]), "        %01d       ", i);
     LCD_Update();
     
     DELAY_ms(5000);
     
-    for(j = 0; j<i-1; j++)
+    for(j = 0; j<i; j++)
     {        
         instr_num = getInstrNum(instr[j]);
         switch(instr_num)
@@ -182,4 +202,25 @@ void executeCommands(const char * textFile)
         DELAY_ms(5000);
     }
     return;
+}
+
+
+void strtokTest()
+{
+    char str[80] = "claytonreid1234 testestestestes";
+    char * token;
+    
+    token = strtok(str, " ");
+    
+    while(token != NULL)
+    {
+        LCD_Erase();
+        sprintf((char *)LCDText, "%15s", token  );
+        sprintf((char *)&(LCDText[16]), (char*)"STRTOK TEST    ");
+        LCD_Update();
+        DELAY_ms(5000);
+        
+        token = strtok(NULL, " ");   
+    }
+    
 }

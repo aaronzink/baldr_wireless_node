@@ -127,8 +127,8 @@ void main(void)
     /*******************************************************************/
     if( ParseTest )
     {
-        char instruction[] = "<config-begin>\n<config-addUser> ckreid asdf1234\n<config-master> ckreid asdf1234\n<config-end>\n";
-        executeCommands(instruction);
+        strtokTest();
+        executeCommands();
     }
     
     LED0 = LED1 = LED2 = 1;

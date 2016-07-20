@@ -22,4 +22,4 @@ void master(char * instr);
 
 uint8_t getInstrNum(char * instr);
 
-void executeCommands(const char * textFile);
+void executeCommands();
