@@ -48,7 +48,7 @@ uint8_t myChannel = 26;
 
 #define EXIT_DEMO           1
 #define RANGE_DEMO          2
-#define TEMP_DEMO           3
+#define SECURITY_DEMO           3
 #define IDENTIFY_MODE       4
 #define EXIT_IDENTIFY_MODE  5
 
@@ -252,9 +252,7 @@ CreateorJoin:
                 break;
             }   //End of Change Channel (switch_val == SW2)
 
-        }           
-
-        
+        }                   
 
         /*******************************************************************/
         // Set Device Communication Channel
@@ -640,7 +638,7 @@ CreateorJoin:
                 }
                 else if(menu_choice == 1)
                 {
-                    LCD_Display((char *)"SW1: Temp Demo  SW2: Other Apps  ", 0, false);
+                    LCD_Display((char *)"SW1: Baldr Demo SW2: Other Apps  ", 0, false);
                 }    
                 else if(menu_choice == 2)
                 {
@@ -648,14 +646,14 @@ CreateorJoin:
                 }
                 
             }
-            if((pktCMD == TEMP_DEMO) || ((switch_val == SW1) && (menu_choice == 1)))
+            if((pktCMD == SECURITY_DEMO) || ((switch_val == SW1) && (menu_choice == 1)))
             {
                 MiApp_FlushTx();
-                MiApp_WriteData(TEMP_DEMO);
+                MiApp_WriteData(SECURITY_DEMO);
                 MiApp_BroadcastPacket(false);
 
-                    // Run Temp Sensor Demo
-                TempDemo();
+                // Run Baldr Security Demo
+                SecurityDemo();
                 result = true;
             }
             if((pktCMD == IDENTIFY_MODE) || ((switch_val == SW1) && (menu_choice == 2)))
