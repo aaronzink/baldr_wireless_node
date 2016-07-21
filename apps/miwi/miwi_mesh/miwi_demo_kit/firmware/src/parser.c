@@ -10,6 +10,20 @@
 #include <string.h>
 #include <parser.h>
 
+#define USER_LIMIT 3
+#define MESSAGE_DELAY 5000
+
+char defaultPassword[20] = "asdf1234";
+char currentUsers[USER_LIMIT][16];
+uint8_t userCount = 0;
+
+struct user_s
+{
+    char userName[16];
+    char phoneNumber[12];
+    bool master;
+};
+
 void addUser(char * instr)
 {
     char * token = strtok(instr, " ");
@@ -17,13 +31,6 @@ void addUser(char * instr)
     char password[16];
     uint8_t stage = 0;
     bool error_flag = false;
-    
-    LCD_Erase();
-    sprintf((char *)LCDText, (char*)"%16s", instr);
-    sprintf((char *)&(LCDText[16]), (char*)"ADD USER BEGIN  ");
-    LCD_Update();  
-    
-    DELAY_ms(5000);
     
     while(token != NULL)
     {
@@ -40,10 +47,20 @@ void addUser(char * instr)
     
     if(!error_flag)
     {
-        LCD_Erase();
-        sprintf((char *)LCDText, (char*)userName);
-        sprintf((char *)&(LCDText[16]), (char*)password);
-        LCD_Update();   
+        if(strcmp(password,defaultPassword) == 0)
+        {
+            strcpy(currentUsers[userCount], userName);
+            LCD_Erase();
+            sprintf((char *)LCDText, (char*)currentUsers[userCount]);
+            sprintf((char *)&(LCDText[16]), (char*)"Added as user   ");
+            LCD_Update();   
+            userCount++;
+        }else{
+            LCD_Erase();
+            sprintf((char *)LCDText, (char*)"Incorrect Pass  ");
+            sprintf((char *)&(LCDText[16]), (char*)password);
+            LCD_Update();
+        }
     }else{
         LCD_Erase();
         sprintf((char *)LCDText, (char*)"  ADDUSER ERROR ");
@@ -88,6 +105,29 @@ void master(char * instr)
     }
 }
 
+void deleteUser(char * instr)
+{
+    
+}
+
+void listUsers()
+{
+    LCD_Erase();
+    sprintf((char *)LCDText, "List of Users   ");
+    sprintf((char *)&(LCDText[16]), (char*)"               ");
+    LCD_Update();
+    
+    for(int i = 0; i<userCount; i++)
+    {
+        DELAY_ms(MESSAGE_DELAY);
+        
+        LCD_Erase();
+        sprintf((char *)LCDText, (char*)currentUsers[i]);
+        sprintf((char *)&(LCDText[16]), (char*)"               ");
+        LCD_Update();
+    }
+}
+
 //TODO: Might cause memory leak? Delete the string pointers?
 uint8_t getInstrNum(char * instr)
 {
@@ -106,33 +146,24 @@ uint8_t getInstrNum(char * instr)
         num = PARSE_CMD_addUser;
     }else if(strcmp(token,"<config-master>") == 0){
         num = PARSE_CMD_master;
+    }else if(strcmp(token,"<config-listUsers>") == 0){
+        num = PARSE_CMD_listUsers;
     }else{
         num = PARSE_CMD_error;
     }
-    /*
-    LCD_Erase();
-    sprintf((char *)LCDText, "%16s", token );
-    sprintf((char *)&(LCDText[16]), "        %01d       ", num);
-    LCD_Update();
-    */
-    
-    DELAY_ms(5000);
     
     return num;    
 }
 
-void executeCommands()
+void executeCommands(char * inputInstr)
 {
-    char input[150] = "<config-begin>\n<config-addUser> ckreid asdf1234\n<config-master> ckreid asdf1234\n<config-end>";
+    char input[150];
+    strcpy(input,inputInstr);
     char * instr[10];
     uint8_t instr_num = 0;
     bool instr_er = false;
     uint8_t i = 0;
     uint8_t j = 0;
-    char * token;
-    char * userName;
-    char * password;
-    uint8_t stage = 0;
     
     LCD_BacklightON();
     LCD_Erase();
@@ -184,6 +215,14 @@ void executeCommands()
             case PARSE_CMD_master :
                 master(instr[j]);
                 break;
+                
+            case PARSE_CMD_deleteUser :
+                deleteUser(instr[j]);
+                break;
+                
+            case PARSE_CMD_listUsers :
+                listUsers();
+                break;
 
             default :
                 instr_er = true;
@@ -195,32 +234,11 @@ void executeCommands()
             sprintf((char *)LCDText, (char*)"      ERROR     "  );
             sprintf((char *)&(LCDText[16]), (char*)"      ERROR     ");
             LCD_Update();
-            DELAY_ms(5000);
+            DELAY_ms(MESSAGE_DELAY);
             break;
         }
 
-        DELAY_ms(5000);
+        DELAY_ms(MESSAGE_DELAY);
     }
     return;
-}
-
-
-void strtokTest()
-{
-    char str[80] = "claytonreid1234 testestestestes";
-    char * token;
-    
-    token = strtok(str, " ");
-    
-    while(token != NULL)
-    {
-        LCD_Erase();
-        sprintf((char *)LCDText, "%15s", token  );
-        sprintf((char *)&(LCDText[16]), (char*)"STRTOK TEST    ");
-        LCD_Update();
-        DELAY_ms(5000);
-        
-        token = strtok(NULL, " ");   
-    }
-    
 }

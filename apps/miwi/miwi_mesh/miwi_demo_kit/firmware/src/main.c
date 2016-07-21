@@ -58,8 +58,8 @@ uint8_t ConnectionEntry = 0;
 			
 bool NetFreezerEnable = false;
 bool ParseTest = false;
-bool AutoConnectNetwork = true; //Create or join network on channel 26
-bool AutoStartDemo = true; //start the security_demo() automatically)
+bool AutoConnectNetwork = false; //Create or join network on channel 26
+bool AutoStartDemo = false; //start the security_demo() automatically)
 
 extern uint8_t myLongAddress[MY_ADDRESS_LENGTH];
 
@@ -129,8 +129,15 @@ void main(void)
     /*******************************************************************/
     if( ParseTest )
     {
-        strtokTest();
-        executeCommands();
+        char input[150] = "<config-begin>\n<config-addUser> ckreid asdf1234\n<config-master> ckreid asdf1234\n<config-end>";
+        executeCommands(input);
+        char input2[150] = "<config-begin>\n<config-addUser> ckreid wrongpass\n<config-end>";
+        executeCommands(input2);
+        char input3[150] = "<config-begin>\n<config-addUser> luke asdf1234\n<config-addUser> aaron asdf1234\n<config-end>";
+        executeCommands(input3);
+        char input4[150] = "<config-begin>\n<config-listUsers>\n<config-end>";
+        executeCommands(input4);
+        for( ;; );
     }
     
     LED0 = LED1 = LED2 = 1;
