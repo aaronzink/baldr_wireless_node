@@ -58,6 +58,7 @@ uint8_t ConnectionEntry = 0;
 			
 bool NetFreezerEnable = false;
 bool ParseTest = false;
+bool AutoConnectNetwork = true; //Create or join network on channel 26
 
 extern uint8_t myLongAddress[MY_ADDRESS_LENGTH];
 
@@ -201,7 +202,7 @@ CreateorJoin:
             LED1 = AUX2_PORT;
             
     		switch_val = BUTTON_Pressed();
-                if(switch_val == SW1)
+                if(switch_val == SW1 || AutoConnectNetwork)
 			{
                 //User selected Default Channel
                 break;
@@ -312,7 +313,192 @@ CreateorJoin:
                     result = false;
 
              }
-			
+            // Check if there is a network and join it or create one
+            if(AutoConnectNetwork)
+			{                          
+                volatile uint8_t scanresult;
+
+                LCD_Display((char *)"  Scanning for    Networks....", 0, true);
+
+                MiApp_ProtocolInit(false);
+
+                /*******************************************************************/
+                // Perform an active scan
+                /*******************************************************************/
+
+                if(myChannel < 8)
+                    scanresult = MiApp_SearchConnection(10, (0x00000001 << myChannel));
+                else if(myChannel < 16)
+                    scanresult = MiApp_SearchConnection(10, (0x00000100 << (myChannel-8)));
+                else if(myChannel < 24)
+                    scanresult = MiApp_SearchConnection(10, (0x00010000 << (myChannel-16)));
+                else
+                    scanresult = MiApp_SearchConnection(10, (0x01000000 << (myChannel-24)));
+
+                /*******************************************************************/
+                // Display Scan Results
+                /*******************************************************************/
+                if(scanresult > 0)
+                {
+                    
+                  uint8_t k;
+                    
+	                for(j = 0; j < scanresult; j++)
+	                {
+                        uint8_t skip_print = false;
+                        if(j > 0)
+                        {
+                            
+                            skip_print = false;
+                            for(k = 0; k < j; k++)
+                            {
+                                if((ActiveScanResults[j].PANID.v[1] == ActiveScanResults[k].PANID.v[1]) &
+                                    (ActiveScanResults[j].PANID.v[0] == ActiveScanResults[k].PANID.v[0]))
+                                    {
+                                        skip_print = true;
+                                        break;
+                                    }
+                                
+                            }
+                            if(skip_print == true)
+                            { 
+                                if(j == (scanresult-1)) j = -1;
+                                continue;
+                            }
+                        }
+                        
+                    // Display the index on LCD
+                    LCD_Erase();
+
+                    // Display if Network is Cordinator or PAN Cordinator
+
+                    sprintf((char *)LCDText, (char*)"SW1:<PANID:%02x%02x>",ActiveScanResults[j].PANID.v[1], ActiveScanResults[j].PANID.v[0]);
+
+
+                    //sprintf((char *)&(LCDText[16]), (char*)"SW2: Additional");
+
+                    LCD_Update();
+
+                    while(1)
+                    {
+                    switch_val = BUTTON_Pressed();
+
+                    /*******************************************************************/
+                    // Connect to Display Network
+                    /*******************************************************************/
+                        if(1)
+                        {
+                                    uint8_t Status;
+                                    uint8_t CoordCount = 0;
+                                    MiApp_FlushTx();
+
+                                    for(k = 0 ; k < scanresult ; k++)
+                                    {
+                                        if((ActiveScanResults[j].PANID.v[1] == ActiveScanResults[k].PANID.v[1]) &
+                                            (ActiveScanResults[j].PANID.v[1] == ActiveScanResults[k].PANID.v[1]))
+                                        {
+                                            CoordCount++;
+                                        }
+                                    }
+                                    if(CoordCount > 1)
+                                    {
+                                        uint8_t nodeIndex = 0;
+                                        uint8_t count = 0;
+                                        MiApp_FlushTx();
+                                        MiApp_WriteData(IDENTIFY_MODE);
+                                        MiApp_WriteData(ActiveScanResults[j].PANID.v[1]);
+                                        MiApp_WriteData(ActiveScanResults[j].PANID.v[0]);
+                                        MiApp_BroadcastPacket(false);
+                                        for(k = 0 ; k < scanresult ; k++)
+                                        {
+                                            if((ActiveScanResults[j].PANID.v[1] == ActiveScanResults[k].PANID.v[1]) &
+                                        (ActiveScanResults[j].PANID.v[0] == ActiveScanResults[k].PANID.v[0]))
+                                        {
+                                                count++;
+                                            	LCD_Erase();
+						
+                                                // Display Network information
+
+                                                sprintf((char *)LCDText, (char*)"SW1:<Addr:%02x%02x>",ActiveScanResults[k].Address[1], ActiveScanResults[k].Address[0]);
+
+
+                                                sprintf((char *)&(LCDText[16]), (char*)"SW2: Additional");
+
+                                                LCD_Update();
+                                                nodeIndex = k;
+
+                                                while(1)
+                                                {
+                                                    switch_val = BUTTON_Pressed();
+                                                    if(1)
+                                                    {
+                                                       //Establish connection with the node
+                                                       j = nodeIndex;
+                                                       k = scanresult-1;
+                                                       break;
+                                                    }
+                                                } //End of while(1) loop
+                                        }
+                                         
+                                          
+                                    } //End of for(k = 0; ....)
+                                } //End of if (CoordCount > ...)							
+                        /*******************************************************************/
+                        // Establish Connection and Display results of connection
+                        /*******************************************************************/
+                                Status = MiApp_EstablishConnection(j, CONN_MODE_DIRECT);
+                                if(Status == 0xFF)
+                                {
+                                LCD_Display((char *)"Join Failed!!!", 0, true);
+                                        goto CreateorJoin;
+                                }
+                                else
+                                {
+                                        LCD_Display((char *)"Joined  Network Successfully..", 0, true);
+                                        result = false;
+                                }
+                                MiApp_FlushTx();
+                                MiApp_WriteData(EXIT_IDENTIFY_MODE);
+                                MiApp_WriteData(myPANID.v[1]);
+                                MiApp_WriteData(myPANID.v[0]);
+    	                        MiApp_BroadcastPacket(false);
+                                break;
+
+                        }
+                    }
+                    /*******************************************************************/
+                        // If Connected to a Network Successfully bail out
+                        /*******************************************************************/
+                        if(result == false)
+                            break;
+                    }
+							
+					result = false;
+            	}else
+                {
+                    LCD_Display((char *)"Creating Network", 0, true);
+
+                    MiApp_ProtocolInit(false);
+                    MiApp_StartConnection(START_CONN_DIRECT, 0, 0);
+
+                    LCD_Display((char *)"Created Network Successfully", 0, true);
+
+                    LCD_Erase();
+                    sprintf((char *)&(LCDText), (char*)"PANID:%02x%02x Ch:%02d",myPANID.v[1],myPANID.v[0],myChannel);
+                    sprintf((char *)&(LCDText[16]), (char*)"Address: %02x%02x", myShortAddress.v[1], myShortAddress.v[0]);
+                    LCD_Update();
+
+                    /*******************************************************************/
+                    // Wait for a Node to Join Network then proceed to Demo's
+                    /*******************************************************************/
+                    while(!ConnectionTable[0].status.bits.isValid)
+                    {
+                            if(MiApp_MessageAvailable())
+                                MiApp_DiscardMessage();
+                    }
+                    result = false;
+                }
+             }
             /*******************************************************************/
             // Join a Network
             /*******************************************************************/
@@ -392,30 +578,30 @@ CreateorJoin:
                     /*******************************************************************/
                         if(switch_val == SW1)
                         {
-                                uint8_t Status;
-                                uint8_t CoordCount = 0;
-                                MiApp_FlushTx();
-    	                        
-                                for(k = 0 ; k < scanresult ; k++)
-                                {
-                                    if((ActiveScanResults[j].PANID.v[1] == ActiveScanResults[k].PANID.v[1]) &
-                                        (ActiveScanResults[j].PANID.v[1] == ActiveScanResults[k].PANID.v[1]))
-                                    {
-                                        CoordCount++;
-                                    }
-                                }
-                                if(CoordCount > 1)
-                                {
-                                    uint8_t nodeIndex = 0;
-                                    uint8_t count = 0;
+                                    uint8_t Status;
+                                    uint8_t CoordCount = 0;
                                     MiApp_FlushTx();
-                                    MiApp_WriteData(IDENTIFY_MODE);
-                                    MiApp_WriteData(ActiveScanResults[j].PANID.v[1]);
-                                    MiApp_WriteData(ActiveScanResults[j].PANID.v[0]);
-    	                            MiApp_BroadcastPacket(false);
+
                                     for(k = 0 ; k < scanresult ; k++)
                                     {
                                         if((ActiveScanResults[j].PANID.v[1] == ActiveScanResults[k].PANID.v[1]) &
+                                            (ActiveScanResults[j].PANID.v[1] == ActiveScanResults[k].PANID.v[1]))
+                                        {
+                                            CoordCount++;
+                                        }
+                                    }
+                                    if(CoordCount > 1)
+                                    {
+                                        uint8_t nodeIndex = 0;
+                                        uint8_t count = 0;
+                                        MiApp_FlushTx();
+                                        MiApp_WriteData(IDENTIFY_MODE);
+                                        MiApp_WriteData(ActiveScanResults[j].PANID.v[1]);
+                                        MiApp_WriteData(ActiveScanResults[j].PANID.v[0]);
+                                        MiApp_BroadcastPacket(false);
+                                        for(k = 0 ; k < scanresult ; k++)
+                                        {
+                                            if((ActiveScanResults[j].PANID.v[1] == ActiveScanResults[k].PANID.v[1]) &
                                         (ActiveScanResults[j].PANID.v[0] == ActiveScanResults[k].PANID.v[0]))
                                         {
                                                 count++;

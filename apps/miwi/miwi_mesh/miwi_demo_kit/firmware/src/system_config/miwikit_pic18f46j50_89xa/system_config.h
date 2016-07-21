@@ -128,5 +128,7 @@
 #define AUX1_TRIS            TRISAbits.TRISA2
 #define AUX2_PORT            PORTAbits.RA3
 #define AUX2_TRIS            TRISAbits.TRISA3
+#define BUZZER_PORT          PORTBbits.RB3 //S.A.P. Pin1, good for 25mA
+#define BUZZER_TRIS          TRISBbits.TRISB3
 	
 #endif

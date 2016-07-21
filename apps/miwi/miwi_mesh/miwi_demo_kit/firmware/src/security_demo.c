@@ -26,10 +26,10 @@
 #include "miwi/miwi_api.h"
 
 #define SENSE_SECOND_INTERVAL       1
-#define DISPLAY_CYCLE_INTERVAL      4
+#define DISPLAY_CYCLE_INTERVAL      1
 #define EXIT_DEMO_TIMEOUT           6
 #define NUM_TEMP_SAMPLES            1
-#define SENSOR_COUNT                4
+#define SENSOR_COUNT                2
 
 #define EXIT_PKT                    1
 #define SENSE_PKT                   3
@@ -44,8 +44,7 @@ extern uint8_t role;
 struct SensorPacket
 {
     uint8_t NodeAddress[2];
-    //uint8_t TempValue;
-    uint8_t SensorFlags[4];
+    uint8_t SensorFlags[SENSOR_COUNT];
 }; 
 struct SensorPacket NodeSensors[10];
 
@@ -107,7 +106,7 @@ void SecurityDemo(void)
         /*******************************************************************/
         switch_val = BUTTON_Pressed();
 	
-        if(0)//switch_val == SW2) //BALDR edit, we don't want to ext the demo
+        if(0)//switch_val == SW2) //BALDR edit, we don't want to exit the demo
         {
             /*******************************************************************/
         	// Send Exit Demo Request Packet and exit Temp Demo
@@ -142,14 +141,15 @@ void SecurityDemo(void)
         /*******************************************************************/
         if ((MiWi_TickGetDiff(tick2,tick3) > (ONE_SECOND * DISPLAY_CYCLE_INTERVAL)))
         {
-    		if((ConnectionTable[CurrentNodeIndex].status.bits.isValid))
+    		/*if((ConnectionTable[CurrentNodeIndex].status.bits.isValid))
     		{
     		    CurrentNodeIndex++;
     		}    
     		else
     		{
     		    CurrentNodeIndex = 0;
-    		}    
+    		}   */ 
+            CurrentNodeIndex = 1;
     		
     		PrintAlertLCD();
     		
@@ -159,7 +159,7 @@ void SecurityDemo(void)
         /*******************************************************************/
         // Read the Sensors every SENSE_SECOND_INTERVAL
         /*******************************************************************/
-        if ((MiWi_TickGetDiff(tick2,tick1) > (ONE_SECOND * SENSE_SECOND_INTERVAL)))
+        if ((MiWi_TickGetDiff(tick2,tick1) > (ONE_MILI_SECOND * 200 * SENSE_SECOND_INTERVAL)))
         {
 			
             /*******************************************************************/
@@ -171,7 +171,7 @@ void SecurityDemo(void)
             /*******************************************************************/
             // Toggle LED1 Every Temp Read Cycle
             /*******************************************************************/
-            LED0 ^= 1;
+            //LED0 ^= 1;
             
             /*******************************************************************/
             // Take specified number of Temp Readings
@@ -198,13 +198,14 @@ void SecurityDemo(void)
             // Write this Nodes temperature value and Address to the TX Buffer
             /*******************************************************************/
             MiApp_WriteData(SENSE_PKT);
-            MiApp_WriteData(SensorFlags[0]); //TODO send 4 bytes
+            MiApp_WriteData(SensorFlags[0]);
+            MiApp_WriteData(SensorFlags[1]);
             MiApp_WriteData(myShortAddress.v[0]);
             MiApp_WriteData(myShortAddress.v[1]);
-
             
             // Update NodeTemp Structure
             NodeSensors[0].SensorFlags[0] = SensorFlags[0];
+            NodeSensors[0].SensorFlags[1] = SensorFlags[1];
 					
            /*******************************************************************/
            // Broadcast Node Tempature across Network.
@@ -257,8 +258,9 @@ void SecurityDemo(void)
                             {
                                     // Update the Remote Nodes Temp value
                                 NodeSensors[i+1].SensorFlags[0] = rxMessage.Payload[1];
-                                NodeSensors[i+1].NodeAddress[0] = rxMessage.Payload[2];
-                                NodeSensors[i+1].NodeAddress[1] = rxMessage.Payload[3];
+                                NodeSensors[i+1].SensorFlags[1] = rxMessage.Payload[2];
+                                NodeSensors[i+1].NodeAddress[0] = rxMessage.Payload[3];
+                                NodeSensors[i+1].NodeAddress[1] = rxMessage.Payload[4];
                             }	
                     }
             }
@@ -287,10 +289,9 @@ void SecurityDemo(void)
 **********************************************************************/
 void ReadSecuritySensors(uint8_t *readings, uint8_t count)
 {
-    uint8_t switch_val = BUTTON_Pressed();
+    //uint8_t switch_val = BUTTON_Pressed();
     readings[0] = AUX1_PORT;//(switch_val == SW1)? 1 : 0;
-    readings[1] = AUX1_PORT;
-    readings[2] = AUX2_PORT;
+    readings[1] = AUX2_PORT;
 
 }
 
@@ -313,16 +314,21 @@ void ReadSecuritySensors(uint8_t *readings, uint8_t count)
 void PrintAlertLCD(void)
 {
     uint8_t sense1 = NodeSensors[CurrentNodeIndex].SensorFlags[0];
+    uint8_t sense2 = NodeSensors[CurrentNodeIndex].SensorFlags[1];
 
     LCD_Erase();
     
-    if(sense1 != 0)
+    if(sense1 != 0 || sense2 != 0)
 	{
 		sprintf((char *)LCDText, (char*)"  Alert Detected  ");
+        BUZZER_PORT = 1;
+        LED2 = 1; //Red LED labeled LED3
 	}
     else
 	{
-    	sprintf((char *)LCDText, (char*)"  Fine  ");				
+    	sprintf((char *)LCDText, (char*)"  Fine  ");
+        BUZZER_PORT = 0;
+        LED2 = 0;
  	}
     
     LCD_Update();
