@@ -318,9 +318,10 @@ void PrintAlertLCD(void)
 
     LCD_Erase();
     
-    if(sense1 != 0 || sense2 != 0)
+    if((sense1 != 0) || (sense2 != 0))
 	{
-		sprintf((char *)LCDText, (char*)"  Alert Detected  ");
+		sprintf((char *)LCDText, (char*)"Alert Detected    ");
+        sprintf((char *)&(LCDText[16]), (char*)"Texting User    ");
         BUZZER_PORT = 1;
         LED2 = 1; //Red LED labeled LED3
 	}

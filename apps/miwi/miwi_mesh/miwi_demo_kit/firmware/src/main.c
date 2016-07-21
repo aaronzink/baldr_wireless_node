@@ -59,6 +59,7 @@ uint8_t ConnectionEntry = 0;
 bool NetFreezerEnable = false;
 bool ParseTest = false;
 bool AutoConnectNetwork = true; //Create or join network on channel 26
+bool AutoStartDemo = true; //start the security_demo() automatically)
 
 extern uint8_t myLongAddress[MY_ADDRESS_LENGTH];
 
@@ -147,8 +148,8 @@ void main(void)
         LCD_BacklightON();
         
         LCD_Erase();
-        sprintf((char *)LCDText, (char*)"    Microship   "  );
-        sprintf((char *)&(LCDText[16]), (char*)" MiWi Demo Board");
+        sprintf((char *)LCDText, (char*)"    Baldr       "  );
+        sprintf((char *)&(LCDText[16]), (char*)"  Demo Board    ");
         LCD_Update();
 
         /*******************************************************************/
@@ -832,7 +833,7 @@ CreateorJoin:
                 }
                 
             }
-            if((pktCMD == SECURITY_DEMO) || ((switch_val == SW1) && (menu_choice == 1)))
+            if(AutoStartDemo || (pktCMD == SECURITY_DEMO) || ((switch_val == SW1) && (menu_choice == 1)))
             {
                 MiApp_FlushTx();
                 MiApp_WriteData(SECURITY_DEMO);
