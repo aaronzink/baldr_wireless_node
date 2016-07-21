@@ -13,16 +13,16 @@
 #define USER_LIMIT 3
 #define MESSAGE_DELAY 5000
 
-char defaultPassword[20] = "asdf1234";
-char currentUsers[USER_LIMIT][16];
-uint8_t userCount = 0;
-
 struct user_s
 {
     char userName[16];
     char phoneNumber[12];
     bool master;
 };
+
+char defaultPassword[20] = "asdf1234";
+struct user_s currentUsers[USER_LIMIT];
+uint8_t userCount = 0;
 
 void addUser(char * instr)
 {
@@ -31,6 +31,7 @@ void addUser(char * instr)
     char password[16];
     uint8_t stage = 0;
     bool error_flag = false;
+    struct user_s newUser;
     
     while(token != NULL)
     {
@@ -49,11 +50,13 @@ void addUser(char * instr)
     {
         if(strcmp(password,defaultPassword) == 0)
         {
-            strcpy(currentUsers[userCount], userName);
+            strcpy(newUser.userName, userName);
+            newUser.master = false;
             LCD_Erase();
-            sprintf((char *)LCDText, (char*)currentUsers[userCount]);
+            sprintf((char *)LCDText, (char*)newUser.userName);
             sprintf((char *)&(LCDText[16]), (char*)"Added as user   ");
-            LCD_Update();   
+            LCD_Update();
+            currentUsers[userCount] = newUser;
             userCount++;
         }else{
             LCD_Erase();
@@ -93,10 +96,31 @@ void master(char * instr)
     
     if(!error_flag)
     {
-        LCD_Erase();
-        sprintf((char *)LCDText, (char*)userName);
-        sprintf((char *)&(LCDText[16]), (char*)"   Made Master  ");
-        LCD_Update();   
+        uint8_t counter = 0;
+        bool exists = false;
+        for(int i = 0; i<userCount; i++)
+        {
+            if(strcmp(currentUsers[i].userName,userName) == 0)
+            {
+                exists = true;
+                break;
+            }
+            counter++;
+        }
+        
+        if(exists)
+        {
+            currentUsers[counter].master = true;
+            LCD_Erase();
+            sprintf((char *)LCDText, (char*)currentUsers[counter].userName);
+            sprintf((char *)&(LCDText[16]), (char*)"   Made Master  ");
+            LCD_Update();
+        }else{
+            LCD_Erase();
+            sprintf((char *)LCDText, (char*)userName);
+            sprintf((char *)&(LCDText[16]), (char*)"Is not a user   ");
+            LCD_Update();
+        }
     }else{
         LCD_Erase();
         sprintf((char *)LCDText, (char*)"  MASTER ERROR  ");
@@ -122,8 +146,15 @@ void listUsers()
         DELAY_ms(MESSAGE_DELAY);
         
         LCD_Erase();
-        sprintf((char *)LCDText, (char*)currentUsers[i]);
-        sprintf((char *)&(LCDText[16]), (char*)"               ");
+        sprintf((char *)LCDText, (char*)currentUsers[i].userName);
+        if(currentUsers[i].master)
+        {
+            sprintf((char *)&(LCDText[16]), (char*)"MASTER         ");
+
+        }else{
+            sprintf((char *)&(LCDText[16]), (char*)"               ");
+
+        }
         LCD_Update();
     }
 }
@@ -146,6 +177,8 @@ uint8_t getInstrNum(char * instr)
         num = PARSE_CMD_addUser;
     }else if(strcmp(token,"<config-master>") == 0){
         num = PARSE_CMD_master;
+    }else if(strcmp(token,"<config-deleteUser>") == 0){
+        num = PARSE_CMD_deleteUser;
     }else if(strcmp(token,"<config-listUsers>") == 0){
         num = PARSE_CMD_listUsers;
     }else{
