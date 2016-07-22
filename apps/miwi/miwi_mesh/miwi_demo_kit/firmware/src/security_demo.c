@@ -29,7 +29,7 @@
 #define DISPLAY_CYCLE_INTERVAL      1
 #define EXIT_DEMO_TIMEOUT           6
 #define NUM_TEMP_SAMPLES            1
-#define SENSOR_COUNT                2
+#define SENSOR_COUNT                1
 
 #define EXIT_PKT                    1
 #define SENSE_PKT                   3
@@ -205,7 +205,7 @@ void SecurityDemo(void)
             
             // Update NodeTemp Structure
             NodeSensors[0].SensorFlags[0] = SensorFlags[0];
-            NodeSensors[0].SensorFlags[1] = SensorFlags[1];
+            //NodeSensors[0].SensorFlags[1] = SensorFlags[1];
 					
            /*******************************************************************/
            // Broadcast Node Tempature across Network.
@@ -258,9 +258,9 @@ void SecurityDemo(void)
                             {
                                     // Update the Remote Nodes Temp value
                                 NodeSensors[i+1].SensorFlags[0] = rxMessage.Payload[1];
-                                NodeSensors[i+1].SensorFlags[1] = rxMessage.Payload[2];
-                                NodeSensors[i+1].NodeAddress[0] = rxMessage.Payload[3];
-                                NodeSensors[i+1].NodeAddress[1] = rxMessage.Payload[4];
+                                //NodeSensors[i+1].SensorFlags[1] = rxMessage.Payload[2];
+                                NodeSensors[i+1].NodeAddress[0] = rxMessage.Payload[2];
+                                NodeSensors[i+1].NodeAddress[1] = rxMessage.Payload[3];
                             }	
                     }
             }
@@ -290,8 +290,8 @@ void SecurityDemo(void)
 void ReadSecuritySensors(uint8_t *readings, uint8_t count)
 {
     //uint8_t switch_val = BUTTON_Pressed();
-    readings[0] = AUX1_PORT;//(switch_val == SW1)? 1 : 0;
-    readings[1] = AUX2_PORT;
+    readings[0] = AUX1_PORT + AUX2_PORT;//(switch_val == SW1)? 1 : 0;
+   // readings[1] = AUX2_PORT;
 
 }
 
