@@ -58,6 +58,7 @@ uint8_t ConnectionEntry = 0;
 			
 bool NetFreezerEnable = false;
 bool ParseTest = true;
+bool memTest = false;
 bool AutoConnectNetwork = false; //Create or join network on channel 26
 bool AutoStartDemo = false; //start the security_demo() automatically)
 
@@ -126,18 +127,41 @@ void main(void)
     // <config-addUser> ckreid asdf1234
     // <config-master> ckreid asdf1234
     // <config-end>
+    //
+    // Then
+    // <config-begin>
+    // <config-addUser> luke wrongpass
+    // <config-end>
+    //
+    // Then
+    // <config-begin>
+    // <config-addUser> luke asdf1234
+    // <config-addUser> aaron asdf1234
+    // <config-end>
+    //
+    // Then
+    // <config-begin>
+    // <config-listUsers>
+    // <config-end>
+    //
+    // Simulates input from 4 separate text messages as displayed above
     /*******************************************************************/
     if( ParseTest )
     {
-        char input[150] = "<config-begin>\n<config-addUser> ckreid asdf1234\n<config-master> ckreid asdf1234\n<config-end>";
+        char input[150] = "<config-begin>\n<config-addUser> ckreid asdf1234\n<config-master> ckreid asdf1234\n<config-end>\n";
         executeCommands(input);
-        char input2[150] = "<config-begin>\n<config-addUser> ckreid wrongpass\n<config-end>";
+        char input2[150] = "<config-begin>\n<config-addUser> luke wrongpass\n<config-end>";
         executeCommands(input2);
         char input3[150] = "<config-begin>\n<config-addUser> luke asdf1234\n<config-addUser> aaron asdf1234\n<config-end>";
         executeCommands(input3);
         char input4[150] = "<config-begin>\n<config-listUsers>\n<config-end>";
         executeCommands(input4);
         for( ;; );
+    }
+    
+    if( memTest )
+    {
+        memoryTest();
     }
     
     LED0 = LED1 = LED2 = 1;

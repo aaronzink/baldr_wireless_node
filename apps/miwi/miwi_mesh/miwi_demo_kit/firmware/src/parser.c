@@ -11,7 +11,7 @@
 #include <parser.h>
 
 #define USER_LIMIT 3
-#define MESSAGE_DELAY 5000
+#define MESSAGE_DELAY 10000
 
 struct user_s
 {
@@ -23,6 +23,25 @@ struct user_s
 char defaultPassword[20] = "asdf1234";
 struct user_s currentUsers[USER_LIMIT];
 uint8_t userCount = 0;
+
+void memoryTest()
+{
+    uint8_t testValue[5] = {1,2,3,4,5};
+    uint8_t address = 5000;
+    uint8_t count = (uint8_t)sizeof(testValue);
+    uint8_t * testOutput[5];
+    
+    SSTWrite(&testValue, address, count);
+    SSTRead(&testOutput, address, count);
+    
+    LCD_Erase();
+    sprintf((char *)LCDText, "%03d,%03d,%03d,%03d",testOutput[0],testOutput[1],testOutput[2],testOutput[3]);
+    sprintf((char *)&(LCDText[16]), (char*)"Memory Test     ");
+    LCD_Update();
+    
+    DELAY_ms(10000);
+    
+}
 
 void addUser(char * instr)
 {
