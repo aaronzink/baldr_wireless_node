@@ -1,5 +1,25 @@
 # baldr_wireless_node
-Baldr wireless node software derived from the Microchip MiWi Demo Kit software.
+Baldr wireless node software 
+
+PIC code derived from the Microchip MiWi Demo Kit software.
+
+Ardunio code:
+
+the code for the ardunio board is under ardunio/
+
+Install the ardunio IDE
+	* https://www.arduino.cc/en/main/software
+Download the FONA library for ardunio
+	* https://learn.adafruit.com/adafruit-fona-800-shield/arduino-test
+Download the VC0706 camera library for ardunio
+	* https://github.com/adafruit/Adafruit-VC0706-Serial-Camera-Library
+	
+Rename and place the libraries in the ardunio library folder: <ardunio-sketch-folder>/libraries/
+	
+
+PIC code:
+
+the code for the PIC board is under either app/ or framework/
 
 ### Steps to get started
 
