@@ -126,113 +126,129 @@ uint8_t SPIGet(void)
 }
 
 #if defined(SUPPORT_TWO_SPI)
-        /*********************************************************************
-        * Function:         void SPIPut2(uint8_t v)
-        *
-        * PreCondition:     SPI has been configured
-        *
-        * Input:		    v - is the byte that needs to be transfered
-        *
-        * Output:		    none
-        *
-        * Side Effects:	    SPI transmits the byte
-        *
-        * Overview:		    This function will send a byte over the SPI
-        *
-        * Note:			    None
-        ********************************************************************/
-         void SPIPut2(uint8_t v)
+    /*********************************************************************
+    * Function:         void SPIPut2(uint8_t v)
+    *
+    * PreCondition:     SPI has been configured
+    *
+    * Input:		    v - is the byte that needs to be transfered
+    *
+    * Output:		    none
+    *
+    * Side Effects:	    SPI transmits the byte
+    *
+    * Overview:		    This function will send a byte over the SPI
+    *
+    * Note:			    None
+    ********************************************************************/
+     void SPIPut2(uint8_t v)
+    {
+
+
+        #if !defined(HARDWARE_SPI)
         {
-            
+            uint8_t i;
 
-            #if !defined(HARDWARE_SPI)
+            SPI_SDO2 = 0;
+            SPI_SCK2 = 0;
+
+            for(i = 0; i < 8; i++)
             {
-                uint8_t i;
-                
-                SPI_SDO2 = 0;
+                SPI_SDO2 = (v >> (7-i));
+                SPI_SCK2 = 1;
                 SPI_SCK2 = 0;
-
-                for(i = 0; i < 8; i++)
-                {
-                    SPI_SDO2 = (v >> (7-i));
-                    SPI_SCK2 = 1;
-                    SPI_SCK2 = 0;
-                }
-                SPI_SDO2 = 0;
             }
-            #else
-
-            {
-                uint8_t i;
-                //Reset the interrupt pin
-                
-                PIR3bits.SSP2IF = 0;
-                i = SSP2BUF;
-                
-                do
-                {
-                    
-                    SSP2CON1bits.WCOL = 0;
-            		//Reset write collision bit
-                    
-                    SSP2BUF = v;
-            		//load the buffer
-                
-                } while( SSP2CON1bits.WCOL );
-
-            	//perform write again if write collision occurs
-                
-                while( PIR3bits.SSP2IF == 0 );
-
-            	//Wait until interrupt is received from the MSSP module
-            	
-            	PIR3bits.SSP2IF = 0;
-            	//Reset the interrupt
-            }
-            #endif
+            SPI_SDO2 = 0;
         }
+        #else
 
-        /*********************************************************************
-        * Function:         uint8_t SPIGet2(void)
-        *
-        * PreCondition:     SPI has been configured
-        *
-        * Input:		    none
-        *
-        * Output:		    uint8_t - the byte that was last received by the SPI
-        *
-        * Side Effects:	    none
-        *
-        * Overview:		    This function will read a byte over the SPI
-        *
-        * Note:			    None
-        ********************************************************************/
-        uint8_t SPIGet2(void)
         {
-            #if !defined(HARDWARE_SPI)
-                uint8_t i;
-                uint8_t spidata = 0;
+            uint8_t i;
+            //Reset the interrupt pin
 
+            //reset interrupt SSP2IF bit 7 of PIR3 on pg 122
+            //transmission complete flag
+            PIR3bits.SSP2IF = 0;
 
-                SPI_SDO2 = 0;
-                SPI_SCK2 = 0;
+            //hardware address of buffer (0xF75)
+            i = SSP2BUF;
 
-                for(i = 0; i < 8; i++)
-                {
-                    spidata = (spidata << 1) | SPI_SDI2;
-                    SPI_SCK2 = 1;
-                    SPI_SCK2 = 0;
-                }
+            do
+            {
+                /* Control reg write collision detect bit reset
+                 * 1 = SSPxBUF register is written while it is still
+                 * transmitting previous word */
+                SSP2CON1bits.WCOL = 0;
 
-                return spidata;
-            #else
+                //fill the buffer with data in
+                SSP2BUF = v;
 
-                SPIPut2(0x00);
-                return SSP2BUF;
-            #endif
+            //if write collision, we repeat until no collision
+            } while( SSP2CON1bits.WCOL );
+
+            //waiting for transmit/receive
+            while( PIR3bits.SSP2IF == 0 );
+
+            //reset transmission/receive flag
+            PIR3bits.SSP2IF = 0;
         }
-    #endif
+        #endif
+    }
 
+    /*********************************************************************
+    * Function:         uint8_t SPIGet2(void)
+    *
+    * PreCondition:     SPI has been configured
+    *
+    * Input:		    none
+    *
+    * Output:		    uint8_t - the byte that was last received by the SPI
+    *
+    * Side Effects:	    none
+    *
+    * Overview:		    This function will read a byte over the SPI
+    *
+    * Note:			    None
+    ********************************************************************/
+    uint8_t SPIGet2(void)
+    {
+        #if !defined(HARDWARE_SPI)
+            uint8_t i;
+            uint8_t spidata = 0;
+
+
+            SPI_SDO2 = 0;
+            SPI_SCK2 = 0;
+
+            for(i = 0; i < 8; i++)
+            {
+                spidata = (spidata << 1) | SPI_SDI2;
+                SPI_SCK2 = 1;
+                SPI_SCK2 = 0;
+            }
+
+            return spidata;
+        #else
+
+            SPIPut2(0x00);
+            return SSP2BUF;
+        #endif
+    }
+    
+    void SPITest(void)
+    {
+        uint8_t spiReceive = SPIGet2();
+        
+        LCD_Erase();
+        sprintf((char *)LCDText, "%08d        ", spiReceive);
+        sprintf((char *)&(LCDText[16]), (char*)"SPI GET TEST    ");
+        LCD_Update();
+        DELAY_ms(10000);
+    }
+
+#endif
+
+        
 
 
 
