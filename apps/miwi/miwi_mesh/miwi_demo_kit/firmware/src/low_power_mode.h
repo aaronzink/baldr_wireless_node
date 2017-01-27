@@ -1,5 +1,5 @@
-#ifndef XC_HEADER_TEMPLATE_H
-#define	XC_HEADER_TEMPLATE_H
+#ifndef LOW_POWER_MODE_H
+#define	LOW_POWER_MODE_H
 
 void power_down(void);
 
