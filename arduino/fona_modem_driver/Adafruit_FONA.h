@@ -114,7 +114,7 @@ class Adafruit_FONA : public FONAStreamType {
   int8_t getFMSignalLevel(uint16_t station);
 
   // EMAIL handling
-  boolean sendEmail(void);
+  boolean Email_sendEmail(void);
 
   // SMS handling
   boolean setSMSInterrupt(uint8_t i);
