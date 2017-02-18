@@ -450,6 +450,23 @@ boolean Adafruit_FONA::incomingCallNumber(char* phonenum) {
   return true;
 }
 
+/********* MMS ************************************************************/
+
+boolean Adafruit_FONA::MMS_initialization(void){
+	if( ! sendCheckReply(F("AT+CMMSINIT=1"), ok_reply)) return false;
+	if(	! sendCheckReply(F("AT+CMMSCURL=\"mms.fido.ca\""), ok_reply)) return false;
+	if(	! sendCheckReply(F("AT+CMMSCID=1"), ok_reply)) return false;
+	if(	! sendCheckReply(F("AT+CMMSPROTO=\"205.151.11.13\",80"), ok_reply)) return false;
+	if(	! sendCheckReply(F("AT+SAPBR=3,1,\"Contype\",\"GPRS\""), ok_reply)) return false;
+	if(	! sendCheckReply(F("AT+SAPBR=3,1,\"APN\",\"CMWAP\""), ok_reply)) return false;
+	if(	! sendCheckReply(F("AT+SAPBR=1,1"), ok_reply)) return false;
+}
+
+boolean Adafruit_FONA::MMS_sendMMS(void){
+	if( ! sendCheckReply(F("AT+CMMSEDIT=1"), ok_reply)) return false;
+	
+}
+
 /********* EMAIL **********************************************************/
 // the set bearer is already written in the original library 
 
