@@ -462,13 +462,13 @@ boolean Adafruit_FONA::Email_sendEmail(void){
   if (! sendCheckReply(F("AT+SMTPSRV=\"Smtp.gmail.com\",25"), ok_reply)) return false;
 
   //Set user name and password 
-  if (! sendCheckReply(F("AT+SMTPAUTH=1,\"john\",\"123456\""), ok_reply)) return false;
+  if (! sendCheckReply(F("AT+SMTPAUTH=1,\"albatross.fydp\",\"grp265members\""), ok_reply)) return false;
 
   //Set sender address and name 
-  if (! sendCheckReply(F("AT+SMTPFROM=\"john@sim.com\",\"john\""), ok_reply)) return false;
+  if (! sendCheckReply(F("AT+SMTPFROM=\"albatross.fydp@gmail.com\",\"alba\""), ok_reply)) return false;
 
   //Set the recipient(To:) 
-  if (! sendCheckReply(F("AT+SMTPRCPT=0,0,\"john@sim.com\",\"john\""), ok_reply)) return false;
+  if (! sendCheckReply(F("AT+SMTPRCPT=0,0,\"albatross.fydp@gmail.com\",\"albatro\""), ok_reply)) return false;
 
   //Set the subject 
 
