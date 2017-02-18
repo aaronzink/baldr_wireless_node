@@ -57,15 +57,9 @@
 //    desired Serial object (rather than a SoftwareSerial
 //    object) to the VC0706 constructor.
 
-// Using SoftwareSerial (Arduino 1.0+) or NewSoftSerial (Arduino 0023 & prior):
-#if ARDUINO >= 100
 // On Uno: camera TX connected to pin 2, camera RX to pin 3:
-SoftwareSerial cameraconnection = SoftwareSerial(2, 3);
-// On Mega: camera TX connected to pin 69 (A15), camera RX to pin 3:
-//SoftwareSerial cameraconnection = SoftwareSerial(69, 3);
-#else
-NewSoftSerial cameraconnection = NewSoftSerial(2, 3);
-#endif
+// we moved it to pins 6 and 7
+SoftwareSerial cameraconnection = SoftwareSerial(6, 7);
 
 Adafruit_VC0706 cam = Adafruit_VC0706(&cameraconnection);
 
