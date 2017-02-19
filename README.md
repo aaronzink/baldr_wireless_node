@@ -37,6 +37,8 @@ the code for the PIC board is under either app/ or framework/
   * baldr_wireless_node/apps/miwi/miwi_mesh/miwi_demo_kit/firmware/baldr_wireless_node.X
 2. Use the top bar of the IDE to choose the _89xa transciver
 3. Build the project (click the hammer, or run>build project)
+** if the project doesn't build try turning off the generated assembly file optimization from:
+		Project properties -> XC8 Compiler -> Optimizations -> Generated Assembler code
 
 ### Using the Picket 2 programmer:
 
