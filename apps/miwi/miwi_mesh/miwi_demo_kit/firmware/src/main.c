@@ -57,7 +57,7 @@ uint8_t myChannel = 26;
 uint8_t ConnectionEntry = 0;
 			
 bool NetFreezerEnable = false;
-bool ParseTest = true;
+bool ParseTest = false;
 bool memTest = false;
 bool AutoConnectNetwork = false; //Create or join network on channel 26
 bool AutoStartDemo = false; //start the security_demo() automatically)
@@ -108,6 +108,105 @@ extern uint8_t myLongAddress[MY_ADDRESS_LENGTH];
 *
 * Note:			    
 **********************************************************************/
+    
+void test(void)
+{   
+    uint8_t i, j;
+    //bool result = true;
+    uint8_t switch_val = 0;
+    
+    bool ds_wake = false;
+
+    if (WDTCONbits.DS)   // Woke up from deep sleep
+    {
+        ds_wake = true;
+        DSCONLbits.RELEASE = 0;    // release control and data bits for all I/Os
+        DSCONLbits.RELEASE = 0;    // twice
+        WDTCONbits.DS = 0;       // clear the deep-sleep status bit
+    }
+    
+    /*******************************************************************/
+    // Initialize Hardware
+    /*******************************************************************/
+    SYSTEM_Initialize();
+    
+    LED0 = LED1 = LED2 = 1;
+ 	
+    Read_MAC_Address();
+    
+    /*******************************************************************/
+    // Display Start-up Splash Screen
+    /*******************************************************************/
+    LCD_BacklightON();
+
+    LCD_Erase();
+    sprintf((char *)LCDText, (char*)"    Baldr       "  );
+    sprintf((char *)&(LCDText[16]), (char*)"  Demo Board    ");
+    LCD_Update();
+    
+    MiApp_ProtocolInit(false);
+    
+    if (ds_wake)
+    {
+        LCD_Erase();
+        sprintf((char *)LCDText, (char*)"Deep Sleep wake:"  );
+
+        if (DSWAKELbits.DSMCLR)
+        {
+            sprintf((char *)&(LCDText[16]), (char*)"  MCLR          ");
+        }
+        else if (DSWAKELbits.DSWDT)
+        {
+            sprintf((char *)&(LCDText[16]), (char*)"  DSWDT         ");
+        }
+        LCD_Update();
+    }
+    
+    //LCD_BacklightOFF();
+    //DELAY_ms(1000);
+          
+    LCD_BacklightOFF();
+    i = 1;
+    while(1) {   
+///low power testing
+        switch_val = BUTTON_Pressed();
+            
+        if(switch_val == SW1)
+        {
+            LED0 = 0;
+            LED1 = 1;
+        }
+        else if(switch_val == SW2)
+        {
+            LED1 = 0;
+            LED2 = 0;
+        }
+        
+        if (i == 1)
+        {
+            LED2 = 0;
+            deep_sleep();
+            LED1 = 0;
+            i = 0;
+        }
+        //power_down();
+                
+//        for(i = 0; i < 1000; ++i)
+//        {
+//                       
+//            power_down();
+//            LED0 = 0;
+//            LED1 = 1;
+//            
+//            power_down();
+//            LED1 = 0;
+//            LED0 = 1;
+//        }
+          
+///end low power testing
+    }
+}
+    
 void main(void)
 {   
     uint8_t i, j;
@@ -115,6 +214,8 @@ void main(void)
     uint8_t switch_val;
 
     NetFreezerEnable = false;
+    
+    //test();
 
     /*******************************************************************/
     // Initialize Hardware
@@ -211,7 +312,13 @@ void main(void)
         /*******************************************************************/
 CreateorJoin:
 		
-	    
+	    //TODO: for testing
+        //setup SW1 as an interrupt
+        
+        while(1) {
+            //nop
+        }
+        //TODO: end testing
  
         /*******************************************************************/
         //Ask Use to select channel
@@ -897,5 +1004,16 @@ CreateorJoin:
     	}
 	}
 }
+
+// ISR
+//void UserInterruptHandler(void)
+//{
+//    if(INTCON3bits.INT2IF == 1)
+//    {
+//        INTCON3bits.INT2IF = 0;
+//        LED0 = 1;
+//        LED1 = 0;
+//    }
+//}
 
 

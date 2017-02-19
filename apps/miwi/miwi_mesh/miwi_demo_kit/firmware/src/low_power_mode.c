@@ -9,6 +9,24 @@
 #include "low_power_mode.h"
 #include "system.h"
 
+void wait(void) {
+    //For Sleep
+    //(assign the ULPOUT signal in the PPS module to a pin
+    //which has also been assigned an interrupt capability,
+    //such as INT1)
+    INTCON3bits.INT1IF = 0;
+    INTCON3bits.INT1IE = 1;
+    //********************
+    //Configure Sleep Mode
+    //********************
+    //For Sleep
+    OSCCONbits.IDLEN = 0;
+    //****************
+    //Enter Sleep Mode
+    //****************
+    Sleep();
+}
+
 void power_down(void) {
     int i = 0;
     
@@ -57,4 +75,31 @@ void power_down(void) {
     Sleep();
     // for sleep, execution will resume here
     // for deep sleep, execution will restart at reset vector (use WDTCONbits.DS to detect)
+}
+
+void deep_sleep(void)
+{
+    // Disable IDLE mode on Sleep() instruction
+    OSCCONbits.IDLEN = 0;
+
+    // Enable wake using MCLR
+    DSWAKELbits.DSMCLR = 1;
+    DSWAKELbits.DSMCLR = 1; // twice
+
+    // Enable Wake using DS watchdog timer
+    DSWAKELbits.DSWDT = 1;
+    DSWAKELbits.DSWDT = 1; // twice
+    
+    // Enable wake using ULP wake-up
+    //DSWAKELbits.DSULP = 1;
+
+    // Note: writing DSEN then executing sleep must happen back-to-back for deep sleep to work.
+    // See DS30575A page 77
+    DSCONL = 0;
+    DSCONL = 0; // twice
+    DSCONH = 0;
+    DSCONH = 0; // twice
+    DSCONHbits.DSEN = 1;
+    DSCONHbits.DSEN = 1; // twice
+    Sleep();
 }

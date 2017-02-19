@@ -22,9 +22,11 @@
 #include "system.h"
 #include "system_config.h"
 
+//TODO: would choosing a slower clock reduce power usage?
 // Config Bit Settings to get 16 MHz: Internal 8 MHz / 2 = 4 * 12 = 48 / 3 = 16
 #pragma config OSC = INTOSCPLL, WDTEN = OFF, XINST = OFF, WDTPS = 2048, PLLDIV = 2, CPUDIV = OSC3_PLL3
-
+// configs for deep sleep (DS): disable Brown Out Reset, DS watch dog timer (WDT) post scale select (1:8192 (8.5 s)), DS WDT enable, DS WDT reference clock select
+//#pragma config DSBOREN = OFF, DSWDTPS = 8192, DSWDTEN = ON, DSWDTOSC = 1
 
 /*********************************************************************
  * Function:        void SYSTEM_Initialize( void )
@@ -64,6 +66,9 @@ void SYSTEM_Initialize(void)
     RPINR21 = 23;			// Mapping SDI2 to RD6(RP23)
     RPOR21 = 10;			// Mapping SCK2 to RD4(RP21)
     RPOR19 = 9;			    // Mapping SDO2 to RD2(RP19)
+    
+    //custom mappings
+    //RPINR2 = 4;             // Mapping IRQ2 to RB1(RP4) //switch 1 generates an interrupt
 	
 	// Lock System
     EECON2 = 0x55;
@@ -181,6 +186,18 @@ void SYSTEM_Initialize(void)
     /*******************************************************************/
     // Custom configurations for Baldr Project
     /*******************************************************************/
+    
+    //enable INT0 external interrupts
+    //INTCONbits.INT0IE = 1;
+    
+    //enable INT2 external interrupts
+   // INTCON3bits.INT2IE = 1;
+    
+    //enable RB port change interrupts
+    //INTCONbits.RBIE = 1;
+    
+    //enable peripheral interrupts
+    //INTCONbits.PEIE = 1;
     
     //configure the AUX ports as inputs
     AUX1_TRIS = 1;
