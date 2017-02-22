@@ -3,37 +3,18 @@
 // This is a basic snapshot sketch using the VC0706 library.
 // On start, the Arduino will find the camera and SD card and
 // then snap a photo, saving it to the SD card.
-// Public domain.
-
-// If using an Arduino Mega (1280, 2560 or ADK) in conjunction
-// with an SD card shield designed for conventional Arduinos
-// (Uno, etc.), it's necessary to edit the library file:
-//   libraries/SD/utility/Sd2Card.h
-// Look for this line:
-//   #define MEGA_SOFT_SPI 0
-// change to:
-//   #define MEGA_SOFT_SPI 1
-// This is NOT required if using an SD card breakout interfaced
-// directly to the SPI bus of the Mega (pins 50-53), or if using
-// a non-Mega, Uno-style board.
 
 #include <Adafruit_VC0706.h>
 #include <SPI.h>
 #include <SD.h>
 
 // comment out this line if using Arduino V23 or earlier
-#include <SoftwareSerial.h>         
-
-// uncomment this line if using Arduino V23 or earlier
-// #include <NewSoftSerial.h>       
+#include <SoftwareSerial.h>              
 
 // SD card chip select line varies among boards/shields:
 // Adafruit SD shields and modules: pin 10
 // Arduino Ethernet shield: pin 4
 // Sparkfun SD shield: pin 8
-// Arduino Mega w/hardware SPI: pin 53
-// Teensy 2.0: pin 0
-// Teensy++ 2.0: pin 20
 #define chipSelect 10
 
 // Pins for camera connection are configurable.
@@ -57,17 +38,15 @@
 //    desired Serial object (rather than a SoftwareSerial
 //    object) to the VC0706 constructor.
 
+// Using SoftwareSerial (Arduino 1.0+)
 // On Uno: camera TX connected to pin 2, camera RX to pin 3:
-// we moved it to pins 6 and 7
 SoftwareSerial cameraconnection = SoftwareSerial(6, 7);
 
 Adafruit_VC0706 cam = Adafruit_VC0706(&cameraconnection);
 
-// Using hardware serial on Mega: camera TX conn. to RX1,
-// camera RX to TX1, no SoftwareSerial object is required:
-//Adafruit_VC0706 cam = Adafruit_VC0706(&Serial1);
-
 void setup() {
+    int32_t time = millis();
+
 
   // When using hardware SPI, the SS pin MUST be set to an
   // output (even if not connected or used).  If left as a
@@ -81,7 +60,7 @@ void setup() {
 #endif
 
   Serial.begin(9600);
-  Serial.println("VC0706 Camera snapshot test");
+  Serial.println("XXXXXX VC0706 Camera snapshot test XXXXXX");
   
   // see if the card is present and can be initialized:
   if (!SD.begin(chipSelect)) {
@@ -91,21 +70,10 @@ void setup() {
   }  
   
   // Try to locate the camera
-  if (cam.begin()) {
-    Serial.println("Camera Found:");
-  } else {
-    Serial.println("No camera found?");
-    return;
-  }
-  // Print out the camera version information (optional)
-  char *reply = cam.getVersion();
-  if (reply == 0) {
-    Serial.print("Failed to get version");
-  } else {
-    Serial.println("-----------------");
-    Serial.print(reply);
-    Serial.println("-----------------");
-  }
+  cam.begin();
+
+  // CAUTION: this line needs to be called for most other camera functions to work
+  cam.getVersion();
 
   // Set the picture size - you can choose one of 640x480, 320x240 or 160x120 
   // Remember that bigger pictures take longer to transmit!
@@ -114,26 +82,30 @@ void setup() {
   //cam.setImageSize(VC0706_320x240);        // medium
   //cam.setImageSize(VC0706_160x120);          // small
 
+  //uint8_t comp_level = 0xFF;
+  cam.setCompression(0xFF);
+  //Serial.print("Compression level: ");
+  //Serial.println(comp_level);
+  
   // You can read the size back from the camera (optional, but maybe useful?)
-  uint8_t imgsize = cam.getImageSize();
-  Serial.print("Image size: ");
-  if (imgsize == VC0706_640x480) Serial.println("640x480");
-  if (imgsize == VC0706_320x240) Serial.println("320x240");
-  if (imgsize == VC0706_160x120) Serial.println("160x120");
-
-   uint8_t comp_level = 0xFF;
-   cam.setCompression(comp_level);
-   Serial.print("Compression level: ");
-   Serial.println(comp_level);
+  //uint8_t imgsize = cam.getImageSize();
+  //Serial.print("Image size: ");
+  //if (imgsize == VC0706_640x480) Serial.println("640x480");
+  //if (imgsize == VC0706_320x240) Serial.println("320x240");
+  //if (imgsize == VC0706_160x120) Serial.println("160x120");
 
   //Serial.println("Snap in 3 secs...");
-  //delay(3000);
+  delay(1000);
 
-  if (! cam.takePicture()) 
-    Serial.println("Failed to snap!");
-  else 
-    Serial.println("Picture taken!");
-  
+  cam.takePicture();
+  //if (! cam.takePicture()) 
+  //  Serial.println("Failed to snap!");
+  //else 
+  //  Serial.println("Picture taken!");
+    
+  Serial.println(millis() - time);
+  time = millis();
+
   // Create an image with the name IMAGExx.JPG
   char filename[13];
   strcpy(filename, "IMAGE00.JPG");
@@ -153,31 +125,31 @@ void setup() {
   uint16_t jpglen = cam.frameLength();
   Serial.print("Storing ");
   Serial.print(jpglen, DEC);
-  Serial.print(" byte image.");
+  Serial.println(" byte image.");
 
-  int32_t time = millis();
   pinMode(8, OUTPUT);
   // Read all the data up to # bytes!
   byte wCount = 0; // For counting # of writes
   while (jpglen > 0) {
     // read 32 bytes at a time;
     uint8_t *buffer;
-    uint8_t bytesToRead = min(32, jpglen); // change 32 to 64 for a speedup but may not work with all setups!
+    uint8_t bytesToRead = min(64, jpglen); // change 32 to 64 for a speedup but may not work with all setups!
     buffer = cam.readPicture(bytesToRead);
     imgFile.write(buffer, bytesToRead);
-    if(++wCount >= 64) { // Every 2K, give a little feedback so it doesn't appear locked up
-      Serial.print('.');
-      wCount = 0;
-    }
+    //if(++wCount >= 64) { // Every 2K, give a little feedback so it doesn't appear locked up
+    //  Serial.print('.');
+    //  wCount = 0;
+    //}
     //Serial.print("Read ");  Serial.print(bytesToRead, DEC); Serial.println(" bytes");
     jpglen -= bytesToRead;
   }
   imgFile.close();
 
   time = millis() - time;
-  Serial.println("done!");
+  Serial.println("Done!");
   Serial.print(time); Serial.println(" ms elapsed");
 }
 
 void loop() {
 }
+
