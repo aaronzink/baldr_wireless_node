@@ -65,6 +65,7 @@
       <itemPath>../src/temp_demo.h</itemPath>
       <itemPath>../src/parser.h</itemPath>
       <itemPath>../src/security_demo.h</itemPath>
+      <itemPath>../src/low_power_mode.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -122,6 +123,7 @@
       <itemPath>../src/temp_demo.c</itemPath>
       <itemPath>../src/parser.c</itemPath>
       <itemPath>../src/security_demo.c</itemPath>
+      <itemPath>../src/low_power_mode.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -507,7 +509,7 @@
         <property key="identifier-length" value="255"/>
         <property key="operation-mode" value="pro"/>
         <property key="opt-xc8-compiler-strict_ansi" value="false"/>
-        <property key="optimization-assembler" value="true"/>
+        <property key="optimization-assembler" value="false"/>
         <property key="optimization-assembler-files" value="false"/>
         <property key="optimization-debug" value="false"/>
         <property key="optimization-global" value="true"/>
@@ -956,7 +958,7 @@
         <property key="identifier-length" value="255"/>
         <property key="operation-mode" value="pro"/>
         <property key="opt-xc8-compiler-strict_ansi" value="false"/>
-        <property key="optimization-assembler" value="true"/>
+        <property key="optimization-assembler" value="false"/>
         <property key="optimization-assembler-files" value="false"/>
         <property key="optimization-debug" value="false"/>
         <property key="optimization-global" value="true"/>

@@ -9,97 +9,79 @@
 #include "low_power_mode.h"
 #include "system.h"
 
-void wait(void) {
-    //For Sleep
-    //(assign the ULPOUT signal in the PPS module to a pin
-    //which has also been assigned an interrupt capability,
-    //such as INT1)
-    INTCON3bits.INT1IF = 0;
-    INTCON3bits.INT1IE = 1;
-    //********************
-    //Configure Sleep Mode
-    //********************
-    //For Sleep
-    OSCCONbits.IDLEN = 0;
-    //****************
-    //Enter Sleep Mode
-    //****************
+void enter_idle(void) {
+    //enable IDLE
+    OSCCONbits.IDLEN = 1;
+    
+    //Enter IDLE Mode
     Sleep();
+    NOP();
 }
 
-void power_down(void) {
-    int i = 0;
+void enter_sleep(void) {
+    //enable Sleep (disable IDLE)
+    OSCCONbits.IDLEN = 0;
     
-    //Configure a remappable output pin with interrupt capability
-    //for ULPWU function (RP21 => RD4/INT1 in this example)
-    //*********************************************************************************
-    RPOR21 = 13;// ULPWU function mapped to RP21/RD4
-    RPINR1 = 21;// INT1 mapped to RP21 (RD4)
-    //***************************
+    //Enter Sleep Mode
+    Sleep();
+    NOP();
+}
+
+void enter_deep_sleep(void) {
+    //disable global interrupts to prevent interrupts before sleeping
+    INTCONbits.GIEH = 0;
+    INTCONbits.GIEL = 0;
+
+    //For Deep Sleep
+    OSCCONbits.IDLEN = 0; // enable sleep
+    DSCONHbits.DSEN = 1; // Note: must be set immediately before executing Sleep();
+    //Enter deep sleep Mode
+    Sleep();
+    NOP();
+    // execution will restart at reset vector (start of main()) (use WDTCONbits.DS to detect)
+}
+
+//TODO: ULP doesn't work because there is no capacitor connected to RA0
+void enter_deep_sleep_ulp(void) {
+    //TODO: move these to the PPS configuration section in system.c to use ULP
+    //Configure a remappable output pin with interrupt capability for ULPWU function
+    //RPOR6 = 13;// ULPWU function (13) mapped to RP6/RD4
+    //RPINR2 = 6;// INT2 mapped to RP6 (RB3)
+    
+    
+    int i = 0;
+
     //Charge the capacitor on RA0
-    //***************************
     TRISAbits.TRISA0 = 0;
     LATAbits.LATA0 = 1;
-    //TODO: determine how long we should charge the capacitor for
+    //TODO: determine how long we should charge the capacitor for, I think there is an on board calibration mechanism
     for(i = 0; i < 10000; i++) Nop();
-    //**********************************
     //Stop Charging the capacitor on RA0
-    //**********************************
     TRISAbits.TRISA0 = 1;
-    //*****************************************
+    
+    //Enable the Ultra Low Power Wakeup module
+    DSCONHbits.DSULPEN = 1;
+    DSCONLbits.ULPWDIS = 0;
+    
     //Enable the Ultra Low Power Wakeup module
     //and allow capacitor discharge
-    //*****************************************
-    WDTCONbits.ULPEN = 1;
+    //TODO: do we need to enable ULP from WDT as well as DS?
+    //WDTCONbits.ULPEN = 1;
     WDTCONbits.ULPSINK = 1;
-    //******************************************
     //Enable Interrupt for ULPW
-    //******************************************
-    //For Sleep
-    //(assign the ULPOUT signal in the PPS module to a pin
-    //which has also been assigned an interrupt capability,
-    //such as INT1)
-    INTCON3bits.INT1IF = 0;
-    INTCON3bits.INT1IE = 1;
-    //********************
-    //Configure Sleep Mode
-    //********************
-    //For Sleep
-    OSCCONbits.IDLEN = 0;
-    //For Deep Sleep
-    OSCCONbits.IDLEN = 0; // enable deep sleep
-    DSCONHbits.DSEN = 1; // Note: must be set just before executing Sleep();
-    //****************
-    //Enter Sleep Mode
-    //****************
-    Sleep();
-    // for sleep, execution will resume here
-    // for deep sleep, execution will restart at reset vector (use WDTCONbits.DS to detect)
-}
-
-void deep_sleep(void)
-{
-    // Disable IDLE mode on Sleep() instruction
-    OSCCONbits.IDLEN = 0;
-
-    // Enable wake using MCLR
-    DSWAKELbits.DSMCLR = 1;
-    DSWAKELbits.DSMCLR = 1; // twice
-
-    // Enable Wake using DS watchdog timer
-    DSWAKELbits.DSWDT = 1;
-    DSWAKELbits.DSWDT = 1; // twice
+    INTCON3bits.INT2IF = 0;
+    INTCON3bits.INT2IE = 1;
     
-    // Enable wake using ULP wake-up
-    //DSWAKELbits.DSULP = 1;
+    //TODO: can we disable global interrupts and still use ULPWU?
+    //disable global interrupts to prevent interrupts before sleeping
+//    INTCONbits.GIEH = 0;
+//    INTCONbits.GIEL = 0;
 
-    // Note: writing DSEN then executing sleep must happen back-to-back for deep sleep to work.
-    // See DS30575A page 77
-    DSCONL = 0;
-    DSCONL = 0; // twice
-    DSCONH = 0;
-    DSCONH = 0; // twice
-    DSCONHbits.DSEN = 1;
-    DSCONHbits.DSEN = 1; // twice
+    //For Deep Sleep
+    OSCCONbits.IDLEN = 0; // enable sleep
+    DSCONHbits.DSEN = 1; // Note: must be set immediately before executing Sleep();
+    //Enter deep sleep Mode
     Sleep();
+    NOP();
+    // execution will restart at reset vector (start of main()) (use WDTCONbits.DS to detect)
 }

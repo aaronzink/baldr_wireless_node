@@ -57,6 +57,7 @@ uint8_t myChannel = 26;
 uint8_t ConnectionEntry = 0;
 			
 bool NetFreezerEnable = false;
+bool SleepTest = true;
 bool ParseTest = false;
 bool memTest = false;
 bool AutoConnectNetwork = false; //Create or join network on channel 26
@@ -109,19 +110,14 @@ extern uint8_t myLongAddress[MY_ADDRESS_LENGTH];
 * Note:			    
 **********************************************************************/
     
-void test(void)
+void TestSleep(void)
 {   
-    uint8_t i, j;
-    //bool result = true;
-    uint8_t switch_val = 0;
-    
     bool ds_wake = false;
 
     if (WDTCONbits.DS)   // Woke up from deep sleep
     {
         ds_wake = true;
         DSCONLbits.RELEASE = 0;    // release control and data bits for all I/Os
-        DSCONLbits.RELEASE = 0;    // twice
         WDTCONbits.DS = 0;       // clear the deep-sleep status bit
     }
     
@@ -137,7 +133,6 @@ void test(void)
     /*******************************************************************/
     // Display Start-up Splash Screen
     /*******************************************************************/
-    LCD_BacklightON();
 
     LCD_Erase();
     sprintf((char *)LCDText, (char*)"    Baldr       "  );
@@ -159,52 +154,20 @@ void test(void)
         {
             sprintf((char *)&(LCDText[16]), (char*)"  DSWDT         ");
         }
+        else if (DSWAKEHbits.DSINT0)
+        {
+            sprintf((char *)&(LCDText[16]), (char*)"  INT0          ");
+        }
+        else if(DSWAKELbits.DSULP)
+        {
+            sprintf((char *)&(LCDText[16]), (char*)"  ULPWU         ");
+        }
         LCD_Update();
     }
-    
-    //LCD_BacklightOFF();
-    //DELAY_ms(1000);
-          
-    LCD_BacklightOFF();
-    i = 1;
-    while(1) {   
-///low power testing
-        switch_val = BUTTON_Pressed();
-            
-        if(switch_val == SW1)
-        {
-            LED0 = 0;
-            LED1 = 1;
-        }
-        else if(switch_val == SW2)
-        {
-            LED1 = 0;
-            LED2 = 0;
-        }
-        
-        if (i == 1)
-        {
-            LED2 = 0;
-            deep_sleep();
-            LED1 = 0;
-            i = 0;
-        }
-        //power_down();
-                
-//        for(i = 0; i < 1000; ++i)
-//        {
-//                       
-//            power_down();
-//            LED0 = 0;
-//            LED1 = 1;
-//            
-//            power_down();
-//            LED1 = 0;
-//            LED0 = 1;
-//        }
-          
-///end low power testing
-    }
+
+    LED0 = 0;
+    enter_deep_sleep();
+    LED1 = 0; //TODO: this actually occasionally executes
 }
     
 void main(void)
@@ -215,7 +178,10 @@ void main(void)
 
     NetFreezerEnable = false;
     
-    //test();
+    if(SleepTest) {
+        TestSleep();
+    }
+    
 
     /*******************************************************************/
     // Initialize Hardware
@@ -311,14 +277,6 @@ void main(void)
         // Set-up PAN_ID
         /*******************************************************************/
 CreateorJoin:
-		
-	    //TODO: for testing
-        //setup SW1 as an interrupt
-        
-        while(1) {
-            //nop
-        }
-        //TODO: end testing
  
         /*******************************************************************/
         //Ask Use to select channel
@@ -1006,14 +964,43 @@ CreateorJoin:
 }
 
 // ISR
-//void UserInterruptHandler(void)
-//{
-//    if(INTCON3bits.INT2IF == 1)
-//    {
-//        INTCON3bits.INT2IF = 0;
-//        LED0 = 1;
-//        LED1 = 0;
-//    }
-//}
+void UserInterruptHandler(void)
+{
+    //check for INT0 interrupt
+    if(INTCONbits.INT0IF == 1)
+    {
+        INTCONbits.INT0IF = 0;
+        if(LED2)
+        {
+            LED2 = 0;
+        } else {
+            LED2 = 1;
+        }
+    }
+    
+    //check for ULP interrupt
+    if(INTCON3bits.INT2IF == 1)
+    {
+        INTCON3bits.INT2IF = 0;
+        if(LED1)
+        {
+            LED1 = 0;
+        } else {
+            LED1 = 1;
+        }
+    }
+    
+    //check if switch 1 was pressed
+    if(INTCON3bits.INT3IF == 1)
+    {
+        INTCON3bits.INT3IF = 0;
+        if(LED0)
+        {
+            LED0 = 0;
+        } else {
+            LED0 = 1;
+        }
+    }
+}
 
 

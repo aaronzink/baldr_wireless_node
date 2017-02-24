@@ -25,8 +25,8 @@
 //TODO: would choosing a slower clock reduce power usage?
 // Config Bit Settings to get 16 MHz: Internal 8 MHz / 2 = 4 * 12 = 48 / 3 = 16
 #pragma config OSC = INTOSCPLL, WDTEN = OFF, XINST = OFF, WDTPS = 2048, PLLDIV = 2, CPUDIV = OSC3_PLL3
-// configs for deep sleep (DS): disable Brown Out Reset, DS watch dog timer (WDT) post scale select (1:8192 (8.5 s)), DS WDT enable, DS WDT reference clock select
-//#pragma config DSBOREN = OFF, DSWDTPS = 8192, DSWDTEN = ON, DSWDTOSC = 1
+// configs for deep sleep (DS): disable Brown Out Reset(BOR), enable DS Watch Dog Timer(WDT), DSWDT post scaler (1:2048 = 2.1 sec), DSWDT reference clock select (1 = INTRC)
+#pragma config DSBOREN = OFF, DSWDTEN = ON, DSWDTPS = 2048, DSWDTOSC = 1
 
 /*********************************************************************
  * Function:        void SYSTEM_Initialize( void )
@@ -68,7 +68,7 @@ void SYSTEM_Initialize(void)
     RPOR19 = 9;			    // Mapping SDO2 to RD2(RP19)
     
     //custom mappings
-    //RPINR2 = 4;             // Mapping IRQ2 to RB1(RP4) //switch 1 generates an interrupt
+    RPINR3 = 4;             // Mapping IRQ3 to RB1(RP4) (switch 1 generates an interrupt)
 	
 	// Lock System
     EECON2 = 0x55;
@@ -121,7 +121,7 @@ void SYSTEM_Initialize(void)
     // Config IRQ1 Edge = Rising
     INTCON2bits.INTEDG1 = 1;
     
-    // Config IRQ0 Edge = Falling
+    // Config IRQ0 Edge = Rising
     INTCON2bits.INTEDG0 = 1;
     
     PHY_IRQ0 = 0;           // MRF89XA
@@ -186,18 +186,6 @@ void SYSTEM_Initialize(void)
     /*******************************************************************/
     // Custom configurations for Baldr Project
     /*******************************************************************/
-    
-    //enable INT0 external interrupts
-    //INTCONbits.INT0IE = 1;
-    
-    //enable INT2 external interrupts
-   // INTCON3bits.INT2IE = 1;
-    
-    //enable RB port change interrupts
-    //INTCONbits.RBIE = 1;
-    
-    //enable peripheral interrupts
-    //INTCONbits.PEIE = 1;
     
     //configure the AUX ports as inputs
     AUX1_TRIS = 1;

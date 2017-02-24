@@ -49,5 +49,4 @@
     void LCD_BacklightOFF(void);
     void LCD_Display(char *, uint8_t, bool);
     void LCDWriteLine(uint16_t number, char *line);
-    void UserInterruptHandler(void);
 #endif
