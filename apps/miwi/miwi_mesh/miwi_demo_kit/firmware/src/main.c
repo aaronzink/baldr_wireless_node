@@ -57,7 +57,8 @@ uint8_t myChannel = 26;
 uint8_t ConnectionEntry = 0;
 			
 bool NetFreezerEnable = false;
-bool SleepTest = true;
+bool SleepTest = false;
+bool PowerTest = true;
 bool ParseTest = false;
 bool memTest = false;
 bool AutoConnectNetwork = false; //Create or join network on channel 26
@@ -178,15 +179,56 @@ void main(void)
 
     NetFreezerEnable = false;
     
+   
+    
     if(SleepTest) {
         TestSleep();
     }
-    
+
+    if(PowerTest) {
+        if (WDTCONbits.DS)   // Woke up from deep sleep
+        {
+            DSCONLbits.RELEASE = 0;    // release control and data bits for all I/Os
+            WDTCONbits.DS = 0;       // clear the deep-sleep status bit
+        }
+    }
 
     /*******************************************************************/
     // Initialize Hardware
     /*******************************************************************/
     SYSTEM_Initialize();
+    
+    if(PowerTest) {
+        Read_MAC_Address();
+
+        MiApp_ProtocolInit(false);
+
+        LED2 = 1;
+
+        DELAY_ms(100);
+
+        LED2 = 0;
+
+    //    while(1) {
+    //        NOP();
+    //    }
+
+        //put the tranciever to sleep, very important for power saving
+        MiApp_TransceiverPowerState(POWER_STATE_SLEEP);
+
+    //    enter_idle();
+
+
+    //    enter_sleep();
+
+
+
+
+        enter_deep_sleep();
+        LED1 = 1;
+
+
+    }
  
     /*******************************************************************/
     // Testing the parser with:
@@ -991,16 +1033,16 @@ void UserInterruptHandler(void)
     }
     
     //check if switch 1 was pressed
-    if(INTCON3bits.INT3IF == 1)
-    {
-        INTCON3bits.INT3IF = 0;
-        if(LED0)
-        {
-            LED0 = 0;
-        } else {
-            LED0 = 1;
-        }
-    }
+//    if(INTCON3bits.INT3IF == 1)
+//    {
+//        INTCON3bits.INT3IF = 0;
+//        if(LED0)
+//        {
+//            LED0 = 0;
+//        } else {
+//            LED0 = 1;
+//        }
+//    }
 }
 
 

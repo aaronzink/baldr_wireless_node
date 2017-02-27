@@ -28,12 +28,13 @@ void enter_sleep(void) {
 }
 
 void enter_deep_sleep(void) {
+    OSCCONbits.IDLEN = 0; // enable sleep
+    
     //disable global interrupts to prevent interrupts before sleeping
     INTCONbits.GIEH = 0;
     INTCONbits.GIEL = 0;
 
     //For Deep Sleep
-    OSCCONbits.IDLEN = 0; // enable sleep
     DSCONHbits.DSEN = 1; // Note: must be set immediately before executing Sleep();
     //Enter deep sleep Mode
     Sleep();
