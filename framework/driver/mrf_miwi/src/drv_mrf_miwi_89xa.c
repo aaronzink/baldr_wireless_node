@@ -1188,7 +1188,7 @@ void SetRFMode(uint8_t mode)
                             PHY_IRQ0_En = 1;
                         #endif
                         PHY_IRQ1_En = 1;
-                        DelayMs(10);                        //delay 10ms
+                        DELAY_ms(10);                        //delay 10ms
                         #if defined(ENABLE_ACK)
                             for(i = 0; i < ACK_INFO_SIZE; i++)
                             {
