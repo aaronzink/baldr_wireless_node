@@ -267,7 +267,6 @@ boolean Adafruit_FONA::setVolume(uint8_t i) {
   return sendCheckReply(F("AT+CLVL="), i, ok_reply);
 }
 
-
 boolean Adafruit_FONA::playDTMF(char dtmf) {
   char str[4];
   str[0] = '\"';
@@ -296,7 +295,6 @@ boolean Adafruit_FONA::setMicVolume(uint8_t a, uint8_t level) {
 }
 
 /********* FM RADIO *******************************************************/
-
 
 boolean Adafruit_FONA::FMradio(boolean onoff, uint8_t a) {
   if (! onoff) {
@@ -378,7 +376,6 @@ boolean Adafruit_FONA::callPhone(char *number) {
   return sendCheckReply(sendbuff, ok_reply);
 }
 
-
 uint8_t Adafruit_FONA::getCallStatus(void) {
   uint16_t phoneStatus;
 
@@ -405,7 +402,6 @@ boolean Adafruit_FONA::pickUp(void) {
 boolean Adafruit_FONA_3G::pickUp(void) {
   return sendCheckReply(F("ATA"), F("VOICE CALL: BEGIN"));
 }
-
 
 void Adafruit_FONA::onIncomingCall() {
 
@@ -508,7 +504,6 @@ boolean Adafruit_FONA::Email_sendEmail(void){
   }
 
   return true;
-
 }
 
 /********* SMS **********************************************************/
