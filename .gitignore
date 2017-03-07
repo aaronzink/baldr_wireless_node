@@ -1,9 +1,11 @@
+/apps/miwi/miwi_mesh/miwi_demo_kit/firmware/baldr_wireless_node.X/Makefile
 /apps/miwi/miwi_mesh/miwi_demo_kit/firmware/baldr_wireless_node.X/build/
 /apps/miwi/miwi_mesh/miwi_demo_kit/firmware/baldr_wireless_node.X/dist/
 /apps/miwi/miwi_mesh/miwi_demo_kit/firmware/baldr_wireless_node.X/nbproject/*
 !/apps/miwi/miwi_mesh/miwi_demo_kit/firmware/baldr_wireless_node.X/nbproject/configurations.xml
 !/apps/miwi/miwi_mesh/miwi_demo_kit/firmware/baldr_wireless_node.X/nbproject/project.xml
 
+/apps/miwi/miwi_mesh/miwi_demo_kit/firmware/sensor_node.X/Makefile
 /apps/miwi/miwi_mesh/miwi_demo_kit/firmware/sensor_node.X/build/
 /apps/miwi/miwi_mesh/miwi_demo_kit/firmware/sensor_node.X/dist/
 /apps/miwi/miwi_mesh/miwi_demo_kit/firmware/sensor_node.X/nbproject/*
