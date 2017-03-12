@@ -26,6 +26,7 @@
 #include "range_demo.h"
 #include "temp_demo.h"
 #include "parser.h"
+//#include "arduinoSPI.h"
 
 
 
@@ -57,12 +58,13 @@ uint8_t myChannel = 26;
 uint8_t ConnectionEntry = 0;
 			
 bool NetFreezerEnable = false;
-bool SleepTest = false;
-bool PowerTest = true;
 bool ParseTest = false;
+bool spiTest = false;
 bool memTest = false;
+bool ardSPITest = true;
 bool AutoConnectNetwork = false; //Create or join network on channel 26
 bool AutoStartDemo = false; //start the security_demo() automatically)
+bool isSensor = false;
 
 extern uint8_t myLongAddress[MY_ADDRESS_LENGTH];
 
@@ -110,67 +112,6 @@ extern uint8_t myLongAddress[MY_ADDRESS_LENGTH];
 *
 * Note:			    
 **********************************************************************/
-    
-void TestSleep(void)
-{   
-    bool ds_wake = false;
-
-    if (WDTCONbits.DS)   // Woke up from deep sleep
-    {
-        ds_wake = true;
-        DSCONLbits.RELEASE = 0;    // release control and data bits for all I/Os
-        WDTCONbits.DS = 0;       // clear the deep-sleep status bit
-    }
-    
-    /*******************************************************************/
-    // Initialize Hardware
-    /*******************************************************************/
-    SYSTEM_Initialize();
-    
-    LED0 = LED1 = LED2 = 1;
- 	
-    Read_MAC_Address();
-    
-    /*******************************************************************/
-    // Display Start-up Splash Screen
-    /*******************************************************************/
-
-    LCD_Erase();
-    sprintf((char *)LCDText, (char*)"    Baldr       "  );
-    sprintf((char *)&(LCDText[16]), (char*)"  Demo Board    ");
-    LCD_Update();
-    
-    MiApp_ProtocolInit(false);
-    
-    if (ds_wake)
-    {
-        LCD_Erase();
-        sprintf((char *)LCDText, (char*)"Deep Sleep wake:"  );
-
-        if (DSWAKELbits.DSMCLR)
-        {
-            sprintf((char *)&(LCDText[16]), (char*)"  MCLR          ");
-        }
-        else if (DSWAKELbits.DSWDT)
-        {
-            sprintf((char *)&(LCDText[16]), (char*)"  DSWDT         ");
-        }
-        else if (DSWAKEHbits.DSINT0)
-        {
-            sprintf((char *)&(LCDText[16]), (char*)"  INT0          ");
-        }
-        else if(DSWAKELbits.DSULP)
-        {
-            sprintf((char *)&(LCDText[16]), (char*)"  ULPWU         ");
-        }
-        LCD_Update();
-    }
-
-    LED0 = 0;
-    enter_deep_sleep();
-    LED1 = 0; //TODO: this actually occasionally executes
-}
-    
 void main(void)
 {   
     uint8_t i, j;
@@ -178,57 +119,11 @@ void main(void)
     uint8_t switch_val;
 
     NetFreezerEnable = false;
-    
-   
-    
-    if(SleepTest) {
-        TestSleep();
-    }
-
-    if(PowerTest) {
-        if (WDTCONbits.DS)   // Woke up from deep sleep
-        {
-            DSCONLbits.RELEASE = 0;    // release control and data bits for all I/Os
-            WDTCONbits.DS = 0;       // clear the deep-sleep status bit
-        }
-    }
 
     /*******************************************************************/
     // Initialize Hardware
     /*******************************************************************/
     SYSTEM_Initialize();
-    
-    if(PowerTest) {
-        Read_MAC_Address();
-
-        MiApp_ProtocolInit(false);
-
-        LED2 = 1;
-
-        DELAY_ms(100);
-
-        LED2 = 0;
-
-    //    while(1) {
-    //        NOP();
-    //    }
-
-        //put the tranciever to sleep, very important for power saving
-        MiApp_TransceiverPowerState(POWER_STATE_SLEEP);
-
-    //    enter_idle();
-
-
-    //    enter_sleep();
-
-
-
-
-        enter_deep_sleep();
-        LED1 = 1;
-
-
-    }
  
     /*******************************************************************/
     // Testing the parser with:
@@ -268,10 +163,32 @@ void main(void)
         for( ;; );
     }
     
+    if( spiTest )
+    {
+        SPITest();
+    }
+    
     if( memTest )
     {
         memoryTest();
     }
+    
+    if( ardSPITest )
+    {
+        uint8_t count = 0;
+        while(true)
+        {
+            char * receiveValue[16];
+            ARDTest(receiveValue);
+
+            LCD_Erase();
+            sprintf((char *)LCDText, receiveValue);
+            sprintf((char *)&(LCDText[16]), (char *) "SPI ARD TEST %03d", count);
+            LCD_Update();
+            DELAY_ms(100);
+            count++;
+        }
+    } 
     
     LED0 = LED1 = LED2 = 1;
  	
@@ -319,6 +236,8 @@ void main(void)
         // Set-up PAN_ID
         /*******************************************************************/
 CreateorJoin:
+		
+	    
  
         /*******************************************************************/
         //Ask Use to select channel
@@ -1005,7 +924,6 @@ CreateorJoin:
 	}
 }
 
-// ISR
 void UserInterruptHandler(void)
 {
     //check for INT0 interrupt
@@ -1031,18 +949,4 @@ void UserInterruptHandler(void)
             LED1 = 1;
         }
     }
-    
-    //check if switch 1 was pressed
-//    if(INTCON3bits.INT3IF == 1)
-//    {
-//        INTCON3bits.INT3IF = 0;
-//        if(LED0)
-//        {
-//            LED0 = 0;
-//        } else {
-//            LED0 = 1;
-//        }
-//    }
 }
-
-

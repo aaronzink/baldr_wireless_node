@@ -65,7 +65,7 @@
       <itemPath>../src/temp_demo.h</itemPath>
       <itemPath>../src/parser.h</itemPath>
       <itemPath>../src/security_demo.h</itemPath>
-      <itemPath>../src/low_power_mode.h</itemPath>
+      <itemPath>../src/arduinoSPI.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -74,6 +74,11 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
+      <logicalFolder name="baldr_wireless_node"
+                     displayName="baldr_wireless_node"
+                     projectFiles="true">
+        <itemPath>../src/baldr_wireless_node/main.c</itemPath>
+      </logicalFolder>
       <logicalFolder name="f2" displayName="framework" projectFiles="true">
         <logicalFolder name="f1" displayName="driver" projectFiles="true">
           <logicalFolder name="f1" displayName="mrf_miwi" projectFiles="true">
@@ -117,13 +122,12 @@
           <itemPath>../src/system_config/miwikit_pic18f46j50_89xa/eeprom.c</itemPath>
         </logicalFolder>
       </logicalFolder>
-      <itemPath>../src/main.c</itemPath>
       <itemPath>../src/range_demo.c</itemPath>
       <itemPath>../src/self_test.c</itemPath>
       <itemPath>../src/temp_demo.c</itemPath>
       <itemPath>../src/parser.c</itemPath>
       <itemPath>../src/security_demo.c</itemPath>
-      <itemPath>../src/low_power_mode.c</itemPath>
+      <itemPath>../src/arduionSPI.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -147,7 +151,7 @@
         <platformTool>PICkit2PlatformTool</platformTool>
         <languageToolchain>XC8</languageToolchain>
         <languageToolchainVersion>1.37</languageToolchainVersion>
-        <platform>4</platform>
+        <platform>3</platform>
       </toolsSet>
       <compileType>
         <linkerTool>
@@ -509,7 +513,7 @@
         <property key="identifier-length" value="255"/>
         <property key="operation-mode" value="pro"/>
         <property key="opt-xc8-compiler-strict_ansi" value="false"/>
-        <property key="optimization-assembler" value="false"/>
+        <property key="optimization-assembler" value="true"/>
         <property key="optimization-assembler-files" value="false"/>
         <property key="optimization-debug" value="false"/>
         <property key="optimization-global" value="true"/>
@@ -636,7 +640,7 @@
         <platformTool>PICkit2PlatformTool</platformTool>
         <languageToolchain>XC8</languageToolchain>
         <languageToolchainVersion>1.37</languageToolchainVersion>
-        <platform>4</platform>
+        <platform>3</platform>
       </toolsSet>
       <compileType>
         <linkerTool>
@@ -958,7 +962,7 @@
         <property key="identifier-length" value="255"/>
         <property key="operation-mode" value="pro"/>
         <property key="opt-xc8-compiler-strict_ansi" value="false"/>
-        <property key="optimization-assembler" value="false"/>
+        <property key="optimization-assembler" value="true"/>
         <property key="optimization-assembler-files" value="false"/>
         <property key="optimization-debug" value="false"/>
         <property key="optimization-global" value="true"/>

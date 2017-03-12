@@ -122,7 +122,6 @@
         </logicalFolder>
       </logicalFolder>
       <itemPath>../src/low_power_mode.c</itemPath>
-      <itemPath>../src/main.c</itemPath>
       <itemPath>../src/parser.c</itemPath>
       <itemPath>../src/range_demo.c</itemPath>
       <itemPath>../src/security_demo.c</itemPath>

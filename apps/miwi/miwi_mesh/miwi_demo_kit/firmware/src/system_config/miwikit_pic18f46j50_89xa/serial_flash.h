@@ -27,5 +27,7 @@
 void SSTRead(uint8_t *Dest, uint8_t *Addr , uint8_t count);
 void SSTWrite(uint8_t *Src, uint8_t *Addr, uint8_t count);
 void SSTGetID(uint8_t *Dest);
+void SSTStatusRegister(bool *dest);
+void SSTWriteSR(uint8_t *dest);
 
 #endif
