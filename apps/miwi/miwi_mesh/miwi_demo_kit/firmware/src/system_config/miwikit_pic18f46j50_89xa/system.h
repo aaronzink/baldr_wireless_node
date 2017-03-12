@@ -35,6 +35,7 @@
 #include "button.h"
 #include "spi.h"
 #include "console.h"
+#include "arduinoSPI.h"
 
 
 

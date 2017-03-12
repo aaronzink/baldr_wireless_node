@@ -33,6 +33,8 @@
 #define SPI_WRITE_ENABLE    0x06
 #define SPI_READ_ID         0x90
 #define SPI_WRITE_DISABLE   0x04
+#define SPI_ENABLE_WRITE_SR 0x50
+#define SPI_WRITE_SR        0x01
 
 #define READ_MANUFACTURER_ID 0xBF
 #define READ_DEVICE_ID      0x49
@@ -100,7 +102,7 @@ void SSTWrite(uint8_t *src, uint8_t *addr, uint8_t count)
     SPIPut2(*addr++);
     while( count )
     {
-        SPIPut(*src++);
+        SPIPut2(*src++);
         count--;
         if(count != 0) SPIPut2(SPI_AUTO_ADDRESS_INC);
     }
@@ -135,3 +137,26 @@ void SSTGetID(uint8_t *dest)
     *dest = SPIGet2();
     EE_nCS = 1;
 } 
+
+void SSTStatusRegister(bool *dest)
+{
+    EE_nCS = 0;
+    SPIPut2(SPI_READ_STATUS_REG);
+    for(uint8_t i = 0; i < 8; i++)
+    {
+        *dest++ = SPIGet2();
+    }
+    EE_nCS = 1;
+}
+
+void SSTWriteSR(uint8_t *dest)
+{
+    EE_nCS = 0;
+    SPIPut2(SPI_ENABLE_WRITE_SR);
+    EE_nCS = 1;
+    DELAY_ms(100);
+    EE_nCS = 0;
+    SPIPut2(SPI_WRITE_SR);
+    SPIPut2(*dest);
+    EE_nCS = 1;
+}

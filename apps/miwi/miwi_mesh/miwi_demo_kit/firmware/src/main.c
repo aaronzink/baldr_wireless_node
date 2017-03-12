@@ -26,6 +26,7 @@
 #include "range_demo.h"
 #include "temp_demo.h"
 #include "parser.h"
+//#include "arduinoSPI.h"
 
 
 
@@ -57,10 +58,13 @@ uint8_t myChannel = 26;
 uint8_t ConnectionEntry = 0;
 			
 bool NetFreezerEnable = false;
-bool ParseTest = true;
+bool ParseTest = false;
+bool spiTest = false;
 bool memTest = false;
+bool ardSPITest = true;
 bool AutoConnectNetwork = false; //Create or join network on channel 26
 bool AutoStartDemo = false; //start the security_demo() automatically)
+bool isSensor = false;
 
 extern uint8_t myLongAddress[MY_ADDRESS_LENGTH];
 
@@ -159,10 +163,32 @@ void main(void)
         for( ;; );
     }
     
+    if( spiTest )
+    {
+        SPITest();
+    }
+    
     if( memTest )
     {
         memoryTest();
     }
+    
+    if( ardSPITest )
+    {
+        uint8_t count = 0;
+        while(true)
+        {
+            char * receiveValue[16];
+            ARDTest(receiveValue);
+
+            LCD_Erase();
+            sprintf((char *)LCDText, receiveValue);
+            sprintf((char *)&(LCDText[16]), (char *) "SPI ARD TEST %03d", count);
+            LCD_Update();
+            DELAY_ms(100);
+            count++;
+        }
+    } 
     
     LED0 = LED1 = LED2 = 1;
  	
@@ -871,7 +897,7 @@ CreateorJoin:
                 MiApp_BroadcastPacket(false);
 
                 // Run Baldr Security Demo
-                SecurityDemo();
+                SecurityDemo(isSensor);
                 result = true;
             }
             if((pktCMD == IDENTIFY_MODE) || ((switch_val == SW1) && (menu_choice == 2)))
