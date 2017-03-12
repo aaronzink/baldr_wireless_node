@@ -69,7 +69,7 @@
       <itemPath>../src/temp_demo.h</itemPath>
       <itemPath>../src/parser.h</itemPath>
       <itemPath>../src/security_demo.h</itemPath>
-      <itemPath>../src/low_power_mode.h</itemPath>
+      <itemPath>../src/arduinoSPI.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -131,7 +131,7 @@
       <itemPath>../src/temp_demo.c</itemPath>
       <itemPath>../src/parser.c</itemPath>
       <itemPath>../src/security_demo.c</itemPath>
-      <itemPath>../src/low_power_mode.c</itemPath>
+      <itemPath>../src/arduionSPI.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -154,7 +154,7 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>PICkit2PlatformTool</platformTool>
         <languageToolchain>XC8</languageToolchain>
-        <languageToolchainVersion>1.38</languageToolchainVersion>
+        <languageToolchainVersion>1.37</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
@@ -517,7 +517,7 @@
         <property key="identifier-length" value="255"/>
         <property key="operation-mode" value="pro"/>
         <property key="opt-xc8-compiler-strict_ansi" value="false"/>
-        <property key="optimization-assembler" value="false"/>
+        <property key="optimization-assembler" value="true"/>
         <property key="optimization-assembler-files" value="false"/>
         <property key="optimization-debug" value="false"/>
         <property key="optimization-global" value="true"/>
@@ -643,7 +643,7 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>PICkit2PlatformTool</platformTool>
         <languageToolchain>XC8</languageToolchain>
-        <languageToolchainVersion>1.38</languageToolchainVersion>
+        <languageToolchainVersion>1.37</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
@@ -966,7 +966,7 @@
         <property key="identifier-length" value="255"/>
         <property key="operation-mode" value="pro"/>
         <property key="opt-xc8-compiler-strict_ansi" value="false"/>
-        <property key="optimization-assembler" value="false"/>
+        <property key="optimization-assembler" value="true"/>
         <property key="optimization-assembler-files" value="false"/>
         <property key="optimization-debug" value="false"/>
         <property key="optimization-global" value="true"/>

@@ -25,22 +25,32 @@ struct user_s currentUsers[USER_LIMIT];
 uint8_t userCount = 0;
 
 void memoryTest()
-{
-    uint8_t testValue[5] = {1,2,3,4,5};
-    uint8_t address = 5000;
-    uint8_t count = (uint8_t)sizeof(testValue);
-    uint8_t * testOutput[5];
-    
-    SSTWrite(&testValue, address, count);
-    SSTRead(&testOutput, address, count);
-    
+{    
+    uint8_t getID;
+    SSTGetID(&getID);
     LCD_Erase();
-    sprintf((char *)LCDText, "%03d,%03d,%03d,%03d",testOutput[0],testOutput[1],testOutput[2],testOutput[3]);
-    sprintf((char *)&(LCDText[16]), (char*)"Memory Test     ");
+    sprintf((char *)LCDText, "%04d", getID);
+    sprintf((char *)&(LCDText[16]), (char*)"Memory Test 1");
     LCD_Update();
+    DELAY_ms(10000);  
     
+    uint8_t status;
+    SSTStatusRegister(&status);
+    LCD_Erase();
+    sprintf((char *)LCDText, "%04X", status);
+    sprintf((char *)&(LCDText[16]), (char*)"Memory Status");
+    LCD_Update();
     DELAY_ms(10000);
     
+    uint8_t wrStatus = 0x00;
+    SSTWriteSR(&wrStatus);
+    
+    SSTStatusRegister(&status);
+    LCD_Erase();
+    sprintf((char *)LCDText, "%04X", status);
+    sprintf((char *)&(LCDText[16]), (char*)"Memory Status");
+    LCD_Update();
+    DELAY_ms(10000);
 }
 
 void addUser(char * instr)
