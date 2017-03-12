@@ -181,13 +181,3 @@ void LCD_Display(char *text, uint8_t value, bool delay)
         }
     }
 }
-
-
-void UserInterruptHandler(void)
-{
-/*    if( PIR3bits.SSP2IF )
-    {
-        PIR3bits.SSP2IF = 0;
-        DELAY_ms(5);
-    }  */
-}

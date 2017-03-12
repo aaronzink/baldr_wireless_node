@@ -69,7 +69,7 @@ struct SensorPacket NodeSensors[10];
 *
 * Note:			    
 **********************************************************************/
-void SecurityDemo(bool isSensor)
+void SecurityDemo(void)
 {
     bool Run_Demo = true;
     uint8_t SensorFlags[4];

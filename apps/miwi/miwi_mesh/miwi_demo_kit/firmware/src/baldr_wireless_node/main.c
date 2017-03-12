@@ -897,7 +897,7 @@ CreateorJoin:
                 MiApp_BroadcastPacket(false);
 
                 // Run Baldr Security Demo
-                SecurityDemo(isSensor);
+                SecurityDemo();
                 result = true;
             }
             if((pktCMD == IDENTIFY_MODE) || ((switch_val == SW1) && (menu_choice == 2)))
@@ -924,4 +924,29 @@ CreateorJoin:
 	}
 }
 
-
+void UserInterruptHandler(void)
+{
+    //check for INT0 interrupt
+    if(INTCONbits.INT0IF == 1)
+    {
+        INTCONbits.INT0IF = 0;
+        if(LED2)
+        {
+            LED2 = 0;
+        } else {
+            LED2 = 1;
+        }
+    }
+    
+    //check for ULP interrupt
+    if(INTCON3bits.INT2IF == 1)
+    {
+        INTCON3bits.INT2IF = 0;
+        if(LED1)
+        {
+            LED1 = 0;
+        } else {
+            LED1 = 1;
+        }
+    }
+}

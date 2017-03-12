@@ -1,7 +1,10 @@
-#ifndef XC_HEADER_TEMPLATE_H
-#define	XC_HEADER_TEMPLATE_H
+#ifndef LOW_POWER_MODE_H
+#define	LOW_POWER_MODE_H
 
-void power_down(void);
+void enter_idle(void);
+void enter_sleep(void);
+void enter_deep_sleep(void);
+void enter_deep_sleep_ulp(void);
 
 #endif
 
