@@ -91,6 +91,7 @@ void ARDTest(uint8_t *dest)
     SPIGet2();
     DELAY_ms(20);
     uint8_t count = SPIGet2();
+    if(count > 15) count = 15;
     for(int i = 0; i < count ; i++)
     {
         DELAY_ms(20);
