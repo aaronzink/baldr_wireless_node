@@ -124,6 +124,7 @@ void main(void)
     // Initialize Hardware
     /*******************************************************************/
     SYSTEM_Initialize();
+    LCD_Initialize();
  
     /*******************************************************************/
     // Testing the parser with:
