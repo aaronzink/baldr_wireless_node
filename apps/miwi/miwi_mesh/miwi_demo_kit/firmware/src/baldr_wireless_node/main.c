@@ -125,6 +125,7 @@ void main(void)
     /*******************************************************************/
     SYSTEM_Initialize();
     
+    LCD_Initialize();
     
     LCD_BacklightON();
     LCD_Erase();
