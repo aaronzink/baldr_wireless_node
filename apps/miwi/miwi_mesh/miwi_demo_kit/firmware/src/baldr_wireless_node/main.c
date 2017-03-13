@@ -124,7 +124,16 @@ void main(void)
     // Initialize Hardware
     /*******************************************************************/
     SYSTEM_Initialize();
+    
     LCD_Initialize();
+    
+    LCD_BacklightON();
+    LCD_Erase();
+    sprintf((char *)LCDText, (char*)"    Baldr       "  );
+    sprintf((char *)&(LCDText[16]), (char*)"  Demo Board    ");
+    LCD_Update();
+    DELAY_ms(5000);
+    LCD_BacklightOFF();
  
     /*******************************************************************/
     // Testing the parser with:
@@ -187,6 +196,18 @@ void main(void)
             sprintf((char *)&(LCDText[16]), (char *) "SPI ARD TEST %03d", count);
             LCD_Update();
             DELAY_ms(100);
+            
+            for(int i = 0; i < 4; i++)
+            {
+                if((char) receiveValue[i] == 't' ||
+                    (char) receiveValue[i] == 'e' ||
+                    (char) receiveValue[i] == 's')
+                {
+                    LCD_BacklightON();
+                    DELAY_ms(1000);
+                    LCD_BacklightOFF();
+                }
+            }
             count++;
         }
     } 
