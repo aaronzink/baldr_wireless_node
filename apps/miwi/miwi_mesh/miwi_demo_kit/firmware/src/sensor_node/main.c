@@ -59,7 +59,7 @@ uint8_t ConnectionEntry = 0;
 			
 bool NetFreezerEnable = false;
 bool SleepTest = false;
-bool PowerTest = true;
+bool PowerTest = false;
 bool memTest = false;
 bool AutoConnectNetwork = false; //Create or join network on channel 26
 bool AutoStartDemo = false; //start the security_demo() automatically)
@@ -200,6 +200,8 @@ void TestSleep(void)
 void main(void)
 {   
     uint8_t i, j, k;
+    bool ds_wake = false;
+    bool alert = false;
     volatile uint8_t scanresult;
     bool result = true;
     uint8_t switch_val;
@@ -209,15 +211,18 @@ void main(void)
     {
         DSCONLbits.RELEASE = 0;    // release control and data bits for all I/O ports
         WDTCONbits.DS = 0;       // clear the deep-sleep status bit
+        ds_wake = true;
     }
-
-    /*******************************************************************/
-    // Initialize Hardware
-    /*******************************************************************/
+    
     SYSTEM_Initialize();
 #if DEBUG
     LCD_Initialize();
 #endif
+
+    /*******************************************************************/
+    // Initialize Hardware
+    /*******************************************************************/
+    
     
     LED0 = 1;
     LED1 = 0;
@@ -236,13 +241,50 @@ void main(void)
     // Display Start-up Splash Screen
     /*******************************************************************/
 #if DEBUG
-    LCD_BacklightON();
-    LCD_Erase();
-    sprintf((char *)LCDText, (char*)"    Baldr       "  );
-    sprintf((char *)&(LCDText[16]), (char*)"  Demo Board    ");
-    LCD_Update();
-    LCD_BacklightOFF();
+    if(ds_wake)
+    {
+        LCD_BacklightON();
+        LCD_Erase();
+        sprintf((char *)LCDText, (char*)"    Wake        "  );
+        
+        if (DSWAKELbits.DSMCLR)
+        {
+            sprintf((char *)&(LCDText[16]), (char*)"  MCLR          ");
+        }
+        else if (DSWAKELbits.DSWDT)
+        {
+            sprintf((char *)&(LCDText[16]), (char*)"  DSWDT         ");
+        }
+        else if (DSWAKEHbits.DSINT0)
+        {
+            sprintf((char *)&(LCDText[16]), (char*)"  INT0          ");
+        }
+        else if(DSWAKELbits.DSULP)
+        {
+            sprintf((char *)&(LCDText[16]), (char*)"  ULPWU         ");
+        }
+        
+        LCD_Update();
+        LCD_BacklightOFF();
+    }
+    else
+    {
+        LCD_BacklightON();
+        LCD_Erase();
+        sprintf((char *)LCDText, (char*)"    Baldr       "  );
+        sprintf((char *)&(LCDText[16]), (char*)"  Demo Board    ");
+        LCD_Update();
+        LCD_BacklightOFF();
+    }
+    
+    delay_ms(300);
 #endif
+    
+    //we woke because a sensor was tripped, notify of intrusion
+    if(ds_wake && DSWAKEHbits.DSINT0)
+    {
+        alert = true;  
+    }
 
     //TODO: put the sensor loop here
     
@@ -444,6 +486,9 @@ void main(void)
 
             }
             MiApp_DiscardMessage();
+        } else {
+            //TODO: there were no messages, what should we do?
+            result = true;
         }
         if(pktCMD == SECURITY_DEMO)
         {
