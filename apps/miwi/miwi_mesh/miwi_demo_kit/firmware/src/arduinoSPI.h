@@ -9,8 +9,8 @@
     #define _ARD_SPI_H
 
 
-void ARDReadByte(uint8_t *Dest);
-void ARDWrite(uint8_t *Src);
-void ARDTest(uint8_t *Dest);
+uint8_t ARDReadText(uint8_t *Dest);
+void ARDWriteText(uint8_t *Src, uint8_t Count);
+//void ARDTest(uint8_t *count, uint8_t *Dest);
 
 #endif

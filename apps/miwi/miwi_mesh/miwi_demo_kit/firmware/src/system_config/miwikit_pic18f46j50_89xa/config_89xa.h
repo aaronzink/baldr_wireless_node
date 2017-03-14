@@ -181,7 +181,7 @@
     //If IRQ0 and IRQ1 are both connected to PIC interrupts pins then
     //enable this mode
     /*********************************************************************/
-    #define USE_IRQ0_AS_INTERRUPT
+    //#define USE_IRQ0_AS_INTERRUPT
     #define RFIE        PHY_IRQ1_En
     #define RFIF        PHY_IRQ1
     #define RF_INT_PIN  IRQ1_INT_PIN

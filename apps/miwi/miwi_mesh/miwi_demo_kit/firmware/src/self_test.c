@@ -36,14 +36,13 @@ uint8_t init_case = 0x00;
 
 void SelfTest(uint8_t myChannel)
 {
-
     LCD_Display((char *)"   MiWi  Demo    Self Test Mode ", 0, true);
     LCD_Display((char *)"SW1: Start Test SW2: Exit Test", 0, true);
     init_case = 0;
     while(1)
     {
-    switch_val = BUTTON_Pressed();
-    if(switch_val == SW1)
+        switch_val = BUTTON_Pressed();
+        if(switch_val == SW1)
         {
             //SW1 and SW2 Push Buttons verified
             //LCD Display and Backlight verified (MiWi Card Demo Display)
@@ -110,7 +109,7 @@ void SelfTest(uint8_t myChannel)
                                 LED0 = LED1= LED2 = 1;
                                 init_case = 0xF0;
                                 break;
-                       case 255:   LCD_Display((char *)"Self Test Mode  Test Fail", 0, true);
+                    case 255:   LCD_Display((char *)"Self Test Mode  Test Fail", 0, true);
                                 LED0 = LED1 = LED2 = 1;
                                 init_case = 0xF0;
                                 break;
@@ -132,7 +131,7 @@ void SelfTest(uint8_t myChannel)
             break;
 
         }
-    else if(switch_val == SW2)
+        else if(switch_val == SW2)
         {
             break;
         }

@@ -64,7 +64,6 @@ bool memTest = false;
 bool ardSPITest = true;
 bool AutoConnectNetwork = false; //Create or join network on channel 26
 bool AutoStartDemo = false; //start the security_demo() automatically)
-bool isSensor = false;
 
 extern uint8_t myLongAddress[MY_ADDRESS_LENGTH];
 
@@ -124,6 +123,16 @@ void main(void)
     // Initialize Hardware
     /*******************************************************************/
     SYSTEM_Initialize();
+    
+    LCD_Initialize();
+    
+    LCD_BacklightON();
+    LCD_Erase();
+    sprintf((char *)LCDText, (char*)"    Baldr       "  );
+    sprintf((char *)&(LCDText[16]), (char*)"  Demo Board    ");
+    LCD_Update();
+    DELAY_ms(5000);
+    LCD_BacklightOFF();
  
     /*******************************************************************/
     // Testing the parser with:
@@ -175,18 +184,35 @@ void main(void)
     
     if( ardSPITest )
     {
-        uint8_t count = 0;
         while(true)
         {
-            char * receiveValue[16];
-            ARDTest(receiveValue);
-
             LCD_Erase();
-            sprintf((char *)LCDText, receiveValue);
-            sprintf((char *)&(LCDText[16]), (char *) "SPI ARD TEST %03d", count);
+            sprintf((char *)LCDText, (char*) "PIC to ARD SPI  ");
+            sprintf((char *)&(LCDText[16]), (char*) "Read String Test");
             LCD_Update();
-            DELAY_ms(100);
-            count++;
+            DELAY_ms(3000);
+            
+            
+            uint8_t myString[150];
+            uint8_t count = ARDReadText(&myString);
+    
+            for(int i = 0; i < (count/32)+1; i++)
+            {
+                LCD_Erase();
+                sprintf((char *)LCDText, myString[i*32]);
+                LCD_Update();
+                DELAY_ms(5000);
+            }
+            
+            LCD_Erase();
+            sprintf((char *)LCDText, (char*) "PIC to ARD SPI  ");
+            sprintf((char *)&(LCDText[16]), (char*) "Send String Test");
+            LCD_Update();
+            DELAY_ms(3000);
+            
+            
+            uint8_t * sendString = "This is the reply to the message you forwarded.";
+            ARDWriteText(&sendString, 30);
         }
     } 
     

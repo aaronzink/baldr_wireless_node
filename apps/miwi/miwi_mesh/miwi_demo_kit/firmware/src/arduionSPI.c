@@ -9,95 +9,192 @@
 #include "system_config.h"
 
 
-#define SPI_READ            0x01
-#define SPI_SECTOR_ERASE    0x20
-#define SPI_BLOCK_ERASE     0x52
-#define SPI_CHIP_ERASE      0x60
-#define SPI_BYTE_PROGRAM    0x02
-#define SPI_AUTO_ADDRESS_INC 0xAF
-#define SPI_READ_STATUS_REG 0x05
-#define SPI_WRITE_ENABLE    0x06
-#define SPI_READ_ID         0x90
-#define SPI_WRITE_DISABLE   0x04
-
-#define READ_MANUFACTURER_ID 0xBF
-#define READ_DEVICE_ID      0x49
+#define SPI_ARD_READ            0x01
+#define SPI_ARD_READ_CONT       0x02
+#define SPI_ARD_SEND            0x03
+#define SPI_ARD_CHECK_AWAKE     0xF0
+#define SPI_ARD_IS_AWAKE        0xF1
 
 /*********************************************************************
-* Function:         SSTRead(uint8_t *dest, uint8_t *addr, uint8_t count)
+* Function:         ARDCheckAwake()
 *
 * PreCondition:     none
 *
-* Input:            uint8_t *dest  - Destination buffer.
-*                   uint8_t *addr   - Address to start reading from.
-*                   uint8_t count  - Number of bytes to read.
+* Input:            none
 *
 * Output:           none
 *
 * Side Effects:	    none
 *
-* Overview:         Following routine reads bytes from the EEProm and puts
-*                   them in a buffer.
+* Overview:         Should return 0xF1 (SPI_IS_AWAKE) if is awake
+*                    
+*
+* Note:			    
+**********************************************************************/ 
+uint8_t ARDCheckAwake()
+{
+    DELAY_ms(10);
+    SPIPut2(SPI_ARD_CHECK_AWAKE);
+    DELAY_ms(10);
+    uint8_t check = SPIGet2();
+    DELAY_ms(10);
+    return check;
+}
+
+/*********************************************************************
+* Function:         ARDReadByte(uint8_t *dest)
+*
+* PreCondition:     none
+*
+* Input:            uint8_t *dest  - Destination buffer.
+*
+* Output:           none
+*
+* Side Effects:	    none
+*
+* Overview:         Follow ARDRead to get the next byte
 *                    
 *
 * Note:			    
 **********************************************************************/   
 void ARDReadByte(uint8_t *dest)
 {
-    DELAY_ms(100);
-    ARD_nCS = 0;
-    DELAY_ms(100);
-    SPIPut2(SPI_READ);
+    DELAY_ms(10);
+    SPIPut2(SPI_ARD_READ);
+    DELAY_ms(20);
     *dest = SPIGet2();
-    DELAY_ms(100);
-    ARD_nCS = 1;
-    DELAY_ms(100);
+    DELAY_ms(10);
 }
 
-void ARDWrite(uint8_t *src)
+/*********************************************************************
+* Function:         ARDReadByteCont(uint8_t *dest)
+*
+* PreCondition:     none
+*
+* Input:            uint8_t *dest  - Destination buffer.
+*
+* Output:           none
+*
+* Side Effects:	    none
+*
+* Overview:         Follows ARDRead to get the next byte.
+*                    
+*
+* Note:			    
+**********************************************************************/   
+void ARDReadByteCont(uint8_t *dest)
 {
-    DELAY_ms(100);
-    ARD_nCS = 0;
-    DELAY_ms(100);
-    SPIPut2(*src);
-    DELAY_ms(100);
-    ARD_nCS = 1;
-    DELAY_ms(100);
+    DELAY_ms(10);
+    SPIPut2(SPI_ARD_READ_CONT);
+    DELAY_ms(20);
+    *dest = SPIGet2();
+    DELAY_ms(10);
 }
 
-void ARDTest(uint8_t *dest)
+/*********************************************************************
+* Function:         ARDReadText(uint8_t *dest)
+*
+* PreCondition:     none
+*
+* Input:            uint8_t *dest  - Destination buffer.
+*
+* Output:           none
+*
+* Side Effects:	    none
+*
+* Overview:         Reads an entire text from the ARD SPI bus
+*                    
+*
+* Note:			    
+**********************************************************************/ 
+uint8_t ARDReadText(uint8_t *dest)
 {
-    DELAY_ms(20);
     ARD_nCS = 0;
-    DELAY_ms(20);
-    SPIPut2('{');
-    DELAY_ms(20);
-    SPIGet2();
-    DELAY_ms(20);
-    SPIPut2('a');
-    DELAY_ms(20);
-    SPIGet2();
-    DELAY_ms(20);
-    SPIPut2('b');
-    DELAY_ms(20);
-    SPIGet2();
-    DELAY_ms(20);
-    SPIPut2('c');
-    DELAY_ms(20);
-    SPIGet2();
-    DELAY_ms(20);
-    SPIPut2('}');
-    DELAY_ms(20);
-    SPIGet2();
-    DELAY_ms(20);
-    uint8_t count = SPIGet2();
-    for(int i = 0; i < count ; i++)
+    DELAY_ms(10);
+    while(ARDCheckAwake() != SPI_ARD_IS_AWAKE);
+    uint8_t receiveByte;
+    ARDReadByte(&receiveByte);
+    uint8_t count = receiveByte;
+    for(int i = 0; i < count; i++)
     {
-        DELAY_ms(20);
-        *dest = SPIGet2();
-        if(i != count - 1) *dest++;
+        ARDReadByteCont(&receiveByte);
+        *dest++ = receiveByte;
     }
-    DELAY_ms(20);
+    DELAY_ms(10);
     ARD_nCS = 1;
-    DELAY_ms(20);
+    return count;
 }
+
+/*********************************************************************
+* Function:         ARDWriteByte(uint8_t *src)
+*
+* PreCondition:     none
+*
+* Input:            uint8_t *src - Sending buffer.
+*
+* Output:           none
+*
+* Side Effects:	    none
+*
+* Overview:         Writes a single byte and discards the echo from
+*                   ARD.
+*                    
+*
+* Note:			    
+**********************************************************************/ 
+void ARDWriteByte(uint8_t *src)
+{
+    DELAY_ms(10);
+    SPIPut2(*src);
+    DELAY_ms(10);
+    SPIGet2();
+    DELAY_ms(10);
+}
+
+/*********************************************************************
+* Function:         ARDWriteText(uint8_t *src, uint8_t count)
+*
+* PreCondition:     none
+*
+* Input:            uint8_t *src - Sending buffer.
+*                   uint8_t count - Number of bytes to send. 
+*
+* Output:           none
+*
+* Side Effects:	    none
+*
+* Overview:         Writes an entire string of data to the ARD on
+*                   the SPI bus.
+*
+* Note:			    
+**********************************************************************/ 
+void ARDWriteText(uint8_t *src, uint8_t count)
+{
+    ARD_nCS = 0;
+    DELAY_ms(10);
+    while(ARDCheckAwake() != SPI_ARD_IS_AWAKE);
+    DELAY_ms(10);
+    SPIPut2(SPI_ARD_SEND);
+    DELAY_ms(10);
+    SPIGet2();
+    for(int i = 0; i < count; i++)
+    {
+        DELAY_ms(10);
+        SPIPut2(*src++);
+        DELAY_ms(10);
+        SPIGet2();
+    }
+}
+
+
+
+//void ARDTest(uint8_t * count, uint8_t *dest)
+//{
+//    ARD_nCS = 0;
+//    DELAY_ms(10);
+//    SPIPut2(*count);
+//    DELAY_ms(20);
+//    *dest = SPIGet2();
+//    DELAY_ms(10);
+//    ARD_nCS = 1;
+//}

@@ -94,6 +94,7 @@ void SecurityDemo(void)
     tick1 = MiWi_TickGet();
     tick3 = tick1;
     
+    bool stop_demo = false;
     while(Run_Demo)
     {
         /*******************************************************************/
@@ -105,8 +106,8 @@ void SecurityDemo(void)
         // Check if User wants to Exit Demo by pressing button 2
         /*******************************************************************/
         switch_val = BUTTON_Pressed();
-	
-        if(0)//switch_val == SW2) //BALDR edit, we don't want to exit the demo
+
+        if(stop_demo)//switch_val == SW2) //BALDR edit, we don't want to exit the demo
         {
             /*******************************************************************/
         	// Send Exit Demo Request Packet and exit Temp Demo
@@ -114,7 +115,7 @@ void SecurityDemo(void)
             MiApp_FlushTx();    
             MiApp_WriteData(EXIT_PKT);
             MiApp_BroadcastPacket(false);
-            LCD_Display((char *)"   Exiting....     Baldr Demo ", 0, true);           
+            LCD_Display((char *)"   Exiting....     Baldr Demo ", 0, true);
             
             /*******************************************************************/
             // Wait for ACK Packet or Timeout
@@ -154,7 +155,7 @@ void SecurityDemo(void)
     		PrintAlertLCD();
     		
     		tick3 = MiWi_TickGet();
-        }     
+        }
 		
         /*******************************************************************/
         // Read the Sensors every SENSE_SECOND_INTERVAL
@@ -214,13 +215,14 @@ void SecurityDemo(void)
            // The only parameter is the boolean to indicate if we need to
            // secure the frame
            /*******************************************************************/
+           
            MiApp_BroadcastPacket(false);
 
             /*******************************************************************/
             // Read New Start tickcount
             /*******************************************************************/
             tick1 = MiWi_TickGet();
-	}
+        }
 
         /*******************************************************************/
         // Check for Incomming Recieve Packet.
@@ -239,12 +241,12 @@ void SecurityDemo(void)
             /*******************************************************************/
             if(rxMessage.Payload[0] == EXIT_PKT)
             {
-            MiApp_DiscardMessage();
-            MiApp_FlushTx();
-            MiApp_WriteData(ACK_PKT);
-            MiApp_UnicastConnection(0, false);
-            Run_Demo = false;
-            LCD_Display((char *)"   Exiting....     Baldr Demo ", 0, true);
+                MiApp_DiscardMessage();
+                MiApp_FlushTx();
+                MiApp_WriteData(ACK_PKT);
+                MiApp_UnicastConnection(0, false);
+                Run_Demo = false;
+                LCD_Display((char *)"   Exiting....     Baldr Demo ", 0, true);
             }
             
             /*******************************************************************/
@@ -256,7 +258,7 @@ void SecurityDemo(void)
                     {
                             if(rxMessage.Payload[0] == SENSE_PKT)
                             {
-                                    // Update the Remote Nodes Temp value
+                                // Update the Remote Nodes Temp value
                                 NodeSensors[i+1].SensorFlags[0] = rxMessage.Payload[1];
                                 //NodeSensors[i+1].SensorFlags[1] = rxMessage.Payload[2];
                                 NodeSensors[i+1].NodeAddress[0] = rxMessage.Payload[2];
@@ -267,6 +269,7 @@ void SecurityDemo(void)
 
             MiApp_DiscardMessage();
         }
+        stop_demo = true;
     }   
 }
 

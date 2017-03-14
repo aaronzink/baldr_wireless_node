@@ -22,6 +22,8 @@
           <itemPath>../../../../../../framework/miwi/miwi_nvm.h</itemPath>
         </logicalFolder>
       </logicalFolder>
+      <logicalFolder name="sensor_node" displayName="sensor_node" projectFiles="true">
+      </logicalFolder>
       <logicalFolder name="system_config"
                      displayName="system_config"
                      projectFiles="true">
@@ -92,6 +94,9 @@
           <itemPath>../../../../../../framework/miwi/src/miwi_mesh.c</itemPath>
           <itemPath>../../../../../../framework/miwi/src/miwi_nvm.c</itemPath>
         </logicalFolder>
+      </logicalFolder>
+      <logicalFolder name="sensor_node" displayName="sensor_node" projectFiles="true">
+        <itemPath>../src/sensor_node/main.c</itemPath>
       </logicalFolder>
       <logicalFolder name="system_config"
                      displayName="system_config"
