@@ -61,9 +61,9 @@ bool NetFreezerEnable = false;
 bool ParseTest = false;
 bool spiTest = false;
 bool memTest = false;
-bool ardSPITest = true;
-bool AutoConnectNetwork = false; //Create or join network on channel 26
-bool AutoStartDemo = false; //start the security_demo() automatically)
+bool ardSPITest = false;
+bool AutoConnectNetwork = true; //Create or join network on channel 26
+bool AutoStartDemo = true; //start the security_demo() automatically)
 
 extern uint8_t myLongAddress[MY_ADDRESS_LENGTH];
 
