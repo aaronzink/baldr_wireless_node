@@ -36,6 +36,7 @@
 #include "spi.h"
 #include "console.h"
 #include "arduinoSPI.h"
+#include "low_power_mode.h"
 
 
 

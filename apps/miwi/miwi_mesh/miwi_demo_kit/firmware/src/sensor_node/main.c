@@ -52,6 +52,7 @@ uint8_t myChannel = 26;
 #define SECURITY_DEMO       3
 #define IDENTIFY_MODE       4
 #define EXIT_IDENTIFY_MODE  5
+#define ALBATROSS_DEMO      6
 
 #define NODE_INFO_INTERVAL  5
 
@@ -316,144 +317,148 @@ void main(void)
     LCD_Display((char *)"  Scanning for    Networks....", 0, true);
 #endif
     
-    /*******************************************************************/
-    // Perform an active scan
-    /*******************************************************************/
-    if(myChannel < 8)
-        scanresult = MiApp_SearchConnection(10, (0x00000001 << myChannel));
-    else if(myChannel < 16)
-        scanresult = MiApp_SearchConnection(10, (0x00000100 << (myChannel-8)));
-    else if(myChannel < 24)
-        scanresult = MiApp_SearchConnection(10, (0x00010000 << (myChannel-16)));
-    else
-        scanresult = MiApp_SearchConnection(10, (0x01000000 << (myChannel-24)));
-
-    LED0 = 0;
-    LED1 = 1;
-    LED2 = 0;
-    
-    /*******************************************************************/
-    // Display Scan Results
-    /*******************************************************************/
-    if(scanresult > 0)
+    while(result)
     {
-        for(j = 0; j < scanresult; j++)
+        /*******************************************************************/
+        // Perform an active scan
+        /*******************************************************************/
+        if(myChannel < 8)
+            scanresult = MiApp_SearchConnection(10, (0x00000001 << myChannel));
+        else if(myChannel < 16)
+            scanresult = MiApp_SearchConnection(10, (0x00000100 << (myChannel-8)));
+        else if(myChannel < 24)
+            scanresult = MiApp_SearchConnection(10, (0x00010000 << (myChannel-16)));
+        else
+            scanresult = MiApp_SearchConnection(10, (0x01000000 << (myChannel-24)));
+
+        LED0 = 0;
+        LED1 = 1;
+        LED2 = 0;
+
+        /*******************************************************************/
+        // Display Scan Results
+        /*******************************************************************/
+        if(scanresult > 0)
         {
-            uint8_t skip_print = false;
-            if(j > 0)
+            for(j = 0; j < scanresult; j++)
             {
-                for(k = 0; k < j; k++)
+                uint8_t skip_print = false;
+                if(j > 0)
+                {
+                    for(k = 0; k < j; k++)
+                    {
+                        if((ActiveScanResults[j].PANID.v[1] == ActiveScanResults[k].PANID.v[1]) &
+                            (ActiveScanResults[j].PANID.v[0] == ActiveScanResults[k].PANID.v[0]))
+                        {
+                            skip_print = true;
+                            break;
+                        }
+
+                    }
+
+                    if(skip_print == true)
+                    { 
+                        if(j == (scanresult-1)) j = -1;
+                        continue;
+                    }
+                }
+
+    #if DEBUG
+                // Display the index on LCD
+                LCD_Erase();
+
+                // Display if Network is Cordinator or PAN Cordinator
+                sprintf((char *)LCDText, (char*)"SW1:<PANID:%02x%02x>",ActiveScanResults[j].PANID.v[1], ActiveScanResults[j].PANID.v[0]);
+                //sprintf((char *)&(LCDText[16]), (char*)"SW2: Additional");
+
+                LCD_Update();
+    #endif
+
+                /*******************************************************************/
+                // Connect to Display Network
+                /*******************************************************************/
+                uint8_t Status;
+                uint8_t CoordCount = 0;
+                MiApp_FlushTx();
+
+                for(k = 0 ; k < scanresult ; k++)
                 {
                     if((ActiveScanResults[j].PANID.v[1] == ActiveScanResults[k].PANID.v[1]) &
                         (ActiveScanResults[j].PANID.v[0] == ActiveScanResults[k].PANID.v[0]))
                     {
-                        skip_print = true;
-                        break;
+                        CoordCount++;
                     }
-
                 }
-                
-                if(skip_print == true)
-                { 
-                    if(j == (scanresult-1)) j = -1;
-                    continue;
-                }
-            }
-
-#if DEBUG
-            // Display the index on LCD
-            LCD_Erase();
-
-            // Display if Network is Cordinator or PAN Cordinator
-            sprintf((char *)LCDText, (char*)"SW1:<PANID:%02x%02x>",ActiveScanResults[j].PANID.v[1], ActiveScanResults[j].PANID.v[0]);
-            //sprintf((char *)&(LCDText[16]), (char*)"SW2: Additional");
-
-            LCD_Update();
-#endif
-
-            /*******************************************************************/
-            // Connect to Display Network
-            /*******************************************************************/
-            uint8_t Status;
-            uint8_t CoordCount = 0;
-            MiApp_FlushTx();
-
-            for(k = 0 ; k < scanresult ; k++)
-            {
-                if((ActiveScanResults[j].PANID.v[1] == ActiveScanResults[k].PANID.v[1]) &
-                    (ActiveScanResults[j].PANID.v[1] == ActiveScanResults[k].PANID.v[1]))
+                if(CoordCount > 1)
                 {
-                    CoordCount++;
-                }
-            }
-            if(CoordCount > 1)
-            {
-                MiApp_FlushTx();
-                MiApp_WriteData(IDENTIFY_MODE);
-                MiApp_WriteData(ActiveScanResults[j].PANID.v[1]);
-                MiApp_WriteData(ActiveScanResults[j].PANID.v[0]);
-                MiApp_BroadcastPacket(false);
-                for(k = 0; k < scanresult; k++)
-                {
-                    if((ActiveScanResults[j].PANID.v[1] == ActiveScanResults[k].PANID.v[1]) &
-                        (ActiveScanResults[j].PANID.v[0] == ActiveScanResults[k].PANID.v[0]))
+                    MiApp_FlushTx();
+                    MiApp_WriteData(IDENTIFY_MODE);
+                    MiApp_WriteData(ActiveScanResults[j].PANID.v[1]);
+                    MiApp_WriteData(ActiveScanResults[j].PANID.v[0]);
+                    MiApp_BroadcastPacket(false);
+                    for(k = 0; k < scanresult; k++)
                     {
-#if DEBUG
-                        LCD_Erase();
+                        if((ActiveScanResults[j].PANID.v[1] == ActiveScanResults[k].PANID.v[1]) &
+                            (ActiveScanResults[j].PANID.v[0] == ActiveScanResults[k].PANID.v[0]))
+                        {
+    #if DEBUG
+                            LCD_Erase();
 
-                        // Display Network information
-                        sprintf((char *)LCDText, (char*)"SW1:<Addr:%02x%02x>",ActiveScanResults[k].Address[1], ActiveScanResults[k].Address[0]);
-                        sprintf((char *)&(LCDText[16]), (char*)"SW2: Additional");
+                            // Display Network information
+                            sprintf((char *)LCDText, (char*)"SW1:<Addr:%02x%02x>",ActiveScanResults[k].Address[1], ActiveScanResults[k].Address[0]);
+                            sprintf((char *)&(LCDText[16]), (char*)"SW2: Additional");
 
-                        LCD_Update();
-#endif
+                            LCD_Update();
+    #endif
 
-                        //Establish connection with the node
-                        j = k;
-                        k = scanresult-1;
-                        break;
-                    }
-                } //End of for(k = 0; ....)
-            } //End of if (CoordCount > ...)
+                            //Establish connection with the node
+                            j = k;
+                            k = scanresult-1;
+                            break;
+                        }
+                    } //End of for(k = 0; ....)
+                } //End of if (CoordCount > ...)
 
-            /*******************************************************************/
-            // Establish Connection and Display results of connection
-            /*******************************************************************/
-            Status = MiApp_EstablishConnection(j, CONN_MODE_DIRECT);
-            if(Status == 0xFF)
-            {
-#if DEBUG
-                LCD_Display((char *)"Join Failed!!!", 0, true);
-#endif
-                //TODO: this currently just loops and tries again, should we do something more intelligent?
+                /*******************************************************************/
+                // Establish Connection and Display results of connection
+                /*******************************************************************/
+                Status = MiApp_EstablishConnection(j, CONN_MODE_DIRECT);
+                if(Status == 0xFF)
+                {
+    #if DEBUG
+                    LCD_Display((char *)"Join Failed!!!", 0, true);
+    #endif
+                    //TODO: this currently just loops and tries again, should we do something more intelligent?
+                }
+                else
+                {
+    #if DEBUG
+                    LCD_Display((char *)"Joined  Network Successfully..", 0, true);
+    #endif
+                    MiApp_FlushTx();
+                    MiApp_WriteData(EXIT_IDENTIFY_MODE);
+                    MiApp_WriteData(myPANID.v[1]);
+                    MiApp_WriteData(myPANID.v[0]);
+                    MiApp_BroadcastPacket(false);
+
+                    result = false;
+                }
+
+                /*******************************************************************/
+                // If Connected to a Network Successfully bail out
+                /*******************************************************************/
+                if(result == false)
+                {
+                    break;
+                }
             }
-            else
-            {
-#if DEBUG
-                LCD_Display((char *)"Joined  Network Successfully..", 0, true);
-#endif
-                MiApp_FlushTx();
-                MiApp_WriteData(EXIT_IDENTIFY_MODE);
-                MiApp_WriteData(myPANID.v[1]);
-                MiApp_WriteData(myPANID.v[0]);
-                MiApp_BroadcastPacket(false);
-                
-                result = false;
-            }
 
-            /*******************************************************************/
-            // If Connected to a Network Successfully bail out
-            /*******************************************************************/
-            if(result == false)
-            {
-                break;
-            }
+            result = false;
+        }else
+        {
+            //TODO: there is no network, what do we do?
+            result = true;
         }
-
-        result = false;
-    }else
-    {
-        //TODO: there is no network, what do we do?
     }
     
     // Check if MiMAC has any pkt's to processes
@@ -471,6 +476,7 @@ void main(void)
     
     result = false;
 
+#if 0
     while(result == false)
     {
         // Check if MiMAC has any pkt's to processes
@@ -488,7 +494,7 @@ void main(void)
             MiApp_DiscardMessage();
         } else {
             //TODO: there were no messages, what should we do?
-            result = true;
+            result = false;
         }
         if(pktCMD == SECURITY_DEMO)
         {
@@ -518,6 +524,42 @@ void main(void)
         if(pktCMD == EXIT_IDENTIFY_MODE)
         {
             result = true;
+        }
+    }
+#endif
+    
+    DELAY_ms(1000);
+    
+    LCD_Erase();
+    sprintf((char *)&(LCDText), (char*)"PANID:%02x%02x Ch:%02d",myPANID.v[1],myPANID.v[0],myChannel);
+    sprintf((char *)&(LCDText[16]), (char*)"Address: %02x%02x", myShortAddress.v[1], myShortAddress.v[0]);
+    LCD_Update();
+    
+    DELAY_ms(5000);
+    
+    LCD_Display((char *)"Sending ALBATROSS_DEMO Pkt", 0, true);
+    bool endDemo = false;
+    while(!endDemo)
+    {
+        MiApp_FlushTx();
+        MiApp_WriteData(ALBATROSS_DEMO);
+        MiApp_BroadcastPacket(false);
+        DELAY_ms(1000);
+        if(MiApp_MessageAvailable())
+        {
+            pktCMD = rxMessage.Payload[0];
+            if(pktCMD == ALBATROSS_DEMO)
+            {
+                LCD_Display((char *)"Received Correct Packet!", 0, true);
+                endDemo = true;
+            }else
+            {
+                LCD_Display((char *)"Received Incorrect Packet!", 0, true);
+            }
+            DELAY_ms(1000);
+            LCD_Erase();
+            DELAY_ms(1000);
+            MiApp_DiscardMessage();
         }
     }
     

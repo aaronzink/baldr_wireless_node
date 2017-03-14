@@ -101,12 +101,7 @@ void SecurityDemo(void)
         // Read current tickcount
         /*******************************************************************/
 		tick2 = MiWi_TickGet();
-		
-        /*******************************************************************/
-        // Check if User wants to Exit Demo by pressing button 2
-        /*******************************************************************/
-        switch_val = BUTTON_Pressed();
-
+        
         if(stop_demo)//switch_val == SW2) //BALDR edit, we don't want to exit the demo
         {
             /*******************************************************************/
