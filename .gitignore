@@ -1,3 +1,5 @@
+.DS_store
+
 /apps/miwi/miwi_mesh/miwi_demo_kit/firmware/baldr_wireless_node.X/Makefile
 /apps/miwi/miwi_mesh/miwi_demo_kit/firmware/baldr_wireless_node.X/build/
 /apps/miwi/miwi_mesh/miwi_demo_kit/firmware/baldr_wireless_node.X/dist/
