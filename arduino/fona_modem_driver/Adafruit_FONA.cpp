@@ -17,7 +17,8 @@
     // next line per http://postwarrior.com/arduino-ethershield-error-prog_char-does-not-name-a-type/
 
 #include "Adafruit_FONA.h"
-
+#include <SD.h>
+#include <SPI.h>
 
 
 
@@ -25,9 +26,9 @@ Adafruit_FONA::Adafruit_FONA(int8_t rst)
 {
   _rstpin = rst;
 
-  apn = F("FONAnet");
-  apnusername = 0;
-  apnpassword = 0;
+  apn = F("internet.fido.ca");
+  apnusername = F("fido");
+  apnpassword = F("fido");
   mySerial = 0;
   httpsredirect = false;
   useragent = F("FONA");
@@ -57,7 +58,7 @@ boolean Adafruit_FONA::begin(Stream &port) {
     if (sendCheckReply(F("AT"), ok_reply))
       break;
     while (mySerial->available()) mySerial->read();
-    if (sendCheckReply(F("AT"), F("AT"))) 
+    if (sendCheckReply(F("AT"), F("AT")))
       break;
     delay(500);
     timeout-=500;
@@ -379,7 +380,7 @@ boolean Adafruit_FONA::callPhone(char *number) {
 uint8_t Adafruit_FONA::getCallStatus(void) {
   uint16_t phoneStatus;
 
-  if (! sendParseReply(F("AT+CPAS"), F("+CPAS: "), &phoneStatus)) 
+  if (! sendParseReply(F("AT+CPAS"), F("+CPAS: "), &phoneStatus))
     return FONA_CALL_FAILED; // 1, since 0 is actually a known, good reply
 
   return phoneStatus;  // 0 ready, 2 unkown, 3 ringing, 4 call in progress
@@ -460,50 +461,124 @@ boolean Adafruit_FONA::MMS_initialization(void){
 
 boolean Adafruit_FONA::MMS_sendMMS(void){
 	if( ! sendCheckReply(F("AT+CMMSEDIT=1"), ok_reply)) return false;
-	
+
 }
 
 /********* EMAIL **********************************************************/
-// the set bearer is already written in the original library 
+// the set bearer is already written in the original library
 
 boolean Adafruit_FONA::Email_sendEmail(void){
+
+const int chipSelect = 10;
+  int bytesRemaining = 1;
+
+  if(!SD.begin(10)) return false;
+  Serial.println("Marco");
+  String nnn = "d.bmp";
+  File imgFile = SD.open(nnn.c_str(), FILE_READ);
+  Serial.println("Polo");
+  //if(!imgFile.available()) return false;
+
+
+  bytesRemaining = imgFile.size();
+
+  Serial.print(bytesRemaining);
   //Set parameters of Email
+
   if (! sendCheckReply(F("AT+EMAILCID=1"), ok_reply)) return false;
   if (! sendCheckReply(F("AT+EMAILTO=30"), ok_reply)) return false;
+  if (! sendCheckReply(F("AT+EMAILSSL=1"), ok_reply)) return false;
 
-  //Set SMTP server address and port 
-  if (! sendCheckReply(F("AT+SMTPSRV=\"Smtp.gmail.com\",25"), ok_reply)) return false;
+  //Set SMTP server address and port
+  if (! sendCheckReply(F("AT+SMTPSRV=\"smtp.gmail.com\",465"), ok_reply)) return false;
 
-  //Set user name and password 
-  if (! sendCheckReply(F("AT+SMTPAUTH=1,\"albatross.fydp\",\"grp265members\""), ok_reply)) return false;
+  //Set user name and password
+  if (! sendCheckReply(F("AT+SMTPAUTH=1,\"albatross.fydp@gmail.com\",\"grp265members\""), ok_reply)) return false;
 
-  //Set sender address and name 
-  if (! sendCheckReply(F("AT+SMTPFROM=\"albatross.fydp@gmail.com\",\"alba\""), ok_reply)) return false;
+  //Set sender address and name
+  if (! sendCheckReply(F("AT+SMTPFROM=\"albatross.fydp@gmail.com\",\"albatross.fydp\""), ok_reply)) return false;
 
-  //Set the recipient(To:) 
-  if (! sendCheckReply(F("AT+SMTPRCPT=0,0,\"albatross.fydp@gmail.com\",\"albatro\""), ok_reply)) return false;
+  //Set the recipient(To:)
+  if (! sendCheckReply(F("AT+SMTPRCPT=0,0,\"zink.aaron@gmail.com\""), ok_reply)) return false;
 
-  //Set the subject 
+
+
+  //Set the subject
 
   sendCheckReply(F("AT+SMTPBODY=26"), ok_reply);
 
-  if (! sendCheckReply(F("abcdefghijklmnopqrstuvwxyz"), ok_reply)) return false;
+  sendCheckReply(F("abcdefghijklmnopqrstuvwxyz"), ok_reply);
+
+  //Specify an attachment will be provided and the file name
+  sendCheckReply(F("AT+SMTPFILE=2,\"d.bmp\",1"), ok_reply);
 
   if (! sendCheckReply(F("AT+SMTPSEND"), ok_reply)) return false;
 
-  readline(10000); // read the +CMGS reply, wait up to 10 seconds!!!
-  //DEBUG_PRINT("Line 3: "); DEBUG_PRINTLN(strlen(replybuffer));
-  if (strstr(replybuffer, "+SMTPSEND:") == 0) {
-    return false;
-  }
-  readline(1000); // read OK
-  //DEBUG_PRINT("* "); DEBUG_PRINTLN(replybuffer);
+  readline(10000);
 
-  if (strcmp(replybuffer, "1") != 0) {
-    return false;
+  int len = 8;
+  char buf[len];
+  int numBytes;
+  //String cmdString;
+/*
+  while(bytesRemaining > 0){
+
+    if( len > bytesRemaining ){
+      numBytes = bytesRemaining;
+    }else{
+      numBytes = len;
+    }
+    //imgFile.read(buf,numBytes);
+    bytesRemaining -= numBytes;
+    //Serial.print(bytesRemaining);
+    sendCheckReply(F("AT+SMTPFT=8"), F("+SMTPFT: 2,8"));
+
+    sendCheckReply(F("Hello te"), ok_reply);
+
+    delay(3000);
+
   }
+  */
+
+  uint8_t ddd[71] = {0x0f,0x42,0x4d,0x46,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x36,0x00,0x00,0x00,0x28,0x00,0x00,0x00,0x02,0x00,0x00,0x00,0x02,0x00,0x00,0x00,0x01,0x00,0x18,0x00,0x00,0x00,0x00,0x00,0x10,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xff,0xff,0xff,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xff,0xff,0xff,0x00,0x00};
+
+  sendCheckReply(F("AT+SMTPFT=71"), F("+SMTPFT: 2,71"));
+  sendCheckReplyB(ddd, 71, "OK");
+
+  sendCheckReply(F("AT+SMTPFT=0"), ok_reply);
+
+  readline(10000);
 
   return true;
+  //Send the email
+  /*
+  if (! sendCheckReply(F("AT+SMTPSEND"), ok_reply)) return false;
+
+      int len = 10;
+      char buf[len];
+      int numBytes;
+      String cmdString;
+
+      while(bytesRemaining = imgFile.available()){
+
+        if( len > bytesRemaining ){
+          numBytes = bytesRemaining;
+        }else{
+          numBytes = len;
+        }
+        //Serial.print(bytesRemaining);
+        sendCheckReply(F("AT+SMTPFT="), len, ok_reply, 10000);
+        sendCheckReply(F("AT+SMTPFT="), len, ok_reply, 10000);
+
+        imgFile.read(buf,numBytes);
+
+        delay(10000);
+        //File attachment body
+        getReply((char*)&buf, 10000);//(char*)&buf
+        //readline(10000);
+      }
+*/
+      //End of attachment file
 }
 
 /********* SMS **********************************************************/
@@ -527,9 +602,9 @@ int8_t Adafruit_FONA::getNumSMS(void) {
   if (! sendCheckReply(F("AT+CMGF=1"), ok_reply)) return -1;
 
   // ask how many sms are stored
-  if (sendParseReply(F("AT+CPMS?"), F("\"SM\","), &numsms)) 
+  if (sendParseReply(F("AT+CPMS?"), F("\"SM\","), &numsms))
     return numsms;
-  if (sendParseReply(F("AT+CPMS?"), F("\"SM_P\","), &numsms)) 
+  if (sendParseReply(F("AT+CPMS?"), F("\"SM_P\","), &numsms))
     return numsms;
   return -1;
 }
@@ -563,7 +638,7 @@ boolean Adafruit_FONA::readSMS(uint8_t i, char *smsbuff,
 
   DEBUG_PRINTLN(replybuffer);
 
-  
+
   if (! parseReply(F("+CMGR:"), &thesmslen, ',', 11)) {
     *readlen = 0;
     return false;
@@ -1221,20 +1296,20 @@ boolean Adafruit_FONA::enableGPRS(boolean onoff) {
       mySerial->println("\"");
 
       DEBUG_PRINT(F("\t---> ")); DEBUG_PRINT(F("AT+CSTT=\""));
-      DEBUG_PRINT(apn); 
-      
+      DEBUG_PRINT(apn);
+
       if (apnusername) {
 	DEBUG_PRINT("\",\"");
-	DEBUG_PRINT(apnusername); 
+	DEBUG_PRINT(apnusername);
       }
       if (apnpassword) {
 	DEBUG_PRINT("\",\"");
-	DEBUG_PRINT(apnpassword); 
+	DEBUG_PRINT(apnpassword);
       }
       DEBUG_PRINTLN("\"");
-      
+
       if (! expectReply(ok_reply)) return false;
-    
+
       // set username/password
       if (apnusername) {
         // Send command AT+SAPBR=3,1,"USER","<user>" where <user> is the configured APN username.
@@ -1843,6 +1918,23 @@ uint8_t Adafruit_FONA::readline(uint16_t timeout, boolean multiline) {
   return replyidx;
 }
 
+uint8_t Adafruit_FONA::getReplyB(uint8_t *send, uint16_t length, uint16_t timeout) {
+  flushInput();
+
+
+  //DEBUG_PRINT(F("\t---> ")); DEBUG_PRINTLN(send);
+
+  for(int i = 0; i<length; i++){
+    mySerial->write(send[i]);
+  }
+
+  uint8_t l = readline(timeout);
+
+  DEBUG_PRINT (F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
+
+  return l;
+}
+
 uint8_t Adafruit_FONA::getReply(char *send, uint16_t timeout) {
   flushInput();
 
@@ -1951,6 +2043,22 @@ uint8_t Adafruit_FONA::getReplyQuoted(FONAFlashStringPtr prefix, FONAFlashString
   DEBUG_PRINT (F("\t<--- ")); DEBUG_PRINTLN(replybuffer);
 
   return l;
+}
+
+boolean Adafruit_FONA::sendCheckReplyB(uint8_t *send, uint16_t length, char *reply, uint16_t timeout) {
+  if (! getReplyB(send, length, timeout) )
+	  return false;
+/*
+  for (uint8_t i=0; i<strlen(replybuffer); i++) {
+  DEBUG_PRINT(replybuffer[i], HEX); DEBUG_PRINT(" ");
+  }
+  DEBUG_PRINTLN();
+  for (uint8_t i=0; i<strlen(reply); i++) {
+    DEBUG_PRINT(reply[i], HEX); DEBUG_PRINT(" ");
+  }
+  DEBUG_PRINTLN();
+  */
+  return (strcmp(replybuffer, reply) == 0);
 }
 
 boolean Adafruit_FONA::sendCheckReply(char *send, char *reply, uint16_t timeout) {

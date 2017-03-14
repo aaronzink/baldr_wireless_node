@@ -1,95 +1,66 @@
 // Written by Nick Gammon
 // April 2011
 
-#include <SPI.h>
-
 volatile byte command = 0;
 String in_buf = "";
 bool fin = false;
+bool redy = false;
+String mock_sms = "default message";
+int counter = 0;
 
-void setup (void)
-{
+void setup (void) {
   Serial.begin (115200);
   Serial.println ("<----online---->");
 
   // have to send on master in, *slave out*
   pinMode(MISO, OUTPUT);
 
+  // getting the fona online
+
+
+  // reading the SMS that is online
+  
+
   // turn on SPI in slave mode
-  SPCR |= _BV(SPE);
+  SPCR &= 0b00000000;
+  SPCR |= 0b11001100;
 
-  // turn on interrupts
-  SPCR |= _BV(SPIE);
-
-}  // end of setup
-
-
-// SPI interrupt routine
-ISR (SPI_STC_vect)
-{
-  noInterrupts();
-  char c = SPDR;
-  //    Serial.print(c);
-  //    in_buf+=c;
-  if (! fin) {
-    switch (c)
-    {
-      case '{':
-        in_buf = "";
-        break;
-
-      case '}':
-        fin = true;
-        break;
-
-      default:
-        //Serial.print(c);
-        in_buf += c;
-        break;
-    }
-
-    if (!fin) interrupts();
-    else {
-      Serial.print("Received Command: ");
-      Serial.println(in_buf);
-    }
-  }
-}  // end of interrupt service routine (ISR) SPI_STC_vect
-
-char spi_transfer(volatile char data)
-{
-  SPDR = data;                    // Start the transmission
-  while (!(SPSR & (1 << SPIF)))   // Wait for the end of the transmission
-  {
-  };
-  return SPDR;                    // return the received byte
+  
+//  SPCR |= _BV(SPE);
+//  SPCR |= _BV(SPIE);
 }
 
-void loop (void)
-{
-  // if SPI not active, clear current command
-  while (digitalRead (SS) == LOW) {
+// SPI interrupt routine
+ISR (SPI_STC_vect) {
+
+  char command = SPDR;
+  
+//  if(counter == mock_sms.length()){
+//    counter == 0; 
+//    redy = false;
+//    fin = true;
+//  }
+
+  if( command =='r' && !redy) {
+    redy = true; 
   }
-  while (digitalRead (SS) == HIGH) {
+
+  if (redy){
+    
+    
+    switch(command){
+
+      
+    }
+    SPDR &= 0x00;
+    SPDR = mock_sms[counter++];
+    //Serial.println(SPDR);
   }
-  while (digitalRead (SS) == LOW) {
-  }
+  
+}
 
-  Serial.println("Done Receiving");
-  Serial.println("Sending debug info.");
+void loop (void) {
+  //waiting the system is ready  
+  while(!redy){};
 
-
-  SPI.end();
-  delay(100);
-  SPI.begin();
- 
-  Serial.print(SPI.transfer((byte) '4'));
-  Serial.print(SPI.transfer((byte)'t'));
-  Serial.print(SPI.transfer((byte)'e'));
-  Serial.print(SPI.transfer((byte)'s'));
-  Serial.print(SPI.transfer((byte)'t'));
-  Serial.print('\n');
-
-  while (1);
-
-}  // end of loop
+}

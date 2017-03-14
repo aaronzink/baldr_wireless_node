@@ -113,6 +113,10 @@ class Adafruit_FONA : public FONAStreamType {
   int8_t getFMVolume();
   int8_t getFMSignalLevel(uint16_t station);
 
+  // MMS handling
+  boolean MMS_initialization(void);
+  boolean MMS_sendMMS(void);
+
   // EMAIL handling
   boolean Email_sendEmail(void);
 
@@ -189,6 +193,7 @@ class Adafruit_FONA : public FONAStreamType {
 
   // Helper functions to verify responses.
   boolean expectReply(FONAFlashStringPtr reply, uint16_t timeout = 10000);
+  boolean sendCheckReplyB(uint8_t *send, uint16_t lenth, char *reply, uint16_t timeout = FONA_DEFAULT_TIMEOUT_MS);
   boolean sendCheckReply(char *send, char *reply, uint16_t timeout = FONA_DEFAULT_TIMEOUT_MS);
   boolean sendCheckReply(FONAFlashStringPtr send, FONAFlashStringPtr reply, uint16_t timeout = FONA_DEFAULT_TIMEOUT_MS);
   boolean sendCheckReply(char* send, FONAFlashStringPtr reply, uint16_t timeout = FONA_DEFAULT_TIMEOUT_MS);
@@ -212,6 +217,7 @@ class Adafruit_FONA : public FONAStreamType {
   void flushInput();
   uint16_t readRaw(uint16_t b);
   uint8_t readline(uint16_t timeout = FONA_DEFAULT_TIMEOUT_MS, boolean multiline = false);
+  uint8_t getReplyB(uint8_t *send, uint16_t length, uint16_t timeout = FONA_DEFAULT_TIMEOUT_MS);
   uint8_t getReply(char *send, uint16_t timeout = FONA_DEFAULT_TIMEOUT_MS);
   uint8_t getReply(FONAFlashStringPtr send, uint16_t timeout = FONA_DEFAULT_TIMEOUT_MS);
   uint8_t getReply(FONAFlashStringPtr prefix, char *suffix, uint16_t timeout = FONA_DEFAULT_TIMEOUT_MS);
