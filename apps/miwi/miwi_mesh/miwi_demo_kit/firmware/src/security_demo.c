@@ -106,7 +106,8 @@ void SecurityDemo(void)
         /*******************************************************************/
         switch_val = BUTTON_Pressed();
 	
-        if(0)//switch_val == SW2) //BALDR edit, we don't want to exit the demo
+#if 0
+        if(switch_val == SW2) //BALDR edit, we don't want to exit the demo
         {
             /*******************************************************************/
         	// Send Exit Demo Request Packet and exit Temp Demo
@@ -135,6 +136,7 @@ void SecurityDemo(void)
                 tick2 = MiWi_TickGet();
             }  
         } 
+#endif
             
         /*******************************************************************/
         // Rotate through Displaying All Node Temp's
