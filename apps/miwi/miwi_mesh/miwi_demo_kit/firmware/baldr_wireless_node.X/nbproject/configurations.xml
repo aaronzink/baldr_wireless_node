@@ -7,6 +7,47 @@
       <logicalFolder name="baldr_wireless_node"
                      displayName="baldr_wireless_node"
                      projectFiles="true">
+        <logicalFolder name="system_config"
+                       displayName="system_config"
+                       projectFiles="true">
+          <logicalFolder name="miwikit_pic18f46j50_24j40"
+                         displayName="miwikit_pic18f46j50_24j40"
+                         projectFiles="true">
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/button.h</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/config_24j40.h</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/console.h</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/delay.h</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/eeprom.h</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/lcd.h</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/miwi_config.h</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/miwi_config_mesh.h</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/serial_flash.h</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/spi.h</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/symbol.h</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/system.h</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/system_config.h</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/timer.h</itemPath>
+          </logicalFolder>
+          <logicalFolder name="miwikit_pic18f46j50_89xa"
+                         displayName="miwikit_pic18f46j50_89xa"
+                         projectFiles="true">
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_89xa/button.h</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_89xa/config_89xa.h</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_89xa/console.h</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_89xa/delay.h</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_89xa/eeprom.h</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_89xa/lcd.h</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_89xa/miwi_config.h</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_89xa/miwi_config_mesh.h</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_89xa/serial_flash.h</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_89xa/spi.h</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_89xa/symbol.h</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_89xa/system.h</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_89xa/system_config.h</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_89xa/timer.h</itemPath>
+          </logicalFolder>
+        </logicalFolder>
+        <itemPath>../src/baldr_wireless_node/security_demo.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="framework" projectFiles="true">
         <logicalFolder name="f1" displayName="driver" projectFiles="true">
@@ -26,49 +67,10 @@
           <itemPath>../../../../../../framework/miwi/miwi_nvm.h</itemPath>
         </logicalFolder>
       </logicalFolder>
-      <logicalFolder name="f1" displayName="system_config" projectFiles="true">
-        <logicalFolder name="f1"
-                       displayName="miwikit_pic18f46j50_24j40"
-                       projectFiles="true">
-          <itemPath>../src/system_config/miwikit_pic18f46j50_24j40/config_24j40.h</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_24j40/lcd.h</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_24j40/miwi_config.h</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_24j40/miwi_config_mesh.h</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_24j40/serial_flash.h</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_24j40/system.h</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_24j40/system_config.h</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_24j40/delay.h</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_24j40/symbol.h</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_24j40/timer.h</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_24j40/button.h</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_24j40/spi.h</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_24j40/eeprom.h</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_24j40/console.h</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f2"
-                       displayName="miwikit_pic18f46j50_89xa"
-                       projectFiles="true">
-          <itemPath>../src/system_config/miwikit_pic18f46j50_89xa/config_89xa.h</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_89xa/lcd.h</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_89xa/miwi_config.h</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_89xa/miwi_config_mesh.h</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_89xa/serial_flash.h</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_89xa/system.h</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_89xa/system_config.h</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_89xa/delay.h</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_89xa/symbol.h</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_89xa/timer.h</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_89xa/button.h</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_89xa/spi.h</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_89xa/eeprom.h</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_89xa/console.h</itemPath>
-        </logicalFolder>
-      </logicalFolder>
       <itemPath>../src/range_demo.h</itemPath>
       <itemPath>../src/self_test.h</itemPath>
       <itemPath>../src/temp_demo.h</itemPath>
       <itemPath>../src/parser.h</itemPath>
-      <itemPath>../src/security_demo.h</itemPath>
       <itemPath>../src/arduinoSPI.h</itemPath>
       <itemPath>../src/low_power_mode.h</itemPath>
     </logicalFolder>
@@ -82,7 +84,36 @@
       <logicalFolder name="baldr_wireless_node"
                      displayName="baldr_wireless_node"
                      projectFiles="true">
+        <logicalFolder name="system_config"
+                       displayName="system_config"
+                       projectFiles="true">
+          <logicalFolder name="miwikit_pic18f46j50_24j40"
+                         displayName="miwikit_pic18f46j50_24j40"
+                         projectFiles="true">
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/button.c</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/delay.c</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/eeprom.c</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/lcd.c</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/serial_flash.c</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/spi.c</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/symbol.c</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/system.c</itemPath>
+          </logicalFolder>
+          <logicalFolder name="miwikit_pic18f46j50_89xa"
+                         displayName="miwikit_pic18f46j50_89xa"
+                         projectFiles="true">
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_89xa/button.c</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_89xa/delay.c</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_89xa/eeprom.c</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_89xa/lcd.c</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_89xa/serial_flash.c</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_89xa/spi.c</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_89xa/symbol.c</itemPath>
+            <itemPath>../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_89xa/system.c</itemPath>
+          </logicalFolder>
+        </logicalFolder>
         <itemPath>../src/baldr_wireless_node/main.c</itemPath>
+        <itemPath>../src/baldr_wireless_node/security_demo.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="framework" projectFiles="true">
         <logicalFolder name="f1" displayName="driver" projectFiles="true">
@@ -101,37 +132,10 @@
           <itemPath>../../../../../../framework/miwi/src/miwi_nvm.c</itemPath>
         </logicalFolder>
       </logicalFolder>
-      <logicalFolder name="f1" displayName="system_config" projectFiles="true">
-        <logicalFolder name="f1"
-                       displayName="miwikit_pic18f46j50_24j40"
-                       projectFiles="true">
-          <itemPath>../src/system_config/miwikit_pic18f46j50_24j40/lcd.c</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_24j40/serial_flash.c</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_24j40/system.c</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_24j40/delay.c</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_24j40/symbol.c</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_24j40/button.c</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_24j40/spi.c</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_24j40/eeprom.c</itemPath>
-        </logicalFolder>
-        <logicalFolder name="f2"
-                       displayName="miwikit_pic18f46j50_89xa"
-                       projectFiles="true">
-          <itemPath>../src/system_config/miwikit_pic18f46j50_89xa/lcd.c</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_89xa/serial_flash.c</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_89xa/system.c</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_89xa/delay.c</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_89xa/symbol.c</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_89xa/button.c</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_89xa/spi.c</itemPath>
-          <itemPath>../src/system_config/miwikit_pic18f46j50_89xa/eeprom.c</itemPath>
-        </logicalFolder>
-      </logicalFolder>
       <itemPath>../src/range_demo.c</itemPath>
       <itemPath>../src/self_test.c</itemPath>
       <itemPath>../src/temp_demo.c</itemPath>
       <itemPath>../src/parser.c</itemPath>
-      <itemPath>../src/security_demo.c</itemPath>
       <itemPath>../src/arduionSPI.c</itemPath>
       <itemPath>../src/low_power_mode.c</itemPath>
     </logicalFolder>
@@ -156,7 +160,7 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>PICkit2PlatformTool</platformTool>
         <languageToolchain>XC8</languageToolchain>
-        <languageToolchainVersion>1.37</languageToolchainVersion>
+        <languageToolchainVersion>1.38</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
@@ -282,226 +286,6 @@
         </XC8-config-global>
       </item>
       <item path="../../../../../../framework/driver/mrf_miwi/src/drv_mrf_miwi_security.c"
-            ex="true"
-            overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_89xa/button.c"
-            ex="true"
-            overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_89xa/button.h"
-            ex="true"
-            overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_89xa/config_89xa.h"
-            ex="true"
-            overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_89xa/console.h"
-            ex="true"
-            overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_89xa/delay.c"
-            ex="true"
-            overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_89xa/delay.h"
-            ex="true"
-            overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_89xa/eeprom.c"
-            ex="true"
-            overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_89xa/eeprom.h"
-            ex="true"
-            overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_89xa/lcd.c"
-            ex="true"
-            overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_89xa/lcd.h"
-            ex="true"
-            overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_89xa/miwi_config.h"
-            ex="true"
-            overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_89xa/miwi_config_mesh.h"
-            ex="true"
-            overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_89xa/serial_flash.c"
-            ex="true"
-            overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_89xa/serial_flash.h"
-            ex="true"
-            overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_89xa/spi.c"
-            ex="true"
-            overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_89xa/spi.h"
-            ex="true"
-            overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_89xa/symbol.c"
-            ex="true"
-            overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_89xa/symbol.h"
-            ex="true"
-            overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_89xa/system.c"
-            ex="true"
-            overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_89xa/system.h"
-            ex="true"
-            overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_89xa/system_config.h"
-            ex="true"
-            overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
-      </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_89xa/timer.h"
             ex="true"
             overriding="false">
         <HI-TECH-COMP>
@@ -645,7 +429,7 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>PICkit2PlatformTool</platformTool>
         <languageToolchain>XC8</languageToolchain>
-        <languageToolchainVersion>1.37</languageToolchainVersion>
+        <languageToolchainVersion>1.38</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
@@ -740,231 +524,99 @@
         <XC8-config-global>
         </XC8-config-global>
       </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_24j40/button.c"
+      <item path="../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/button.c"
             ex="true"
             overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
       </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_24j40/button.h"
+      <item path="../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/button.h"
             ex="true"
             overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
       </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_24j40/config_24j40.h"
+      <item path="../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/config_24j40.h"
             ex="true"
             overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
       </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_24j40/console.h"
+      <item path="../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/console.h"
             ex="true"
             overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
       </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_24j40/delay.c"
+      <item path="../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/delay.c"
             ex="true"
             overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
       </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_24j40/delay.h"
+      <item path="../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/delay.h"
             ex="true"
             overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
       </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_24j40/eeprom.c"
+      <item path="../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/eeprom.c"
             ex="true"
             overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
       </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_24j40/eeprom.h"
+      <item path="../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/eeprom.h"
             ex="true"
             overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
       </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_24j40/lcd.c"
+      <item path="../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/lcd.c"
             ex="true"
             overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
       </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_24j40/lcd.h"
+      <item path="../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/lcd.h"
             ex="true"
             overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
       </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_24j40/miwi_config.h"
+      <item path="../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/miwi_config.h"
             ex="true"
             overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
       </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_24j40/miwi_config_mesh.h"
+      <item path="../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/miwi_config_mesh.h"
             ex="true"
             overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
       </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_24j40/serial_flash.c"
+      <item path="../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/serial_flash.c"
             ex="true"
             overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
       </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_24j40/serial_flash.h"
+      <item path="../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/serial_flash.h"
             ex="true"
             overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
       </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_24j40/spi.c"
+      <item path="../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/spi.c"
             ex="true"
             overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
       </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_24j40/spi.h"
+      <item path="../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/spi.h"
             ex="true"
             overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
       </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_24j40/symbol.c"
+      <item path="../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/symbol.c"
             ex="true"
             overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
       </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_24j40/symbol.h"
+      <item path="../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/symbol.h"
             ex="true"
             overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
       </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_24j40/system.c"
+      <item path="../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/system.c"
             ex="true"
             overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
       </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_24j40/system.h"
+      <item path="../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/system.h"
             ex="true"
             overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
       </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_24j40/system_config.h"
+      <item path="../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/system_config.h"
             ex="true"
             overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
       </item>
-      <item path="../src/system_config/miwikit_pic18f46j50_24j40/timer.h"
+      <item path="../src/baldr_wireless_node/system_config/miwikit_pic18f46j50_24j40/timer.h"
             ex="true"
             overriding="false">
-        <HI-TECH-COMP>
-        </HI-TECH-COMP>
-        <HI-TECH-LINK>
-        </HI-TECH-LINK>
-        <XC8-config-global>
-        </XC8-config-global>
       </item>
       <HI-TECH-COMP>
         <property key="asmlist" value="true"/>
         <property key="define-macros" value=""/>
         <property key="extra-include-directories"
-                  value="../src;../../src;../../../../../../framework;../src/system_config/miwikit_pic18f46j50_89xa"/>
+                  value="../src;../../src;../../../../../../framework;..\src\baldr_wireless_node\system_config\miwikit_pic18f46j50_89xa"/>
         <property key="identifier-length" value="255"/>
         <property key="operation-mode" value="pro"/>
         <property key="opt-xc8-compiler-strict_ansi" value="false"/>
