@@ -230,7 +230,6 @@ uint8_t SPIGet(void)
             return spidata;
         #else
 
-            SPIPut2(0x00);
             return SSP2BUF;
         #endif
     }
