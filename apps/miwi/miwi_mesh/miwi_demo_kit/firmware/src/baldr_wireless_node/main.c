@@ -28,10 +28,12 @@
 #include "parser.h"
 
 
-
 // Demo Version
 #define MAJOR_REV       1
 #define MINOR_REV       3
+
+//use to activate LCD
+#define DEBUG_LCD 1
 
 /*************************************************************************/
 // The variable myChannel defines the channel that the device
@@ -48,7 +50,7 @@ uint8_t myChannel = 26;
 
 #define EXIT_DEMO           1
 #define RANGE_DEMO          2
-#define SECURITY_DEMO           3
+#define SECURITY_DEMO       3
 #define IDENTIFY_MODE       4
 #define EXIT_IDENTIFY_MODE  5
 #define ALBATROSS_DEMO      6
@@ -126,7 +128,9 @@ void main(void)
     /*******************************************************************/
     SYSTEM_Initialize();
     
+#if DEBUG_LCD
     LCD_Initialize();
+#endif
  
     /*******************************************************************/
     // Testing the parser with:
@@ -180,10 +184,12 @@ void main(void)
     {
         while(true)
         {
+#if DEBUG_LCD
             LCD_Erase();
             sprintf((char *)LCDText, (char*) "PIC to ARD SPI  ");
             sprintf((char *)&(LCDText[16]), (char*) "Read String Test");
             LCD_Update();
+#endif
             DELAY_ms(3000);
             
             
@@ -192,17 +198,21 @@ void main(void)
     
             for(int i = 0; i < (count/32)+1; i++)
             {
+#if DEBUG_LCD
                 LCD_Erase();
                 sprintf((char *)LCDText, myString[i*32]);
                 LCD_Update();
+#endif
                 DELAY_ms(5000);
             }
             
+#if DEBUG_LCD
             LCD_Erase();
             sprintf((char *)LCDText, (char*) "PIC to ARD SPI  ");
             sprintf((char *)&(LCDText[16]), (char*) "Send String Test");
             LCD_Update();
             DELAY_ms(3000);
+#endif
             
             
             uint8_t * sendString = "This is the reply to the message you forwarded.";
@@ -221,6 +231,7 @@ void main(void)
     MiApp_ProtocolInit(false);
     if(ds_wake)
     {
+#if DEBUG_LCD
         LCD_BacklightON();
         LCD_Erase();
         sprintf((char *)LCDText, (char*)"    Wake        "  );
@@ -244,6 +255,7 @@ void main(void)
         
         LCD_Update();
         LCD_BacklightOFF();
+#endif  
     }
     else
     {
@@ -251,16 +263,20 @@ void main(void)
         /*******************************************************************/
         // Display Start-up Splash Screen
         /*******************************************************************/
+#if DEBUG_LCD
         LCD_BacklightON();
 
         LCD_Erase();
         sprintf((char *)LCDText, (char*)"Albatross      ");
         sprintf((char *)&(LCDText[16]), (char*)"Main Board      ");
         LCD_Update();
+#endif
         DELAY_ms(2000);
     }
 
+#if DEBUG_LCD
     LCD_BacklightOFF();
+#endif
 
     /*
      * TODO: this is an example of how to read from the AUX ports, if 
@@ -275,7 +291,9 @@ void main(void)
     /*******************************************************************/
     if( MiApp_SetChannel(myChannel) == false )
     {
+#if DEBUG_LCD
         LCD_Display((char *)"ERROR: Unable toSet Channel..", 0, true);
+#endif
         return;
     }
 
@@ -293,7 +311,9 @@ void main(void)
     {
         volatile uint8_t scanresult;
 
+#if DEBUG_LCD
         LCD_Display((char *)"  Scanning for    Networks....", 0, true);
+#endif
 
         MiApp_ProtocolInit(false);
 
@@ -318,21 +338,27 @@ void main(void)
             /* There is an obvious issue, as this should be the only source of
                the network in this sector...
                In future could try a different channel */
+#if DEBUG_LCD
             LCD_Display((char *)"Network Exists! Error!", 0, true);
+#endif
             
         }else
         {
+#if DEBUG_LCD
             LCD_Display((char *)"Creating Network", 0, true);
+#endif
 
             MiApp_ProtocolInit(false);
             MiApp_StartConnection(START_CONN_DIRECT, 0, 0);
 
+#if DEBUG_LCD
             LCD_Display((char *)"Created Network Successfully", 0, true);
 
             LCD_Erase();
             sprintf((char *)&(LCDText), (char*)"PANID:%02x%02x Ch:%02d",myPANID.v[1],myPANID.v[0],myChannel);
             sprintf((char *)&(LCDText[16]), (char*)"Address: %02x%02x", myShortAddress.v[1], myShortAddress.v[0]);
             LCD_Update();
+#endif
 
             /*******************************************************************/
             // Wait for a Node to Join Network then proceed to Demo's
@@ -358,16 +384,22 @@ void main(void)
             pktCMD = rxMessage.Payload[0];
             if(pktCMD == ALBATROSS_DEMO)
             {
+#if DEBUG_LCD
                 LCD_Display((char *)"Received Correct Packet!", 0, true);
+#endif
                 MiApp_FlushTx();
                 MiApp_WriteData(ALBATROSS_DEMO);
                 MiApp_BroadcastPacket(false);
             }else
             {
+#if DEBUG_LCD
                 LCD_Display((char *)"Received Incorrect Packet! %02d", pktCMD, true);
+#endif
             }
             DELAY_ms(1000);
+#if DEBUG_LCD
             LCD_Erase();
+#endif
             DELAY_ms(1000);
             MiApp_DiscardMessage();
         }

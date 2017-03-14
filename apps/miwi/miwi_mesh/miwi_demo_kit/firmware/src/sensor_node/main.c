@@ -31,6 +31,9 @@
 #define MAJOR_REV       1
 #define MINOR_REV       3
 
+//use to activate LCD
+#define DEBUG_LCD 1
+
 /*************************************************************************/
 // The variable myChannel defines the channel that the device
 // is operate on. This variable will be only effective if energy scan
@@ -41,9 +44,6 @@
 
 // Possible channel numbers are from 0 to 31
 uint8_t myChannel = 26;
-
-//use to activate LEDs, LCD, button inputs
-#define DEBUG 1
 
 #define MiWi_CHANNEL        0x04000000                //Channel 26 bitmap
 
@@ -105,7 +105,7 @@ void TestSleep(void)
     // Display Start-up Splash Screen
     /*******************************************************************/
 
-#if DEBUG
+#if DEBUG_LCD
     LCD_Erase();
     sprintf((char *)LCDText, (char*)"    Baldr       "  );
     sprintf((char *)&(LCDText[16]), (char*)"  Demo Board    ");
@@ -114,7 +114,7 @@ void TestSleep(void)
     
     MiApp_ProtocolInit(false);
     
-#if DEBUG
+#if DEBUG_LCD
     if (ds_wake)
     {
         LCD_Erase();
@@ -158,7 +158,7 @@ void TestSleep(void)
 //    SSTWrite(&testValue, address, count);
 //    SSTRead(&testOutput, address, count);
 //    
-//#if DEBUG
+//#if DEBUG_LCD
 //    LCD_Erase();
 //    sprintf((char *)LCDText, "%03d,%03d,%03d,%03d",testOutput[0],testOutput[1],testOutput[2],testOutput[3]);
 //    sprintf((char *)&(LCDText[16]), (char*)"Memory Test     ");
@@ -216,7 +216,7 @@ void main(void)
     }
     
     SYSTEM_Initialize();
-#if DEBUG
+#if DEBUG_LCD
     LCD_Initialize();
 #endif
 
@@ -241,7 +241,7 @@ void main(void)
     /*******************************************************************/
     // Display Start-up Splash Screen
     /*******************************************************************/
-#if DEBUG
+#if DEBUG_LCD
     if(ds_wake)
     {
         LCD_BacklightON();
@@ -294,7 +294,7 @@ void main(void)
     //TODO: get myChannel from non-volatile memory
     if( MiApp_SetChannel(myChannel) == false )
     {
-#if DEBUG
+#if DEBUG_LCD
         LCD_Display((char *)"ERROR: Unable toSet Channel..", 0, true);
 #endif
         return;
@@ -313,7 +313,7 @@ void main(void)
     /*******************************************************************/
     MiApp_ConnectionMode(ENABLE_ALL_CONN);
 
-#if DEBUG
+#if DEBUG_LCD
     LCD_Display((char *)"  Scanning for    Networks....", 0, true);
 #endif
     
@@ -363,7 +363,7 @@ void main(void)
                     }
                 }
 
-    #if DEBUG
+    #if DEBUG_LCD
                 // Display the index on LCD
                 LCD_Erase();
 
@@ -401,7 +401,7 @@ void main(void)
                         if((ActiveScanResults[j].PANID.v[1] == ActiveScanResults[k].PANID.v[1]) &
                             (ActiveScanResults[j].PANID.v[0] == ActiveScanResults[k].PANID.v[0]))
                         {
-    #if DEBUG
+    #if DEBUG_LCD
                             LCD_Erase();
 
                             // Display Network information
@@ -425,14 +425,14 @@ void main(void)
                 Status = MiApp_EstablishConnection(j, CONN_MODE_DIRECT);
                 if(Status == 0xFF)
                 {
-    #if DEBUG
+    #if DEBUG_LCD
                     LCD_Display((char *)"Join Failed!!!", 0, true);
     #endif
                     //TODO: this currently just loops and tries again, should we do something more intelligent?
                 }
                 else
                 {
-    #if DEBUG
+    #if DEBUG_LCD
                     LCD_Display((char *)"Joined  Network Successfully..", 0, true);
     #endif
                     MiApp_FlushTx();
@@ -508,7 +508,7 @@ void main(void)
         }
         if(pktCMD == IDENTIFY_MODE)
         {
-#if DEBUG
+#if DEBUG_LCD
             LCD_Erase();
             sprintf((char *)&(LCDText), (char*)"PANID:%02x%02x Ch:%02d",myPANID.v[1],myPANID.v[0],myChannel);
             #if defined(IEEE_802_15_4)
