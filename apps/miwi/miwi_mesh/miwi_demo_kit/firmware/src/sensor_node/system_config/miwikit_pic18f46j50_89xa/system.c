@@ -27,7 +27,7 @@
 #pragma config OSC = INTOSCPLL, WDTEN = OFF, XINST = OFF, WDTPS = 2048, PLLDIV = 2, CPUDIV = OSC3_PLL3
 //TODO: turn off DSWDT for testing
 //#pragma config DSBOREN = OFF, DSWDTEN = OFF
-// configs for deep sleep (DS): disable Brown Out Reset(BOR), enable DS Watch Dog Timer(WDT), DSWDT post scaler (1:2048 = 2.1 sec), DSWDT reference clock select (1 = INTRC)
+// configs for deep sleep (DS): disable Brown Out Reset(BOR), enable DS Watch Dog Timer(WDT), DSWDT post scaler (1:32768 = 34 sec), DSWDT reference clock select (1 = INTRC)
 #pragma config DSBOREN = OFF, DSWDTEN = ON, DSWDTPS = 8192, DSWDTOSC = 1
 
 /*********************************************************************

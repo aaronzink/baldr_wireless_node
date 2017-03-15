@@ -28,7 +28,7 @@
 //TODO: turn off DSWDT for testing
 //#pragma config DSBOREN = OFF, DSWDTEN = OFF
 // configs for deep sleep (DS): disable Brown Out Reset(BOR), enable DS Watch Dog Timer(WDT), DSWDT post scaler (1:2048 = 2.1 sec), DSWDT reference clock select (1 = INTRC)
-#pragma config DSBOREN = OFF, DSWDTEN = ON, DSWDTPS = 8192, DSWDTOSC = 1
+#pragma config DSBOREN = OFF, DSWDTEN = ON, DSWDTPS = 2048, DSWDTOSC = 1
 
 /*********************************************************************
  * Function:        void SYSTEM_Initialize( void )
@@ -187,10 +187,14 @@ void SYSTEM_Initialize(void)
     // Custom configurations for Baldr Project
     /*******************************************************************/
     
-    //configure the AUX ports as inputs
-    AUX1_TRIS = 1;
+    //configure AUX1 as output
+    AUX1_TRIS = 0;
+    AUX1_PORT = 0;
+    
+    //configure AUX2 as input
     AUX2_TRIS = 1;
-    //configure the BUZZER port is output
+    
+    //configure the BUZZER port as output
     BUZZER_TRIS = 0;
 }
 

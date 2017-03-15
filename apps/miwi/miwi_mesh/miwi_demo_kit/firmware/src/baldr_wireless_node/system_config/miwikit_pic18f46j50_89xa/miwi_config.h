@@ -67,7 +67,7 @@
 // Network freezer feature needs definition of NVM kind to be 
 // used, which is specified in HardwareProfile.h
 /*********************************************************************/
-//#define ENABLE_NETWORK_FREEZER
+#define ENABLE_NETWORK_FREEZER
 
 
 /*********************************************************************/
