@@ -541,7 +541,15 @@ void main(void)
     LED0 = LED1 = LED2 = 0;
 #endif
     
+    uint8_t * dest;
     //TODO: store sleep_toggle == true in the persisted register
+    if(alert)
+    {
+        ARDWriteText(&dest, 1);
+    }else
+    {
+        ARDWriteText(&dest, 0);
+    }
     
     //put the transceiver to sleep, very important for power saving
     MiApp_TransceiverPowerState(POWER_STATE_SLEEP);

@@ -11,7 +11,7 @@
 
 #define SPI_ARD_READ            0x01
 #define SPI_ARD_READ_CONT       0x02
-#define SPI_ARD_SEND            0x03
+#define SPI_ARD_SEND            0x04
 #define SPI_ARD_CHECK_AWAKE     0xF0
 #define SPI_ARD_IS_AWAKE        0xF1
 
@@ -173,16 +173,15 @@ void ARDWriteText(uint8_t *src, uint8_t count)
     ARD_nCS = 0;
     DELAY_ms(10);
     while(ARDCheckAwake() != SPI_ARD_IS_AWAKE);
-    DELAY_ms(10);
-    SPIPut2(SPI_ARD_SEND);
-    DELAY_ms(10);
-    SPIGet2();
-    for(int i = 0; i < count; i++)
+    uint8_t myReturn = 0;
+    for(int i = 0; i < 1000; i++)
     {
         DELAY_ms(10);
-        SPIPut2(*src++);
+        if(count == 1) SPIPut2(SPI_ARD_SEND);
+        else SPIPut2(0x00);
         DELAY_ms(10);
-        SPIGet2();
+        myReturn = SPIGet2();
+        if(myReturn == 0xF2) break;
     }
 }
 
