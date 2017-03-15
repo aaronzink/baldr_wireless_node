@@ -237,18 +237,49 @@ void connect_to_network()
     LCD_Display((char *)"  Scanning for    Networks....", 0, true);
 #endif
 
+//    uint8_t Status = 0xFF;
+//    while(Status == 0xFF)
+//    {   
+//        MiApp_FlushTx();
+//        MiApp_WriteData(IDENTIFY_MODE);
+//        MiApp_WriteData(myPANID.v[1]);
+//        MiApp_WriteData(myPANID.v[0]);
+//        MiApp_BroadcastPacket(false);
+//        
+//        Status = MiApp_EstablishConnection(0xFF, CONN_MODE_DIRECT);
+//        if(Status != 0xFF)
+//        {
+//            MiApp_FlushTx();
+//            MiApp_WriteData(EXIT_IDENTIFY_MODE);
+//            MiApp_WriteData(myPANID.v[1]);
+//            MiApp_WriteData(myPANID.v[0]);
+//            MiApp_BroadcastPacket(false);
+//
+//#if DEBUG_LCD
+//            LCD_Display((char *)"Joined  Network Successfully..", 0, true);
+//#endif
+//
+//            return;
+//        }
+//    }
+    
     uint8_t j, k;
     bool connected = false;
     while(!connected)
     {
-    
+        MiApp_FlushTx();
+        MiApp_WriteData(IDENTIFY_MODE);
+        MiApp_WriteData(myPANID.v[1]);
+        MiApp_WriteData(myPANID.v[0]);
+        MiApp_BroadcastPacket(false);
+        
         scanresult = scan_for_network();
 
         /*******************************************************************/
         // Display Scan Results
         /*******************************************************************/
         if(scanresult > 0)
-        {
+        {   
             for(j = 0; j < scanresult; j++)
             {
                 uint8_t skip_print = false;
@@ -325,15 +356,15 @@ void connect_to_network()
                 }
                 else
                 {
-#if DEBUG_LCD
-                    LCD_Display((char *)"Joined  Network Successfully..", 0, true);
-#endif
                     MiApp_FlushTx();
                     MiApp_WriteData(EXIT_IDENTIFY_MODE);
                     MiApp_WriteData(myPANID.v[1]);
                     MiApp_WriteData(myPANID.v[0]);
                     MiApp_BroadcastPacket(false);
                     
+#if DEBUG_LCD
+                    LCD_Display((char *)"Joined  Network Successfully..", 0, true);
+#endif
 #if DEBUG_LED
                     LED0 = 1;
                     LED2 = 0;
@@ -358,13 +389,9 @@ void connect_to_network()
     
     DELAY_ms(2000);
 #endif
-}
-
-void set_network_address()
-{
-    //TODO: LOOK MAGIC NUMBERS! I hardcoded this address so that the sensor node can start transmitting without connecting to the network
-    myShortAddress.v[1] = 0x01;
-    myShortAddress.v[0] = 0x80;
+    
+    //make sure there are no lingering messages
+    MiApp_DiscardMessage();
 }
 
 void check_messages()
@@ -375,6 +402,7 @@ void check_messages()
     if(MiApp_MessageAvailable())
     {
         pktCMD = rxMessage.Payload[0];
+        MiApp_DiscardMessage();
         if(pktCMD == ALBATROSS_ACK)
         {
             MiApp_FlushTx();
@@ -395,54 +423,26 @@ void check_messages()
 #if DEBUG_LCD
         LCD_Erase();
 #endif
-        
-        MiApp_DiscardMessage();
     }
 }
 
 void send_message()
 {
 #if DEBUG_LCD
-    LCD_Display((char *)"Sending ALBATROSS_ACK  Pkt", 0, true);
+    LCD_Display((char *)"Sending ALBATROSS      Pkt      ", 0, true);
 #endif
     
-    uint8_t pktCMD = 0;
-    
-    bool send = true;
-    while(send)
+    if(alert)
     {
-        if(alert)
-        {
-            MiApp_FlushTx();
-            MiApp_WriteData(ALBATROSS_ALERT);
-            MiApp_BroadcastPacket(false);
-        }
-        else
-        {
-            MiApp_FlushTx();
-            MiApp_WriteData(ALBATROSS_ACK);
-            MiApp_BroadcastPacket(false);
-        }
-
-        if(MiApp_MessageAvailable())
-        {
-            pktCMD = rxMessage.Payload[0];
-#if DEBUG_LCD
-            if(pktCMD == ALBATROSS_ACK)
-            {
-                LCD_Display((char *)"Received Correct Packet!", 0, true);
-                send = false;
-            }
-            else //unknown packet
-            {
-                LCD_Display((char *)"Received Incorrect Packet!", 0, true);
-            }
-            DELAY_ms(1000);
-            LCD_Erase();
-            DELAY_ms(1000);
-#endif
-            MiApp_DiscardMessage();
-        }
+        MiApp_FlushTx();
+        MiApp_WriteData(ALBATROSS_ALERT);
+        MiApp_BroadcastPacket(false);
+    }
+    else
+    {
+        MiApp_FlushTx();
+        MiApp_WriteData(ALBATROSS_ACK);
+        MiApp_BroadcastPacket(false);
     }
     
     alert = false;
@@ -567,9 +567,8 @@ void main(void)
             LED1 = 0;
         }
 #endif
-        
-        setup_transceiver(true);
-        //set_network_address();
+        setup_transceiver(false);
+        connect_to_network();
         send_message();
     }
     else //first power on

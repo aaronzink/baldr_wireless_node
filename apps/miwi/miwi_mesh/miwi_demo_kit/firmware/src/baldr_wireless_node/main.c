@@ -283,10 +283,13 @@ void setup_network()
         DELAY_ms(2000);
 #endif
     }
+    
+    //make sure there are no lingering messages
+    MiApp_DiscardMessage();
 }
 
 void wait_for_connection()
-{
+{   
     /*******************************************************************/
     // Wait for a Node to Join Network
     /*******************************************************************/
@@ -309,12 +312,10 @@ void check_messages()
 {
     uint8_t pktCMD = 0;
     bool receive = false;
-    if(MiApp_MessageAvailable())
-    {
-        receive = true;
-    }
+    
+    DELAY_ms(2000);
         
-    while (receive)
+    do
     {
         //TODO: should we check for multiple messages
         if(MiApp_MessageAvailable())
@@ -323,26 +324,20 @@ void check_messages()
             MiApp_DiscardMessage();
             if(pktCMD == IDENTIFY_MODE)
             {   
+                receive = true;
 #if DEBUG_LCD
                 LCD_Display((char *)"Rx: Identify    Packet          ", 0, true);
 #endif
             }
             else if (pktCMD == EXIT_IDENTIFY_MODE)
             {   
+                receive = true;
 #if DEBUG_LCD
                 LCD_Display((char *)"Rx: ExitIdentifyPacket          ", 0, true);
 #endif
             }
             else if(pktCMD == ALBATROSS_ACK)
             {
-                MiApp_FlushTx();
-                MiApp_WriteData(ALBATROSS_ACK);
-                bool test = false;
-                while(!test)
-                {
-                    MiApp_BroadcastPacket(false);
-                }
-
                 receive = false;
 
 #if DEBUG_LCD
@@ -352,11 +347,6 @@ void check_messages()
             else if(pktCMD == ALBATROSS_ALERT)
             {
                 alert = true;
-
-                MiApp_FlushTx();
-                MiApp_WriteData(ALBATROSS_ACK);
-                MiApp_BroadcastPacket(false);
-
                 receive = false;
 
 #if DEBUG_LCD
@@ -365,7 +355,6 @@ void check_messages()
             }
             else //unknown packet
             {
-
                 receive = false;
 #if DEBUG_LCD
                 LCD_Display((char *)"Received Incorrect Packet! %02d ", pktCMD, true);
@@ -375,7 +364,7 @@ void check_messages()
          LCD_Erase();
 #endif
         }
-    }
+    } while (receive);
 }
                                                                                                
 /*********************************************************************
