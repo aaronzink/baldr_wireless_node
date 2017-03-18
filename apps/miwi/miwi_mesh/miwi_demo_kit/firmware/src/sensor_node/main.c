@@ -267,6 +267,7 @@ void connect_to_network()
     bool connected = false;
     while(!connected)
     {
+        //TODO: might need to remove this
         MiApp_FlushTx();
         MiApp_WriteData(IDENTIFY_MODE);
         MiApp_WriteData(myPANID.v[1]);
