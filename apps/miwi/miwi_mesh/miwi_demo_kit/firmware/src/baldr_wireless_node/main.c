@@ -51,7 +51,9 @@ uint8_t myChannel = 26;
 #define SECURITY_DEMO           3
 #define IDENTIFY_MODE       4
 #define EXIT_IDENTIFY_MODE  5
-#define ALBATROSS_DEMO      6
+#define DEMO_ALERT          6
+#define DEMO_NO_ALERT       7
+#define DEMO_ACK            8
 
 #define NODE_INFO_INTERVAL  5
 
@@ -356,15 +358,18 @@ void main(void)
         if(MiApp_MessageAvailable())
         {
             pktCMD = rxMessage.Payload[0];
-            if(pktCMD == ALBATROSS_DEMO)
+            if(pktCMD == DEMO_ALERT)
             {
-                LCD_Display((char *)"Received Correct Packet!", 0, true);
+                LCD_Display((char *)"ALERT Packet! %02d", pktCMD, false);
                 MiApp_FlushTx();
-                MiApp_WriteData(ALBATROSS_DEMO);
+                MiApp_WriteData(DEMO_ACK);
                 MiApp_BroadcastPacket(false);
-            }else
+                DELAY_ms(2000);
+            }else if(pktCMD == DEMO_NO_ALERT)
             {
-                LCD_Display((char *)"Received Incorrect Packet! %02d", pktCMD, true);
+                LCD_Display((char *)"NO ALERT Packet! %02d", pktCMD, false);
+                MiApp_FlushTx();
+                MiApp_WriteData(DEMO_ACK);
             }
             DELAY_ms(1000);
             LCD_Erase();

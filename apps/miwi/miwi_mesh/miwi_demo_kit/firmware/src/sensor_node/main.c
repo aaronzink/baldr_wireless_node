@@ -52,7 +52,9 @@ uint8_t myChannel = 26;
 #define SECURITY_DEMO       3
 #define IDENTIFY_MODE       4
 #define EXIT_IDENTIFY_MODE  5
-#define ALBATROSS_DEMO      6
+#define DEMO_ALERT          6
+#define DEMO_NO_ALERT       7
+#define DEMO_ACK            8
 
 #define NODE_INFO_INTERVAL  5
 
@@ -539,28 +541,33 @@ void main(void)
     
     LCD_Display((char *)"Sending ALBATROSS_DEMO Pkt", 0, true);
     bool endDemo = false;
+    uint8_t count2 = 0;
     while(!endDemo)
     {
         MiApp_FlushTx();
-        MiApp_WriteData(ALBATROSS_DEMO);
+        if(alert) MiApp_WriteData(DEMO_ALERT);
+        else MiApp_WriteData(DEMO_NO_ALERT);
         MiApp_BroadcastPacket(false);
-        DELAY_ms(1000);
+        DELAY_ms(200);
         if(MiApp_MessageAvailable())
         {
             pktCMD = rxMessage.Payload[0];
-            if(pktCMD == ALBATROSS_DEMO)
+            if(pktCMD == DEMO_ACK)
             {
-                LCD_Display((char *)"Received Correct Packet!", 0, true);
+                LCD_Display((char *)"Received ACK Packet!", 0, false);
                 endDemo = true;
             }else
             {
-                LCD_Display((char *)"Received Incorrect Packet!", 0, true);
+                LCD_Display((char *)"Received Incorrect Packet!", 0, false);
             }
             DELAY_ms(1000);
             LCD_Erase();
             DELAY_ms(1000);
             MiApp_DiscardMessage();
         }
+        
+        count2++;
+        if(count2 > 10) break;
     }
     
     //put the tranciever to sleep, very important for power saving
