@@ -22,9 +22,6 @@
 #include "system.h"
 #include "system_config.h"
 #include "miwi/miwi_api.h"
-#include "self_test.h"
-#include "range_demo.h"
-#include "temp_demo.h"
 
 
 // Demo Version
@@ -49,26 +46,16 @@ uint8_t myChannel = 26;
 
 #define MiWi_CHANNEL        0x04000000                //Channel 26 bitmap
 
-#define EXIT_DEMO           1
-#define RANGE_DEMO          2
-#define SECURITY_DEMO       3
-#define IDENTIFY_MODE       4
-#define EXIT_IDENTIFY_MODE  5
+//previously packets were assigned up to 5, start at 6
 #define ALBATROSS_ACK       6
 #define ALBATROSS_ALERT     7
-
-#define NODE_INFO_INTERVAL  5
+#define ALBATROSS_NO_ALERT  8
+#define ALBATROSS_INIT      9
+#define ALBATROSS_CONNECT   10
 
 uint8_t ConnectionEntry = 0;
-			
-bool NetFreezerEnable = false;
-bool SleepTest = false;
-bool PowerTest = false;
-bool memTest = false;
-bool AutoConnectNetwork = false; //Create or join network on channel 26
-bool AutoStartDemo = false; //start the security_demo() automatically)
 
-bool alert = false;
+volatile bool alert = false;
 
 extern uint8_t myLongAddress[MY_ADDRESS_LENGTH];
 
@@ -85,72 +72,6 @@ extern uint8_t myLongAddress[MY_ADDRESS_LENGTH];
 #if ADDITIONAL_NODE_ID_SIZE > 0
     uint8_t AdditionalNodeID[ADDITIONAL_NODE_ID_SIZE] = {0x00};
 #endif
-    
-void TestSleep(void)
-{   
-    bool ds_wake = false;
-
-    if (WDTCONbits.DS)   // Woke up from deep sleep
-    {
-        ds_wake = true;
-        DSCONLbits.RELEASE = 0;    // release control and data bits for all I/Os
-        WDTCONbits.DS = 0;       // clear the deep-sleep status bit
-    }
-    
-    /*******************************************************************/
-    // Initialize Hardware
-    /*******************************************************************/
-    SYSTEM_Initialize();
-    
-    LED0 = LED1 = LED2 = 1;
- 	
-    Read_MAC_Address();
-    
-    /*******************************************************************/
-    // Display Start-up Splash Screen
-    /*******************************************************************/
-
-#if DEBUG_LCD
-    LCD_Erase();
-    sprintf((char *)LCDText, (char*)"    Baldr       "  );
-    sprintf((char *)&(LCDText[16]), (char*)"  Demo Board    ");
-    LCD_Update();
-#endif
-    
-    MiApp_ProtocolInit(false);
-    
-#if DEBUG_LCD
-    if (ds_wake)
-    {
-        LCD_Erase();
-        sprintf((char *)LCDText, (char*)"Deep Sleep wake:"  );
-
-        if (DSWAKELbits.DSMCLR)
-        {
-            sprintf((char *)&(LCDText[16]), (char*)"  MCLR          ");
-        }
-        else if (DSWAKELbits.DSWDT)
-        {
-            sprintf((char *)&(LCDText[16]), (char*)"  DSWDT         ");
-        }
-        else if (DSWAKEHbits.DSINT0)
-        {
-            sprintf((char *)&(LCDText[16]), (char*)"  INT0          ");
-        }
-        else if(DSWAKELbits.DSULP)
-        {
-            sprintf((char *)&(LCDText[16]), (char*)"  ULPWU         ");
-        }
-        LCD_Update();
-    }
-#endif
-
-    LED0 = 0;
-    
-    enter_deep_sleep();
-    
-    LED1 = 0; //TODO: this actually occasionally executes
-}
 
 //TODO: this could be useful for persisting data through sleep / power off
 //void memoryTest()
@@ -174,6 +95,29 @@ void TestSleep(void)
 //    
 //}
 
+void set_alert(bool val)
+{
+    if(val){
+        //disable the INT0 interrupt since we are already alerted
+        INTCONbits.INT0IE = 0;
+
+        alert = true;
+#if DEBUG_LED
+        LED1 = 1;
+#endif
+    }
+    else
+    {
+        alert = false;
+#if DEBUG_LED
+        LED1 = 0;
+#endif
+        
+        //enable the INT0 interrupt for the next alert
+        INTCONbits.INT0IE = 1;
+    }
+}
+    
 void setup_transceiver(bool restore)
 {
     Read_MAC_Address();
@@ -229,51 +173,18 @@ uint8_t scan_for_network()
     return scanresult;
 }
 
-void connect_to_network()
+void connect_to_network(bool first_time)
 {
     uint8_t scanresult;
 
 #if DEBUG_LCD
-    LCD_Display((char *)"  Scanning for    Networks....", 0, true);
+    LCD_Display((char *)"  Scanning for    Networks....", 0, false);
 #endif
-
-//    uint8_t Status = 0xFF;
-//    while(Status == 0xFF)
-//    {   
-//        MiApp_FlushTx();
-//        MiApp_WriteData(IDENTIFY_MODE);
-//        MiApp_WriteData(myPANID.v[1]);
-//        MiApp_WriteData(myPANID.v[0]);
-//        MiApp_BroadcastPacket(false);
-//        
-//        Status = MiApp_EstablishConnection(0xFF, CONN_MODE_DIRECT);
-//        if(Status != 0xFF)
-//        {
-//            MiApp_FlushTx();
-//            MiApp_WriteData(EXIT_IDENTIFY_MODE);
-//            MiApp_WriteData(myPANID.v[1]);
-//            MiApp_WriteData(myPANID.v[0]);
-//            MiApp_BroadcastPacket(false);
-//
-//#if DEBUG_LCD
-//            LCD_Display((char *)"Joined  Network Successfully..", 0, true);
-//#endif
-//
-//            return;
-//        }
-//    }
     
     uint8_t j, k;
     bool connected = false;
     while(!connected)
     {
-        //TODO: might need to remove this
-        MiApp_FlushTx();
-        MiApp_WriteData(IDENTIFY_MODE);
-        MiApp_WriteData(myPANID.v[1]);
-        MiApp_WriteData(myPANID.v[0]);
-        MiApp_BroadcastPacket(false);
-        
         scanresult = scan_for_network();
 
         /*******************************************************************/
@@ -322,7 +233,14 @@ void connect_to_network()
                 if(CoordCount > 1)
                 {
                     MiApp_FlushTx();
-                    MiApp_WriteData(IDENTIFY_MODE);
+                    if(first_time)
+                    {
+                       MiApp_WriteData(ALBATROSS_INIT);
+                    }
+                    else
+                    {
+                       MiApp_WriteData(ALBATROSS_CONNECT);
+                    }
                     MiApp_WriteData(ActiveScanResults[j].PANID.v[1]);
                     MiApp_WriteData(ActiveScanResults[j].PANID.v[0]);
                     MiApp_BroadcastPacket(false);
@@ -349,7 +267,6 @@ void connect_to_network()
                     LCD_Display((char *)"Join Failed!!!", 0, true);
 #endif
 #if DEBUG_LED
-                    LED0 = 0;
                     LED2 = 1;
 #endif
                     connected = false;
@@ -358,7 +275,7 @@ void connect_to_network()
                 else
                 {
                     MiApp_FlushTx();
-                    MiApp_WriteData(EXIT_IDENTIFY_MODE);
+                    MiApp_WriteData(ALBATROSS_ACK);
                     MiApp_WriteData(myPANID.v[1]);
                     MiApp_WriteData(myPANID.v[0]);
                     MiApp_BroadcastPacket(false);
@@ -367,7 +284,6 @@ void connect_to_network()
                     LCD_Display((char *)"Joined  Network Successfully..", 0, true);
 #endif
 #if DEBUG_LED
-                    LED0 = 1;
                     LED2 = 0;
 #endif
 
@@ -388,65 +304,74 @@ void connect_to_network()
     sprintf((char *)&(LCDText[16]), (char*)"Address: %02x%02x", myShortAddress.v[1], myShortAddress.v[0]);
     LCD_Update();
     
-    DELAY_ms(2000);
+    DELAY_ms(1000);
 #endif
     
     //make sure there are no lingering messages
     MiApp_DiscardMessage();
 }
 
-void check_messages()
+bool check_acknowledge()
 {
+    bool acknowledged = false;
     uint8_t pktCMD = 0;
-
-    //TODO: should we check for multiple messages
+    //TODO: should we check for multiple messages?
     if(MiApp_MessageAvailable())
     {
         pktCMD = rxMessage.Payload[0];
         MiApp_DiscardMessage();
         if(pktCMD == ALBATROSS_ACK)
         {
-            MiApp_FlushTx();
-            MiApp_WriteData(ALBATROSS_ACK);
-            MiApp_BroadcastPacket(false);
-            
+            acknowledged = true;
 #if DEBUG_LCD
-            LCD_Display((char *)"Received Correct Packet!", 0, true);
+            LCD_Display((char *)"Received        Acknowledge", 0, true);
 #endif
-            //TODO: do something with the message
         }
         else //unknown packet
         {
+            acknowledged = false;
 #if DEBUG_LCD
-            LCD_Display((char *)"Received Incorrect Packet! %02d", pktCMD, true);
+            LCD_Display((char *)"Received UnknownPacket! %02d", pktCMD, true);
 #endif
         }
 #if DEBUG_LCD
         LCD_Erase();
 #endif
     }
+    
+    return acknowledged;
 }
 
 void send_message()
 {
+    bool send = true;
+    while(send) {
+        if(alert)
+        {
+            MiApp_FlushTx();
+            MiApp_WriteData(ALBATROSS_ALERT);
+            MiApp_BroadcastPacket(false);
 #if DEBUG_LCD
-    LCD_Display((char *)"Sending ALBATROSS      Pkt      ", 0, true);
+            LCD_Display((char *)"Sending ALBATROSS      Alert    ", 0, false);
 #endif
+        }
+        else
+        {
+            MiApp_FlushTx();
+            MiApp_WriteData(ALBATROSS_NO_ALERT);
+            MiApp_BroadcastPacket(false);
+#if DEBUG_LCD
+            LCD_Display((char *)"Sending ALBATROSS      No Alert ", 0, false);
+#endif
+        }
     
-    if(alert)
-    {
-        MiApp_FlushTx();
-        MiApp_WriteData(ALBATROSS_ALERT);
-        MiApp_BroadcastPacket(false);
+        if(check_acknowledge())
+        {
+            send = false;
+        }
     }
-    else
-    {
-        MiApp_FlushTx();
-        MiApp_WriteData(ALBATROSS_ACK);
-        MiApp_BroadcastPacket(false);
-    }
-    
-    alert = false;
+
+    set_alert(false);
 }
 
 /*********************************************************************
@@ -480,6 +405,14 @@ void send_message()
 **********************************************************************/
 void main(void)
 {
+    /*******************************************************************
+     *LED0 = running / sleeping
+     *LED1 = alert / no alert
+     *LED2 = error / no error
+     *All LEDs = first time setup
+    *******************************************************************/
+    
+    
     bool ds_wake = false;
 
     if (WDTCONbits.DS)   // Woke up from deep sleep
@@ -499,7 +432,8 @@ void main(void)
 #endif
 
 #if DEBUG_LED
-    LED0 = LED1 = LED2 = 1;
+    LED0 = 1;
+    LED1 = LED2 = 0;
 #endif
     
     /*******************************************************************/
@@ -546,54 +480,45 @@ void main(void)
     }
 #endif
     
-#if DEBUG_LED
-    DELAY_ms(1000);
-    LED0 = 1;
-    LED1 = LED2 = 0;
-#endif
-    
-    if(ds_wake)
+    do
     {
-        //we woke because a sensor was tripped, notify of intrusion
-        if(DSWAKEHbits.DSINT0)
+        if(ds_wake)
         {
-            alert = true;
+            //we woke because a sensor was tripped, notify of intrusion
+            if(DSWAKEHbits.DSINT0)
+            {
+                set_alert(true);
+            }
+
+            setup_transceiver(false);
+            connect_to_network(false);
+            send_message();
+        }
+        else //first power on
+        {
 #if DEBUG_LED
-            LED1 = 1;
+            LED0 = LED1 = LED2 = 1;
+#endif
+            setup_transceiver(false);
+            connect_to_network(true);
+
+#if DEBUG_LCD
+            LCD_Display((char *)"Connected to    main hub     ", 0, true);
 #endif
         }
-#if DEBUG_LED
-        else
-        {
-            LED1 = 0;
-        }
-#endif
-        setup_transceiver(false);
-        connect_to_network();
-        send_message();
-    }
-    else //first power on
-    {
-        setup_transceiver(false);
-        connect_to_network();
-        
+
+        //put the transceiver to sleep, very important for power saving
+        MiApp_TransceiverPowerState(POWER_STATE_SLEEP);
+    } while (alert); //make sure there is no longer an alert
+
 #if DEBUG_LCD
-        LCD_Display((char *)"Connected to    main hub     ", 0, true);
-#endif
-    }
-    
-#if DEBUG_LCD
-    DELAY_ms(1000);
     LCD_Erase();
 #endif
     
 #if DEBUG_LED
-    DELAY_ms(1000);
     LED0 = LED1 = LED2 = 0;
 #endif
-        
-    //put the transceiver to sleep, very important for power saving
-    MiApp_TransceiverPowerState(POWER_STATE_SLEEP);
+
     enter_deep_sleep();
 }
 
@@ -603,12 +528,13 @@ void UserInterruptHandler(void)
     //check for INT0 interrupt
     if(INTCONbits.INT0IF == 1)
     {
+        //TODO: this is correct
+        if(AUX1_PORT || AUX2_PORT)
+        {
+            set_alert(true);
+        }
+        
+        //clear the interrupt
         INTCONbits.INT0IF = 0;
-//        if(LED0)
-//        {
-//            LED1 = 0;
-//        } else {
-//            LED1 = 1;
-//        }
     }
 }

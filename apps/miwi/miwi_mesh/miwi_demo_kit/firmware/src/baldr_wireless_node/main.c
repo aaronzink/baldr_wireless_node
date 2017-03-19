@@ -50,23 +50,14 @@ uint8_t myChannel = 26;
 
 #define MiWi_CHANNEL        0x04000000                          //Channel 26 bitmap
 
-#define EXIT_DEMO           1
-#define RANGE_DEMO          2
-#define SECURITY_DEMO       3
-#define IDENTIFY_MODE       4
-#define EXIT_IDENTIFY_MODE  5
+//previously packets were assigned up to 5, start at 6
 #define ALBATROSS_ACK       6
 #define ALBATROSS_ALERT     7
-
-#define NODE_INFO_INTERVAL  5
+#define ALBATROSS_NO_ALERT  8
+#define ALBATROSS_INIT      9
+#define ALBATROSS_CONNECT   10
 
 uint8_t ConnectionEntry = 0;
-			
-bool NetFreezerEnable = false;
-bool ParseTest = false;
-bool spiTest = false;
-bool memTest = false;
-bool ardSPITest = false;
 
 bool alert = false;
 
@@ -86,7 +77,8 @@ extern uint8_t myLongAddress[MY_ADDRESS_LENGTH];
     uint8_t AdditionalNodeID[ADDITIONAL_NODE_ID_SIZE] = {0x00};
 #endif
 
-    
+//TODO: this should be removed
+#if 0 
 void test_code()
 {
     /*******************************************************************/
@@ -177,6 +169,21 @@ void test_code()
         }
     } 
 }
+#endif
+
+void set_alert(bool val)
+{
+    if(val)
+    {
+        alert = true;
+        LED1 = 1;
+    }
+    else
+    {
+        alert = false;
+        LED1 = 0;
+    }
+}
 
 void setup_transceiver()
 {
@@ -252,15 +259,13 @@ void setup_network()
         /* There is an obvious issue, as this should be the only source of
            the network in this sector...
            In future could try a different channel */
-#if DEBUG_LCD
-        LCD_Display((char *)"Network Exists! Error!", 0, true);
-#endif
 #if DEBUG_LED
         LED0 = 0;
         LED2 = 1;
-        DELAY_ms(1000);
 #endif
-        
+#if DEBUG_LCD
+        LCD_Display((char *)"Network Exists! Error!", 0, true);
+#endif
         //a network already exists, sleep and try again
         enter_deep_sleep();
     }
@@ -271,21 +276,19 @@ void setup_network()
 #endif
 
         MiApp_ProtocolInit(false);
+        
+        //make sure there are no lingering messages
+        MiApp_DiscardMessage();
+        
         MiApp_StartConnection(START_CONN_DIRECT, 0, 0);
 
+#if DEBUG_LED
+        LED1 = 1;
+#endif
 #if DEBUG_LCD
-        LCD_Display((char *)"Created Network Successfully", 0, true);
-
         LCD_Erase();
-        sprintf((char *)&(LCDText), (char*)"PANID:%02x%02x Ch:%02d",myPANID.v[1],myPANID.v[0],myChannel);
-        sprintf((char *)&(LCDText[16]), (char*)"Address: %02x%02x", myShortAddress.v[1], myShortAddress.v[0]);
-        LCD_Update();
-        DELAY_ms(2000);
 #endif
     }
-    
-    //make sure there are no lingering messages
-    MiApp_DiscardMessage();
 }
 
 void wait_for_connection()
@@ -294,16 +297,28 @@ void wait_for_connection()
     // Wait for a Node to Join Network
     /*******************************************************************/
     uint8_t pktCMD = 0;
-    while(pktCMD != EXIT_IDENTIFY_MODE)
+    while(pktCMD != ALBATROSS_ACK)
     {
         if(MiApp_MessageAvailable())
         {
             pktCMD = rxMessage.Payload[0];
+            if(pktCMD == ALBATROSS_INIT)
+            {
+                //TODO: respond to first time node
+            }
+            else if(pktCMD == ALBATROSS_CONNECT)
+            {
+                //TODO: this is an error, there should not be sensors already on this network
+            }
             MiApp_DiscardMessage();
         }
     }
     
-    #if DEBUG_LCD
+#if DEBUG_LED
+    LED1 = 0;
+#endif
+    
+#if DEBUG_LCD
         LCD_Display((char *)"Sensor node     connected!   ", 0, true);
 #endif
 }
@@ -311,60 +326,113 @@ void wait_for_connection()
 void check_messages()
 {
     uint8_t pktCMD = 0;
-    bool receive = false;
-    
-    DELAY_ms(2000);
-        
-    do
+    uint8_t timeout = 40;
+    bool acknowledge = false;
+    bool receive = true;
+    while (receive)
     {
         //TODO: should we check for multiple messages
         if(MiApp_MessageAvailable())
         {
             pktCMD = rxMessage.Payload[0];
             MiApp_DiscardMessage();
-            if(pktCMD == IDENTIFY_MODE)
+            if(pktCMD == ALBATROSS_INIT)
             {   
+                //TODO: another node is trying to join, respond correctly
                 receive = true;
 #if DEBUG_LCD
-                LCD_Display((char *)"Rx: Identify    Packet          ", 0, true);
+                LCD_Display((char *)"Rx:   INIT      Packet          ", 0, false);
 #endif
             }
-            else if (pktCMD == EXIT_IDENTIFY_MODE)
+            else if (pktCMD == ALBATROSS_CONNECT)
             {   
                 receive = true;
 #if DEBUG_LCD
-                LCD_Display((char *)"Rx: ExitIdentifyPacket          ", 0, true);
+                LCD_Display((char *)"Rx: Connect     Packet          ", 0, false);
+#endif
+            }
+            else if(pktCMD == ALBATROSS_NO_ALERT)
+            {
+                receive = false;
+                acknowledge = true;
+#if DEBUG_LED
+                LED1 = 0;
+#endif
+
+#if DEBUG_LCD
+                LCD_Display((char *)"Rx:  No Alert   Packet          ", 0, false);
+#endif
+            }
+            else if(pktCMD == ALBATROSS_ALERT)
+            {
+                set_alert(true);
+                receive = false;
+                acknowledge = true;
+                
+#if DEBUG_LED
+                LED1 = 0;
+#endif
+
+#if DEBUG_LCD
+                LCD_Display((char *)"Rx:   Alert     Packet    ", 0, false);
 #endif
             }
             else if(pktCMD == ALBATROSS_ACK)
             {
                 receive = false;
-
-#if DEBUG_LCD
-                LCD_Display((char *)"Rx: AlbatrossACKPacket          ", 0, true);
+                
+#if DEBUG_LED
+                LED1 = 0;
 #endif
-            }
-            else if(pktCMD == ALBATROSS_ALERT)
-            {
-                alert = true;
-                receive = false;
 
 #if DEBUG_LCD
-                LCD_Display((char *)"Rx: Albatross   Alert Packet    ", 0, true);
+                LCD_Display((char *)"Rx:   ACK       Packet      ", 0, false);
 #endif
             }
             else //unknown packet
             {
                 receive = false;
 #if DEBUG_LCD
-                LCD_Display((char *)"Received Incorrect Packet! %02d ", pktCMD, true);
+                LCD_Display((char *)"Rx: Unknown     Packet: %02d    ", pktCMD, false);
 #endif
             }
-#if DEBUG_LCD
-         LCD_Erase();
-#endif
         }
-    } while (receive);
+        else
+        {
+            DELAY_ms(100);
+        }
+        
+        --timeout;
+        if(timeout == 0) {
+            break;
+        }
+    }
+    
+    if(acknowledge)
+    {
+#if DEBUG_LED
+        LED1 = 1;
+#endif
+        
+        uint8_t i = 0;
+        for(i = 0; i < 100; ++i)
+        {
+           MiApp_FlushTx();
+           MiApp_WriteData(ALBATROSS_ACK);
+           MiApp_BroadcastPacket(false);   
+        }
+        
+#if DEBUG_LED
+        LED1 = 0;
+#endif
+    }
+    
+#if DEBUG_LCD
+    if (timeout == 0)
+    {
+        LCD_Display((char *)"No Nodes        Detected        ", 0, true);
+    }
+#endif
 }
                                                                                                
 /*********************************************************************
@@ -398,6 +466,12 @@ void check_messages()
 **********************************************************************/
 void main(void)
 {   
+    /*******************************************************************
+     *LED0 = running / sleeping
+     *LED1 = status
+     *LED2 = error / no error
+     *All LEDs = first time setup
+    *******************************************************************/
     bool ds_wake = false;
 
     if (WDTCONbits.DS)   // Woke up from deep sleep
@@ -417,7 +491,8 @@ void main(void)
 #endif
     
 #if DEBUG_LED
-    LED0 = LED1 = LED2 = 1;
+    LED0 = 1;
+    LED1 = LED2 = 0;
 #endif
     
 #if DEBUG_LCD
@@ -445,7 +520,7 @@ void main(void)
         }
         
         LCD_Update();
-        DELAY_ms(2000);
+        DELAY_ms(1000);
         LCD_BacklightOFF();
     }
     else //first power on
@@ -460,16 +535,10 @@ void main(void)
         sprintf((char *)&(LCDText[16]), (char*)"Main Board      ");
         LCD_Update();
         
-        DELAY_ms(2000);
+        DELAY_ms(1000);
         
         LCD_BacklightOFF();
     }
-#endif
-    
-#if DEBUG_LED
-    DELAY_ms(1000);
-    LED0 = 1;
-    LED1 = LED2 = 0;
 #endif
     
     if(ds_wake)
@@ -493,7 +562,7 @@ void main(void)
             setup_network();
             check_messages();
             
-            if(sleep_counter == 13) //2.1*2*13 = 54.6 second interval
+            if(alert || sleep_counter == 13) //2.1*2*13 = 54.6 second interval
             {
                 //TODO: check if we have received any response from the sensors in the last minute, if not then notify the user that the sensor node is gone
                 
@@ -502,6 +571,17 @@ void main(void)
 #if DEBUG_LED
                 LED1 = 1;
 #endif
+                
+                //TODO: this might cause an infinite loop if the arduino is disconnected
+                //communicate with the arduino
+                uint8_t *dest;
+                if(alert)
+                {
+                    ARDWriteText(&dest, 1);
+                }else
+                {
+                    ARDWriteText(&dest, 0);
+                }
                 
                 //TODO: use an interrupt or poll on a timer to avoid the power-expensive tight loop
                 //wait for the arduino/FONA to signal it is finished
@@ -517,6 +597,8 @@ void main(void)
             }
             
             //TODO: store sleep_counter in the persisted register
+            
+            set_alert(false);
         }
     }
     else //first power on
@@ -524,53 +606,32 @@ void main(void)
         //TODO: setup loop
             //allow nodes to be added
             //send user feedback
-        
-        
+
+#if DEBUG_LED
+        LED0 = LED1 = LED2 = 1;
+#endif
         setup_transceiver();
         setup_network();
         wait_for_connection();
     }
     
+    //TODO: store sleep_toggle == true in the persisted register
+    
+    //put the transceiver to sleep, very important for power saving
+    MiApp_TransceiverPowerState(POWER_STATE_SLEEP);
+    
 #if DEBUG_LCD
-    DELAY_ms(1000);
     LCD_Erase();
 #endif
     
 #if DEBUG_LED
-    DELAY_ms(1000);
     LED0 = LED1 = LED2 = 0;
 #endif
     
-    
-    LED0 = LED1 = LED2 = 1;
-    
-    uint8_t * dest;
-    //TODO: store sleep_toggle == true in the persisted register
-    if(alert)
-    {
-        ARDWriteText(&dest, 1);
-    }else
-    {
-        ARDWriteText(&dest, 0);
-    }
-    
-    LED0 = LED1 = LED2 = 0;
-    //put the transceiver to sleep, very important for power saving
-    MiApp_TransceiverPowerState(POWER_STATE_SLEEP);
     enter_deep_sleep();
 }
 
 void UserInterruptHandler(void)
 {
-    //check for INT0 interrupt
-    if(INTCONbits.INT0IF == 1)
-    {
-        INTCONbits.INT0IF = 0;
-//        if(LED1)
-//        {
-//            LED1 = 0;
-//        } else {
-//            LED1 = 1;
-//        }
-    }
+    //TODO: if we need to use the INT0 interrupt then comment out line 184 (#define USE_IRQ0_AS_INTERRUPT)
 }

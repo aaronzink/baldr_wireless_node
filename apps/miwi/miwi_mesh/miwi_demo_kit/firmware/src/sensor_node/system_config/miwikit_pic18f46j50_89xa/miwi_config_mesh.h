@@ -92,7 +92,7 @@
     // ENABLE_BROADCAST_TO_SLEEP_DEVICE enables messages broadcast to a
     // sleeping device.
     /*********************************************************************/
-    #define ENABLE_BROADCAST_TO_SLEEP_DEVICE
+    //#define ENABLE_BROADCAST_TO_SLEEP_DEVICE
 
 
     /*********************************************************************/

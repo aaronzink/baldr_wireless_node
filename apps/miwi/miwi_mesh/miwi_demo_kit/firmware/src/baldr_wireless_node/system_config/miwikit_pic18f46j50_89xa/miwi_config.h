@@ -261,7 +261,7 @@
 // ENABLE_BROADCAST will enable the device to broadcast messages for
 // the sleeping devices until they wake up and ask for the messages
 /*********************************************************************/
-#define ENABLE_BROADCAST
+//#define ENABLE_BROADCAST
 
 
 /*********************************************************************/

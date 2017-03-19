@@ -189,8 +189,6 @@ void SYSTEM_Initialize(void)
     
     //configure the AUX ports as inputs
     AUX1_TRIS = 1;
-    AUX1_PORT = 1;
-    
     AUX2_TRIS = 1;
     //configure the BUZZER port is output
     BUZZER_TRIS = 0;

@@ -67,7 +67,7 @@
 // Network freezer feature needs definition of NVM kind to be 
 // used, which is specified in HardwareProfile.h
 /*********************************************************************/
-//#define ENABLE_NETWORK_FREEZER
+#define ENABLE_NETWORK_FREEZER
 
 
 /*********************************************************************/
@@ -106,7 +106,8 @@
         // coordinator. This definition cannot be defined with 
         // NWK_ROLE_END_DEVICE.
         /*********************************************************************/
-        #define NWK_ROLE_COORDINATOR
+        //#define NWK_ROLE_COORDINATOR
+        #define NWK_ROLE_END_DEVICE
 
 
 
@@ -254,14 +255,14 @@
 // for the sleeping devices temporily until they wake up and ask for
 // the messages
 /*********************************************************************/
-#define ENABLE_INDIRECT_MESSAGE
+//#define ENABLE_INDIRECT_MESSAGE
 
 
 /*********************************************************************/
 // ENABLE_BROADCAST will enable the device to broadcast messages for
 // the sleeping devices until they wake up and ask for the messages
 /*********************************************************************/
-#define ENABLE_BROADCAST
+//#define ENABLE_BROADCAST
 
 
 /*********************************************************************/
