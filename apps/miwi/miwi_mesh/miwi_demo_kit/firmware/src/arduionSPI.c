@@ -186,15 +186,13 @@ void ARDAlert(bool alert)
     ARD_nCS = 1;
 }
 
-
-
-//void ARDTest(uint8_t * count, uint8_t *dest)
-//{
-//    ARD_nCS = 0;
-//    DELAY_ms(10);
-//    SPIPut2(*count);
-//    DELAY_ms(20);
-//    *dest = SPIGet2();
-//    DELAY_ms(10);
-//    ARD_nCS = 1;
-//}
+void ARDTest(uint8_t * count, uint8_t *dest)
+{
+    ARD_nCS = 0;
+    DELAY_ms(10);
+    SPIPut2(*count);
+    DELAY_ms(20);
+    *dest = SPIGet2();
+    DELAY_ms(10);
+    ARD_nCS = 1;
+}

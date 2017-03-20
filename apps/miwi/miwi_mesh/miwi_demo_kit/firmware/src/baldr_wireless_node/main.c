@@ -58,6 +58,7 @@ uint8_t myChannel = 26;
 #define ALBATROSS_CONNECT   10
 
 uint8_t ConnectionEntry = 0;
+bool SPI_TEST = false;
 
 bool alert = false;
 
@@ -555,6 +556,23 @@ void main(void)
         LCD_BacklightOFF();
     }
 #endif
+    if(SPI_TEST)
+    {
+        uint8_t count = 0;
+        uint8_t receive = 0;
+        while(true)
+        {
+            ARDTest(&count, &receive);
+
+            LCD_Erase();
+            sprintf((char *)LCDText, (char*)"SPI Test %02d", count);
+            sprintf((char *)&(LCDText[16]), (char*)"Received %02d", receive);
+            LCD_Update();
+            DELAY_ms(500);
+            count++;
+        }
+        
+    }
     
     if(ds_wake)
     {
@@ -575,7 +593,7 @@ void main(void)
         } else {
             setup_transceiver();
             setup_network();
-            check_messages();
+            wait_for_connection();
             
             if(alert || sleep_counter == 13) //2.1*2*13 = 54.6 second interval
             {
