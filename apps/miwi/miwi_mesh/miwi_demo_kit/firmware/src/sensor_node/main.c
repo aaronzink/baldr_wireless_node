@@ -112,9 +112,6 @@ void set_alert(bool val)
 #if DEBUG_LED
         LED1 = 0;
 #endif
-        
-        //enable the INT0 interrupt for the next alert
-        INTCONbits.INT0IE = 1;
     }
 }
     
@@ -333,30 +330,48 @@ bool check_acknowledge()
 
 void send_message()
 {
+    MIWI_TICK t1, t2;
+    bool transmit = true;
+    
+    t1 = MiWi_TickGet();
     bool send = true;
     while(send) {
-        if(alert)
+        if(transmit)
         {
-            MiApp_FlushTx();
-            MiApp_WriteData(ALBATROSS_ALERT);
-            MiApp_BroadcastPacket(false);
+            transmit = false;
+            
+            if(alert)
+            {
+                MiApp_FlushTx();
+                MiApp_WriteData(ALBATROSS_ALERT);
+                MiApp_BroadcastPacket(false);
 #if DEBUG_LCD
-            LCD_Display((char *)"Sending ALBATROSS      Alert    ", 0, false);
+                LCD_Display((char *)"Sending ALBATROSS      Alert    ", 0, false);
 #endif
-        }
-        else
-        {
-            MiApp_FlushTx();
-            MiApp_WriteData(ALBATROSS_NO_ALERT);
-            MiApp_BroadcastPacket(false);
+            }
+            else
+            {
+                MiApp_FlushTx();
+                MiApp_WriteData(ALBATROSS_NO_ALERT);
+                MiApp_BroadcastPacket(false);
 #if DEBUG_LCD
-            LCD_Display((char *)"Sending ALBATROSS      No Alert ", 0, false);
+                LCD_Display((char *)"Sending ALBATROSS      No Alert ", 0, false);
 #endif
+            }
         }
-    
+        
         if(check_acknowledge())
         {
             send = false;
+            break;
+        }
+        
+        t2 = MiWi_TickGet();
+        if(MiWi_TickGetDiff(t2, t1) > (50 * TEN_MILI_SECOND))
+        {
+            //reset for the next timeout period
+            t1 = MiWi_TickGet();
+            transmit = true;
         }
     }
 
@@ -394,6 +409,7 @@ void send_message()
 **********************************************************************/
 void main(void)
 {
+    //TODO: update the LED meanings
     /*******************************************************************
      *LED0 = running / sleeping
      *LED1 = alert / no alert
@@ -401,13 +417,22 @@ void main(void)
      *All LEDs = first time setup
     *******************************************************************/
     
-    
     bool ds_wake = false;
+    bool ds_int = false;
 
     if (WDTCONbits.DS)   // Woke up from deep sleep
     {
-        DSCONLbits.RELEASE = 0;    // release control and data bits for all I/O ports
+        //this doesn't always work for some reason, don't use this value for anything important
+        if(DSWAKEHbits.DSINT0){
+            ds_int = true;
+        }
+        else
+        {
+            ds_int = false;
+        }
         WDTCONbits.DS = 0;       // clear the deep-sleep status bit
+        DSCONLbits.RELEASE = 0;    // release control and data bits for all I/O ports
+        
         ds_wake = true;
     }
     
@@ -416,13 +441,17 @@ void main(void)
     /*******************************************************************/
     SYSTEM_Initialize();
     
-#if DEBUG_LCD
-    LCD_Initialize();
-#endif
-
 #if DEBUG_LED
     LED0 = 1;
     LED1 = LED2 = 0;
+#endif
+    
+    //checking if we woke by interrupt wasn't working
+    //so record the value of the AUX pin to determine if we have an alert
+    set_alert(AUX1_PORT);
+    
+#if DEBUG_LCD
+    LCD_Initialize();
 #endif
     
     /*******************************************************************/
@@ -431,51 +460,39 @@ void main(void)
 #if DEBUG_LCD
     if(ds_wake)
     {
-        LCD_BacklightON();
         LCD_Erase();
         sprintf((char *)LCDText, (char*)"    Wake        ");
         
-        if (DSWAKELbits.DSMCLR)
-        {
-            sprintf((char *)&(LCDText[16]), (char*)"  MCLR          ");
-        }
-        else if (DSWAKELbits.DSWDT)
-        {
-            sprintf((char *)&(LCDText[16]), (char*)"  DSWDT         ");
-        }
-        else if (DSWAKEHbits.DSINT0)
+        if(ds_int)
         {
             sprintf((char *)&(LCDText[16]), (char*)"  INT0          ");
         }
-        else if(DSWAKELbits.DSULP)
+        else
         {
-            sprintf((char *)&(LCDText[16]), (char*)"  ULPWU         ");
+            sprintf((char *)&(LCDText[16]), (char*)"  DSWDT         ");
         }
         
         LCD_Update();
-        DELAY_ms(2000);
-        LCD_BacklightOFF();
+        DELAY_ms(1000);
     }
     else
     {
-        LCD_BacklightON();
-        
         LCD_Erase();
         sprintf((char *)LCDText, (char*)"Albatross       ");
         sprintf((char *)&(LCDText[16]), (char*)"Sensor Board    ");
         LCD_Update();
-        DELAY_ms(2000);
-        LCD_BacklightOFF();
+        DELAY_ms(1000);
     }
 #endif
     
     do
     {
         if(ds_wake)
-        {
+        {   
             //we woke because a sensor was tripped, notify of intrusion
-            if(DSWAKEHbits.DSINT0)
+            if(ds_int)
             {
+                ds_int = false;
                 set_alert(true);
             }
 
@@ -498,6 +515,11 @@ void main(void)
 
         //put the transceiver to sleep, very important for power saving
         MiApp_TransceiverPowerState(POWER_STATE_SLEEP);
+        
+        //clear the interrupt in case the transceiver left the flag high
+        INTCONbits.INT0IF = 0;
+        //enable the INT0 interrupt if it was disabled so we can wake from sleep
+        INTCONbits.INT0IE = 1;
     } while (alert); //make sure there is no longer an alert
 
 #if DEBUG_LCD
@@ -517,7 +539,6 @@ void UserInterruptHandler(void)
     //check for INT0 interrupt
     if(INTCONbits.INT0IF == 1)
     {
-        //TODO: this is correct
         if(AUX1_PORT)
         {
             set_alert(true);

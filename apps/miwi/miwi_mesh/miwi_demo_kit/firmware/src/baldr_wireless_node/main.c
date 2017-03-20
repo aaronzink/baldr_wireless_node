@@ -179,12 +179,16 @@ void set_alert(bool val)
     if(val)
     {
         alert = true;
+#if DEBUG_LED
         LED1 = 1;
+#endif
     }
     else
     {
         alert = false;
+#if DEBUG_LED
         LED1 = 0;
+#endif
     }
 }
 
@@ -332,22 +336,29 @@ void check_messages()
     LED1 = 1;
 #endif
     
-    uint8_t timeout = 40;
+    MIWI_TICK t1, t2;
+    
+    t1 = MiWi_TickGet();
+    
     bool connected = false;
     while (!connected)
     {
+        if(MiApp_MessageAvailable())
+        {
+            MiApp_DiscardMessage();
+        }
+        
         //check if there is any connection
         if(ConnectionTable[0].status.bits.isValid)
         {
             connected = true;
-        }
-        else
-        {
-            DELAY_ms(100);
+            break; //early out in case the timeout goes off
         }
         
-        --timeout;
-        if(timeout == 0) {
+        //TODO: this might be able to go faster, may need to also shorten sensor scan time?
+        t2 = MiWi_TickGet();
+        if( MiWi_TickGetDiff(t2, t1) > (5 * HUNDRED_MILI_SECOND) )
+        {
             break;
         }
     }
@@ -356,7 +367,12 @@ void check_messages()
     LED1 = 0;
 #endif
     
-    if(connected){
+    if(connected)
+    {
+#if DEBUG_LED
+    LED2 = 1;
+#endif
+        
         uint8_t pktCMD = 0;
         bool receive = true;
         while(receive)
@@ -384,6 +400,7 @@ void check_messages()
                 else if(pktCMD == ALBATROSS_NO_ALERT)
                 {
                     receive = false;
+                    set_alert(false);
 
 #if DEBUG_LCD
                     LCD_Display((char *)"Rx:  No Alert   Packet          ", 0, false);
@@ -415,42 +432,74 @@ void check_messages()
                 }
             }
         }
+        
+#if DEBUG_LED
+    LED2 = 0;
+#endif
 
-        bool acknowledged = false;
-        while(!acknowledged)
+#if DEBUG_LED
+    LED1 = 1;
+#endif
+        t1 = MiWi_TickGet();
+        
+        uint8_t cmd = 0;
+        bool transmit = true;
+        bool timeout = true;
+        while(1)
         {   
-            MiApp_FlushTx();
-            MiApp_WriteData(ALBATROSS_ACK);
-            MiApp_BroadcastPacket(false);
-
+            if(transmit) {
+                transmit = false;
+                
+                MiApp_FlushTx();
+                MiApp_WriteData(ALBATROSS_ACK);
+                MiApp_BroadcastPacket(false);
+            }
+            
             if(MiApp_MessageAvailable())
             {
-                uint8_t cmd = rxMessage.Payload[0];
+                cmd = rxMessage.Payload[0];
                 MiApp_DiscardMessage();
 
                 //check if the packet is still being sent
                 if(cmd == pktCMD)
                 {
-                    acknowledged = false;
+                    //TODO: can we set acknowledge here, or will that just saturate the channel?
+                    timeout = false;
                 }
                 else
                 {
                     //TODO: someone else sent a packet, is this an error or should we handle it?
                 }
             }
-            else
-            {
-                acknowledged = true;
+            
+            t2 = MiWi_TickGet();
+            //TODO: shorten this timeout
+            if(MiWi_TickGetDiff(t2, t1) > (70 * TEN_MILI_SECOND))
+            {   
+                if(timeout)
+                {
+                    break;
+                }
+                
+                //reset for the next timeout period
+                t1 = MiWi_TickGet();
+                
+                timeout = true;
+                transmit = true;
             }
         }
+        
+#if DEBUG_LED
+    LED1 = 0;
+#endif
     }
-    
 #if DEBUG_LCD
-    if (timeout == 0)
+    else
     {
-        LCD_Display((char *)"No Nodes        Detected        ", 0, true);
+        LCD_Display((char *)"No Nodes        Detected        ", 0, false);
     }
 #endif
+    
 }
                                                                                                
 /*********************************************************************
@@ -516,7 +565,6 @@ void main(void)
 #if DEBUG_LCD
     if(ds_wake)
     {
-        LCD_BacklightON();
         LCD_Erase();
         sprintf((char *)LCDText, (char*)"    Wake        "  );
         
@@ -524,13 +572,13 @@ void main(void)
         {
             sprintf((char *)&(LCDText[16]), (char*)"  MCLR          ");
         }
-        else if (DSWAKELbits.DSWDT)
-        {
-            sprintf((char *)&(LCDText[16]), (char*)"  DSWDT         ");
-        }
         else if (DSWAKEHbits.DSINT0)
         {
             sprintf((char *)&(LCDText[16]), (char*)"  INT0          ");
+        }
+        else if (DSWAKELbits.DSWDT)
+        {
+            sprintf((char *)&(LCDText[16]), (char*)"  DSWDT         ");
         }
         else if(DSWAKELbits.DSULP)
         {
@@ -539,14 +587,12 @@ void main(void)
         
         LCD_Update();
         DELAY_ms(1000);
-        LCD_BacklightOFF();
     }
     else //first power on
     {
         /*******************************************************************/
         // Display Start-up Splash Screen
         /*******************************************************************/
-        LCD_BacklightON();
 
         LCD_Erase();
         sprintf((char *)LCDText, (char*)"Albatross      ");
@@ -554,8 +600,6 @@ void main(void)
         LCD_Update();
         
         DELAY_ms(1000);
-        
-        LCD_BacklightOFF();
     }
 #endif
     
@@ -596,6 +640,9 @@ void main(void)
             setup_network();
             wait_for_connection();
             
+            //put the transceiver to sleep, very important for power saving
+            MiApp_TransceiverPowerState(POWER_STATE_SLEEP);
+            
             if(alert || sleep_counter == 13) //2.1*2*13 = 54.6 second interval
             {
                 //TODO: check if we have received any response from the sensors in the last minute, if not then notify the user that the sensor node is gone
@@ -606,14 +653,13 @@ void main(void)
                 LED1 = 1;
 #endif
                 
-                //TODO: this might cause an infinite loop if the arduino is disconnected
                 //communicate with the arduino
                 ARDAlert(alert);
                 
                 //TODO: use an interrupt or poll on a timer to avoid the power-expensive tight loop
                 //wait for the arduino/FONA to signal it is finished
-                while(AUX2_PORT == 0)
-                {}
+//                while(AUX2_PORT == 0)
+//                {}
                 
                 AUX1_PORT = 0;
 #if DEBUG_LED
@@ -640,14 +686,18 @@ void main(void)
         setup_transceiver();
         setup_network();
         wait_for_connection();
+        
+        //put the transceiver to sleep, very important for power saving
+        MiApp_TransceiverPowerState(POWER_STATE_SLEEP);
     }
     
     //TODO: store sleep_toggle == true in the persisted register
     
-    //put the transceiver to sleep, very important for power saving
+    //make sure the transceiver is sleeping, very important for power saving
     MiApp_TransceiverPowerState(POWER_STATE_SLEEP);
     
 #if DEBUG_LCD
+    DELAY_ms(100);
     LCD_Erase();
 #endif
     
