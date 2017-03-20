@@ -11,7 +11,7 @@
 
 #define SPI_ARD_READ            0x01
 #define SPI_ARD_READ_CONT       0x02
-#define SPI_ARD_SEND            0x04
+#define SPI_ARD_ALERT           0x04
 #define SPI_ARD_CHECK_AWAKE     0xF0
 #define SPI_ARD_IS_AWAKE        0xF1
 
@@ -156,33 +156,33 @@ void ARDWriteByte(uint8_t *src)
 *
 * PreCondition:     none
 *
-* Input:            uint8_t *src - Sending buffer.
-*                   uint8_t count - Number of bytes to send. 
+* Input:            bool alert - True if entry detected 
 *
 * Output:           none
 *
 * Side Effects:	    none
 *
-* Overview:         Writes an entire string of data to the ARD on
-*                   the SPI bus.
+* Overview:         Sends an alert update to the Arduino
 *
 * Note:			    
 **********************************************************************/ 
-void ARDWriteText(uint8_t *src, uint8_t count)
+void ARDAlert(bool alert)
 {
     ARD_nCS = 0;
     DELAY_ms(10);
     while(ARDCheckAwake() != SPI_ARD_IS_AWAKE);
     uint8_t myReturn = 0;
-    for(int i = 0; i < 1000; i++)
+    for(int i = 0; i < 100; i++)
     {
         DELAY_ms(10);
-        if(count == 1) SPIPut2(SPI_ARD_SEND);
+        if(alert) SPIPut2(SPI_ARD_ALERT);
         else SPIPut2(0x00);
         DELAY_ms(10);
         myReturn = SPIGet2();
         if(myReturn == 0xF2) break;
     }
+    DELAY_ms(10);
+    ARD_nCS = 1;
 }
 
 

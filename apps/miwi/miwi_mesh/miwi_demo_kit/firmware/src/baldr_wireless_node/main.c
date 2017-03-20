@@ -574,14 +574,7 @@ void main(void)
                 
                 //TODO: this might cause an infinite loop if the arduino is disconnected
                 //communicate with the arduino
-                uint8_t *dest;
-                if(alert)
-                {
-                    ARDWriteText(&dest, 1);
-                }else
-                {
-                    ARDWriteText(&dest, 0);
-                }
+                ARDAlert(alert);
                 
                 //TODO: use an interrupt or poll on a timer to avoid the power-expensive tight loop
                 //wait for the arduino/FONA to signal it is finished

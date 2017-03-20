@@ -10,7 +10,7 @@
 
 
 uint8_t ARDReadText(uint8_t *Dest);
-void ARDWriteText(uint8_t *Src, uint8_t Count);
+void ARDAlert(uint8_t Count);
 //void ARDTest(uint8_t *count, uint8_t *Dest);
 
 #endif
