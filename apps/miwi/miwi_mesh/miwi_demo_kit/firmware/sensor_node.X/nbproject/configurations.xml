@@ -6,6 +6,10 @@
                    projectFiles="true">
       <logicalFolder name="framework" displayName="framework" projectFiles="true">
         <logicalFolder name="driver" displayName="driver" projectFiles="true">
+          <logicalFolder name="eeprom_spi" displayName="eeprom_spi" projectFiles="true">
+            <itemPath>../../../../../../framework/driver/eeprom_spi/drv_nvm_eeprom_spi_25aa02e48.h</itemPath>
+            <itemPath>../../../../../../framework/driver/eeprom_spi/drv_nvm_eeprom_spi_25lc256.h</itemPath>
+          </logicalFolder>
           <logicalFolder name="mrf_miwi" displayName="mrf_miwi" projectFiles="true">
             <itemPath>../../../../../../framework/driver/mrf_miwi/drv_mrf_miwi.h</itemPath>
             <itemPath>../../../../../../framework/driver/mrf_miwi/drv_mrf_miwi_89xa.h</itemPath>
@@ -14,12 +18,28 @@
             <itemPath>../../../../../../framework/driver/mrf_miwi/drv_mrf_miwi_24j40.h</itemPath>
             <itemPath>../../../../../../framework/driver/mrf_miwi/drv_mrf_miwi_24xa.h</itemPath>
             <itemPath>../../../../../../framework/driver/mrf_miwi/drv_mrf_miwi_49xa.h</itemPath>
+            <itemPath>../../../../../../framework/driver/mrf_miwi/drv_mrf_miwi_mesh_89xa.h</itemPath>
+          </logicalFolder>
+          <logicalFolder name="nvm" displayName="nvm" projectFiles="true">
+            <itemPath>../../../../../../framework/driver/nvm/drv_nvm_flash_spi_m25p80.h</itemPath>
+            <itemPath>../../../../../../framework/driver/nvm/drv_nvm_flash_spi_sst25vf016.h</itemPath>
+            <itemPath>../../../../../../framework/driver/nvm/drv_nvm_flash_spi_sst25vf064.h</itemPath>
+            <itemPath>../../../../../../framework/driver/nvm/drv_nvm_nor_flash_pmp_sst39lf400.h</itemPath>
+            <itemPath>../../../../../../framework/driver/nvm/nvm_flash_spi_sst26vf0xxb.h</itemPath>
+          </logicalFolder>
+          <logicalFolder name="spi" displayName="spi" projectFiles="true">
+            <logicalFolder name="config" displayName="config" projectFiles="true">
+              <itemPath>../../../../../../framework/driver/spi/config/drv_spi_config_template.h</itemPath>
+            </logicalFolder>
+            <itemPath>../../../../../../framework/driver/spi/drv_spi.h</itemPath>
           </logicalFolder>
         </logicalFolder>
         <logicalFolder name="miwi" displayName="miwi" projectFiles="true">
           <itemPath>../../../../../../framework/miwi/miwi_api.h</itemPath>
           <itemPath>../../../../../../framework/miwi/miwi_mesh.h</itemPath>
           <itemPath>../../../../../../framework/miwi/miwi_nvm.h</itemPath>
+          <itemPath>../../../../../../framework/miwi/miwi_mesh_api.h</itemPath>
+          <itemPath>../../../../../../framework/miwi/miwi_p2p.h</itemPath>
         </logicalFolder>
       </logicalFolder>
       <logicalFolder name="sensor_node" displayName="sensor_node" projectFiles="true">
@@ -80,6 +100,10 @@
                    projectFiles="true">
       <logicalFolder name="framework" displayName="framework" projectFiles="true">
         <logicalFolder name="driver" displayName="driver" projectFiles="true">
+          <logicalFolder name="eeprom_spi" displayName="eeprom_spi" projectFiles="true">
+            <itemPath>../../../../../../framework/driver/eeprom_spi/src/drv_nvm_eeprom_spi_25aa02e48.c</itemPath>
+            <itemPath>../../../../../../framework/driver/eeprom_spi/src/drv_nvm_eeprom_spi_25lc256.c</itemPath>
+          </logicalFolder>
           <logicalFolder name="mrf_miwi" displayName="mrf_miwi" projectFiles="true">
             <itemPath>../../../../../../framework/driver/mrf_miwi/src/drv_mrf_miwi_24j40.c</itemPath>
             <itemPath>../../../../../../framework/driver/mrf_miwi/src/drv_mrf_miwi_24xa.c</itemPath>
@@ -88,11 +112,25 @@
             <itemPath>../../../../../../framework/driver/mrf_miwi/src/drv_mrf_miwi_89xa.c</itemPath>
             <itemPath>../../../../../../framework/driver/mrf_miwi/src/drv_mrf_miwi_crc.c</itemPath>
             <itemPath>../../../../../../framework/driver/mrf_miwi/src/drv_mrf_miwi_security.c</itemPath>
+            <itemPath>../../../../../../framework/driver/mrf_miwi/src/drv_mrf_miwi_mesh_89xa.c</itemPath>
+          </logicalFolder>
+          <logicalFolder name="nvm" displayName="nvm" projectFiles="true">
+            <itemPath>../../../../../../framework/driver/nvm/src/drv_nvm_flash_spi_m25p80.c</itemPath>
+            <itemPath>../../../../../../framework/driver/nvm/src/drv_nvm_flash_spi_sst25vf016.c</itemPath>
+            <itemPath>../../../../../../framework/driver/nvm/src/drv_nvm_flash_spi_sst25vf064.c</itemPath>
+            <itemPath>../../../../../../framework/driver/nvm/src/drv_nvm_nor_flash_pmp_sst39lf400.c</itemPath>
+            <itemPath>../../../../../../framework/driver/nvm/src/nvm_flash_spi_sst26vf0xxb.c</itemPath>
+          </logicalFolder>
+          <logicalFolder name="spi" displayName="spi" projectFiles="true">
+            <itemPath>../../../../../../framework/driver/spi/src/drv_spi_16bit.c</itemPath>
+            <itemPath>../../../../../../framework/driver/spi/src/drv_spi_16bit_v2.c</itemPath>
+            <itemPath>../../../../../../framework/driver/spi/src/drv_spi_pic18.c</itemPath>
           </logicalFolder>
         </logicalFolder>
         <logicalFolder name="miwi" displayName="miwi" projectFiles="true">
           <itemPath>../../../../../../framework/miwi/src/miwi_mesh.c</itemPath>
           <itemPath>../../../../../../framework/miwi/src/miwi_nvm.c</itemPath>
+          <itemPath>../../../../../../framework/miwi/src/miwi_p2p.c</itemPath>
         </logicalFolder>
       </logicalFolder>
       <logicalFolder name="sensor_node" displayName="sensor_node" projectFiles="true">
@@ -178,6 +216,14 @@
         <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
         <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
       </makeCustomizationType>
+      <item path="../../../../../../framework/driver/eeprom_spi/src/drv_nvm_eeprom_spi_25aa02e48.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="../../../../../../framework/driver/eeprom_spi/src/drv_nvm_eeprom_spi_25lc256.c"
+            ex="true"
+            overriding="false">
+      </item>
       <item path="../../../../../../framework/driver/mrf_miwi/drv_mrf_miwi_24j40.h"
             ex="true"
             overriding="false">
@@ -207,6 +253,10 @@
         </HI-TECH-LINK>
         <XC8-config-global>
         </XC8-config-global>
+      </item>
+      <item path="../../../../../../framework/driver/mrf_miwi/drv_mrf_miwi_mesh_89xa.h"
+            ex="true"
+            overriding="false">
       </item>
       <item path="../../../../../../framework/driver/mrf_miwi/src/drv_mrf_miwi_24j40.c"
             ex="true"
@@ -247,6 +297,80 @@
         </HI-TECH-LINK>
         <XC8-config-global>
         </XC8-config-global>
+      </item>
+      <item path="../../../../../../framework/driver/mrf_miwi/src/drv_mrf_miwi_mesh_89xa.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="../../../../../../framework/driver/nvm/drv_nvm_flash_spi_m25p80.h"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="../../../../../../framework/driver/nvm/drv_nvm_flash_spi_sst25vf064.h"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="../../../../../../framework/driver/nvm/drv_nvm_nor_flash_pmp_sst39lf400.h"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="../../../../../../framework/driver/nvm/nvm_flash_spi_sst26vf0xxb.h"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="../../../../../../framework/driver/nvm/src/drv_nvm_flash_spi_m25p80.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="../../../../../../framework/driver/nvm/src/drv_nvm_flash_spi_sst25vf016.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="../../../../../../framework/driver/nvm/src/drv_nvm_flash_spi_sst25vf064.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="../../../../../../framework/driver/nvm/src/drv_nvm_nor_flash_pmp_sst39lf400.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="../../../../../../framework/driver/nvm/src/nvm_flash_spi_sst26vf0xxb.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="../../../../../../framework/driver/spi/src/drv_spi_16bit.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="../../../../../../framework/driver/spi/src/drv_spi_16bit_v2.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="../../../../../../framework/driver/spi/src/drv_spi_pic18.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="../../../../../../framework/miwi/miwi_mesh.h"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="../../../../../../framework/miwi/miwi_mesh_api.h"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="../../../../../../framework/miwi/src/miwi_mesh.c"
+            ex="true"
+            overriding="false">
+      </item>
+      <item path="../src/parser.c" ex="true" overriding="false">
+      </item>
+      <item path="../src/range_demo.c" ex="true" overriding="false">
+      </item>
+      <item path="../src/self_test.c" ex="true" overriding="false">
+      </item>
+      <item path="../src/sensor_node/security_demo.c" ex="true" overriding="false">
+      </item>
+      <item path="../src/sensor_node/security_demo.h" ex="true" overriding="false">
       </item>
       <item path="../src/sensor_node/system_config/miwikit_pic18f46j50_24j40/button.c"
             ex="true"
@@ -467,6 +591,8 @@
         </HI-TECH-LINK>
         <XC8-config-global>
         </XC8-config-global>
+      </item>
+      <item path="../src/temp_demo.c" ex="true" overriding="false">
       </item>
       <HI-TECH-COMP>
         <property key="asmlist" value="true"/>

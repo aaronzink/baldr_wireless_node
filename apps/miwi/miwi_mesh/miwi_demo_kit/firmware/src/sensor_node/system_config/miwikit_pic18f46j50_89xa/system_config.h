@@ -111,6 +111,8 @@
 //External SST Serial Flash Definitions
 #define EE_nCS              LATEbits.LATE2
 #define EE_nCS_TRIS         TRISEbits.TRISE2
+#define DRV_NVM_SST25_ChipSelectEnable
+#define DRV_NVM_SST25_ChipSelectDisable
 
 // LCD Pin Definitions
 #define LCD_CS_TRIS         TRISDbits.TRISD7

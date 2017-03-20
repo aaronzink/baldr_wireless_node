@@ -121,6 +121,10 @@ void set_alert(bool val)
 void setup_transceiver(bool restore)
 {
     Read_MAC_Address();
+    
+    //P2P_TRANSMISSION
+    
+    //CreateNewConnection(1);
 
     /*******************************************************************/
     // Initialize the MiWi Protocol Stack. The only input parameter indicates
@@ -276,8 +280,9 @@ void connect_to_network(bool first_time)
                 {
                     MiApp_FlushTx();
                     MiApp_WriteData(ALBATROSS_ACK);
-                    MiApp_WriteData(myPANID.v[1]);
-                    MiApp_WriteData(myPANID.v[0]);
+                    //TODO: build fix
+//                    MiApp_WriteData(myPANID.v[1]);
+//                    MiApp_WriteData(myPANID.v[0]);
                     MiApp_BroadcastPacket(false);
                     
 #if DEBUG_LCD
@@ -300,8 +305,9 @@ void connect_to_network(bool first_time)
     
 #if DEBUG_LCD
     LCD_Erase();
-    sprintf((char *)(LCDText), (char*)"PANID:%02x%02x Ch:%02d",myPANID.v[1],myPANID.v[0],myChannel);
-    sprintf((char *)&(LCDText[16]), (char*)"Address: %02x%02x", myShortAddress.v[1], myShortAddress.v[0]);
+    //TODO: build fix
+//    sprintf((char *)(LCDText), (char*)"PANID:%02x%02x Ch:%02d",myPANID.v[1],myPANID.v[0],myChannel);
+//    sprintf((char *)&(LCDText[16]), (char*)"Address: %02x%02x", myShortAddress.v[1], myShortAddress.v[0]);
     LCD_Update();
     
     DELAY_ms(1000);
