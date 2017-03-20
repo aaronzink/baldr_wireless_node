@@ -11,9 +11,11 @@
 
 #define SPI_ARD_READ            0x01
 #define SPI_ARD_READ_CONT       0x02
+#define SPI_ARD_NO_ALERT        0x03
 #define SPI_ARD_ALERT           0x04
 #define SPI_ARD_CHECK_AWAKE     0xF0
 #define SPI_ARD_IS_AWAKE        0xF1
+#define SPI_ARD_FINISHED        0xF2
 
 /*********************************************************************
 * Function:         ARDCheckAwake()
@@ -185,10 +187,10 @@ void ARDAlert(bool alert)
     {
         DELAY_ms(10);
         if(alert) SPIPut2(SPI_ARD_ALERT);
-        else SPIPut2(0x00);
+        else SPIPut2(SPI_ARD_NO_ALERT);
         DELAY_ms(10);
         myReturn = SPIGet2();
-        if(myReturn == 0xF2) break;
+        if(myReturn == SPI_ARD_FINISHED) break;
     }
     
     //disable chip select
