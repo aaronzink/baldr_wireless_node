@@ -645,26 +645,7 @@ void main(void)
             
             if(alert || sleep_counter == 13) //2.1*2*13 = 54.6 second interval
             {
-                //TODO: check if we have received any response from the sensors in the last minute, if not then notify the user that the sensor node is gone
-                
-                //turn on the arduino/FONA
-                AUX1_PORT = 1;
-#if DEBUG_LED
-                LED1 = 1;
-#endif
-                
-                //communicate with the arduino
                 ARDAlert(alert);
-                
-                //TODO: use an interrupt or poll on a timer to avoid the power-expensive tight loop
-                //wait for the arduino/FONA to signal it is finished
-//                while(AUX2_PORT == 0)
-//                {}
-                
-                AUX1_PORT = 0;
-#if DEBUG_LED
-                LED1 = 0;
-#endif
             } else {
                 ++sleep_counter;
             }

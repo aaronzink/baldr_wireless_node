@@ -168,12 +168,20 @@ void ARDWriteByte(uint8_t *src)
 **********************************************************************/ 
 void ARDAlert(bool alert)
 {
+    //turn on the arduino/FONA
+    AUX1_PORT = 1;
+    LED1 = 1;
+    
+    //enable chip select
     ARD_nCS = 0;
     DELAY_ms(10);
-    uint8_t count = 0;
-    while(ARDCheckAwake() != SPI_ARD_IS_AWAKE) if(count++ == 200) break; DELAY_ms(10);
+    
+    //wait for Arduino to wake up and reply
+    while(ARDCheckAwake() != SPI_ARD_IS_AWAKE);
+    
+    //send whether an alert was found or not
     uint8_t myReturn = 0;
-    for(int i = 0; i < 100; i++)
+    while(true)
     {
         DELAY_ms(10);
         if(alert) SPIPut2(SPI_ARD_ALERT);
@@ -182,8 +190,19 @@ void ARDAlert(bool alert)
         myReturn = SPIGet2();
         if(myReturn == 0xF2) break;
     }
+    
+    //disable chip select
     DELAY_ms(10);
     ARD_nCS = 1;
+    DELAY_ms(100);
+    
+    //wait for Arduino to tell us it's finished
+    //TODO: use an interrupt or poll on a timer to avoid the power-expensive tight loop
+    while(AUX2_PORT == 0);
+    
+    //turn off arduino system
+    AUX1_PORT = 0;
+    LED1 = 0;
 }
 
 void ARDTest(uint8_t * count, uint8_t *dest)
