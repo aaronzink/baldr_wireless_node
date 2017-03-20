@@ -57,8 +57,10 @@ uint8_t myChannel = 26;
 #define ALBATROSS_INIT      9
 #define ALBATROSS_CONNECT   10
 
+//Test defines
+//#define SPI_TEST            1
+
 uint8_t ConnectionEntry = 0;
-bool SPI_TEST = false;
 
 bool alert = false;
 
@@ -556,23 +558,22 @@ void main(void)
         LCD_BacklightOFF();
     }
 #endif
-    if(SPI_TEST)
+    
+#ifdef SPI_TEST
+    uint8_t spiCount = 0;
+    uint8_t spiReceive = 0;
+    while(true)
     {
-        uint8_t count = 0;
-        uint8_t receive = 0;
-        while(true)
-        {
-            ARDTest(&count, &receive);
+        ARDTest(&spiCount, &spiReceive);
 
-            LCD_Erase();
-            sprintf((char *)LCDText, (char*)"SPI Test %02d", count);
-            sprintf((char *)&(LCDText[16]), (char*)"Received %02d", receive);
-            LCD_Update();
-            DELAY_ms(500);
-            count++;
-        }
-        
+        LCD_Erase();
+        sprintf((char *)LCDText, (char*)"SPI Test %02d", count);
+        sprintf((char *)&(LCDText[16]), (char*)"Received %02d", receive);
+        LCD_Update();
+        DELAY_ms(500);
+        count++;
     }
+#endif
     
     if(ds_wake)
     {
