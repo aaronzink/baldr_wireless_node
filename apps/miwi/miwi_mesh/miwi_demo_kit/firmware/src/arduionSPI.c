@@ -170,7 +170,8 @@ void ARDAlert(bool alert)
 {
     ARD_nCS = 0;
     DELAY_ms(10);
-    while(ARDCheckAwake() != SPI_ARD_IS_AWAKE);
+    uint8_t count = 0;
+    while(ARDCheckAwake() != SPI_ARD_IS_AWAKE) if(count++ == 200) break; DELAY_ms(10);
     uint8_t myReturn = 0;
     for(int i = 0; i < 100; i++)
     {
