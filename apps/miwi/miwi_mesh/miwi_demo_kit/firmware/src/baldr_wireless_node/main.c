@@ -567,11 +567,11 @@ void main(void)
         ARDTest(&spiCount, &spiReceive);
 
         LCD_Erase();
-        sprintf((char *)LCDText, (char*)"SPI Test %02d", count);
-        sprintf((char *)&(LCDText[16]), (char*)"Received %02d", receive);
+        sprintf((char *)LCDText, (char*)"SPI Test %02d", spiCount);
+        sprintf((char *)&(LCDText[16]), (char*)"Received %02d", spiReceive);
         LCD_Update();
         DELAY_ms(500);
-        count++;
+        spiCount++;
     }
 #endif
     
