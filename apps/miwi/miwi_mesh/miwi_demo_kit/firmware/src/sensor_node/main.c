@@ -162,13 +162,13 @@ uint8_t scan_for_network()
     volatile uint8_t scanresult;
     
     if(myChannel < 8)
-        scanresult = MiApp_SearchConnection(10, (0x00000001 << myChannel));
+        scanresult = MiApp_SearchConnection(8, (0x00000001 << myChannel));
     else if(myChannel < 16)
-        scanresult = MiApp_SearchConnection(10, (0x00000100 << (myChannel-8)));
+        scanresult = MiApp_SearchConnection(8, (0x00000100 << (myChannel-8)));
     else if(myChannel < 24)
-        scanresult = MiApp_SearchConnection(10, (0x00010000 << (myChannel-16)));
+        scanresult = MiApp_SearchConnection(8, (0x00010000 << (myChannel-16)));
     else
-        scanresult = MiApp_SearchConnection(10, (0x01000000 << (myChannel-24)));
+        scanresult = MiApp_SearchConnection(8, (0x01000000 << (myChannel-24)));
 
     return scanresult;
 }
@@ -274,12 +274,6 @@ void connect_to_network(bool first_time)
                 }
                 else
                 {
-                    MiApp_FlushTx();
-                    MiApp_WriteData(ALBATROSS_ACK);
-                    MiApp_WriteData(myPANID.v[1]);
-                    MiApp_WriteData(myPANID.v[0]);
-                    MiApp_BroadcastPacket(false);
-                    
 #if DEBUG_LCD
                     LCD_Display((char *)"Joined  Network Successfully..", 0, true);
 #endif
@@ -303,12 +297,7 @@ void connect_to_network(bool first_time)
     sprintf((char *)(LCDText), (char*)"PANID:%02x%02x Ch:%02d",myPANID.v[1],myPANID.v[0],myChannel);
     sprintf((char *)&(LCDText[16]), (char*)"Address: %02x%02x", myShortAddress.v[1], myShortAddress.v[0]);
     LCD_Update();
-    
-    DELAY_ms(1000);
 #endif
-    
-    //make sure there are no lingering messages
-    MiApp_DiscardMessage();
 }
 
 bool check_acknowledge()
@@ -529,7 +518,7 @@ void UserInterruptHandler(void)
     if(INTCONbits.INT0IF == 1)
     {
         //TODO: this is correct
-        if(AUX1_PORT || AUX2_PORT)
+        if(AUX1_PORT)
         {
             set_alert(true);
         }
