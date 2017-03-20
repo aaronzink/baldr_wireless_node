@@ -365,11 +365,15 @@ void main(void)
                 MiApp_WriteData(DEMO_ACK);
                 MiApp_BroadcastPacket(false);
                 DELAY_ms(2000);
+                endDemo = true;
             }else if(pktCMD == DEMO_NO_ALERT)
             {
                 LCD_Display((char *)"NO ALERT Packet! %02d", pktCMD, false);
                 MiApp_FlushTx();
                 MiApp_WriteData(DEMO_ACK);
+                MiApp_BroadcastPacket(false);
+                DELAY_ms(2000);
+                endDemo = true;
             }
             DELAY_ms(1000);
             LCD_Erase();
