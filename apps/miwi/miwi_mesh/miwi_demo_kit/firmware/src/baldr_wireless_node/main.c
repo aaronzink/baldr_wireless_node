@@ -197,12 +197,12 @@ void setup_transceiver()
 
     if( MiApp_SetChannel(myChannel) == false )
     {
-#if DEBUG_LCD
-        LCD_Display((char *)"ERROR: Unable toSet Channel..", 0, true);
-#endif
 #if DEBUG_LED
         LED0 = 0;
         LED2 = 1;
+#endif
+#if DEBUG_LCD
+        LCD_Display((char *)"ERROR: Unable toSet Channel..", 0, true);
 #endif
         //TODO: should we try something else here? Maybe notify the user of the error?
 
@@ -229,13 +229,13 @@ uint8_t scan_for_network()
     volatile uint8_t scanresult;
     
     if(myChannel < 8)
-        scanresult = MiApp_SearchConnection(10, (0x00000001 << myChannel));
+        scanresult = MiApp_SearchConnection(8, (0x00000001 << myChannel));
     else if(myChannel < 16)
-        scanresult = MiApp_SearchConnection(10, (0x00000100 << (myChannel-8)));
+        scanresult = MiApp_SearchConnection(8, (0x00000100 << (myChannel-8)));
     else if(myChannel < 24)
-        scanresult = MiApp_SearchConnection(10, (0x00010000 << (myChannel-16)));
+        scanresult = MiApp_SearchConnection(8, (0x00010000 << (myChannel-16)));
     else
-        scanresult = MiApp_SearchConnection(10, (0x01000000 << (myChannel-24)));
+        scanresult = MiApp_SearchConnection(8, (0x01000000 << (myChannel-24)));
 
     return scanresult;
 }
@@ -277,9 +277,6 @@ void setup_network()
 
         MiApp_ProtocolInit(false);
         
-        //make sure there are no lingering messages
-        MiApp_DiscardMessage();
-        
         MiApp_StartConnection(START_CONN_DIRECT, 0, 0);
 
 #if DEBUG_LED
@@ -287,6 +284,9 @@ void setup_network()
 #endif
 #if DEBUG_LCD
         LCD_Erase();
+        sprintf((char *)&(LCDText), (char*)"PANID:%02x%02x Ch:%02d",myPANID.v[1],myPANID.v[0],myChannel);
+        sprintf((char *)&(LCDText[16]), (char*)"Address: %02x%02x", myShortAddress.v[1], myShortAddress.v[0]);
+        LCD_Update();
 #endif
     }
 }
@@ -297,11 +297,12 @@ void wait_for_connection()
     // Wait for a Node to Join Network
     /*******************************************************************/
     uint8_t pktCMD = 0;
-    while(pktCMD != ALBATROSS_ACK)
+    while(!ConnectionTable[0].status.bits.isValid)
     {
         if(MiApp_MessageAvailable())
         {
             pktCMD = rxMessage.Payload[0];
+            MiApp_DiscardMessage();
             if(pktCMD == ALBATROSS_INIT)
             {
                 //TODO: respond to first time node
@@ -310,7 +311,6 @@ void wait_for_connection()
             {
                 //TODO: this is an error, there should not be sensors already on this network
             }
-            MiApp_DiscardMessage();
         }
     }
     
@@ -325,77 +325,18 @@ void wait_for_connection()
 
 void check_messages()
 {
-    uint8_t pktCMD = 0;
+#if DEBUG_LED
+    LED1 = 1;
+#endif
+    
     uint8_t timeout = 40;
-    bool acknowledge = false;
-    bool receive = true;
-    while (receive)
+    bool connected = false;
+    while (!connected)
     {
-        //TODO: should we check for multiple messages
-        if(MiApp_MessageAvailable())
+        //check if there is any connection
+        if(ConnectionTable[0].status.bits.isValid)
         {
-            pktCMD = rxMessage.Payload[0];
-            MiApp_DiscardMessage();
-            if(pktCMD == ALBATROSS_INIT)
-            {   
-                //TODO: another node is trying to join, respond correctly
-                receive = true;
-#if DEBUG_LCD
-                LCD_Display((char *)"Rx:   INIT      Packet          ", 0, false);
-#endif
-            }
-            else if (pktCMD == ALBATROSS_CONNECT)
-            {   
-                receive = true;
-#if DEBUG_LCD
-                LCD_Display((char *)"Rx: Connect     Packet          ", 0, false);
-#endif
-            }
-            else if(pktCMD == ALBATROSS_NO_ALERT)
-            {
-                receive = false;
-                acknowledge = true;
-#if DEBUG_LED
-                LED1 = 0;
-#endif
-
-#if DEBUG_LCD
-                LCD_Display((char *)"Rx:  No Alert   Packet          ", 0, false);
-#endif
-            }
-            else if(pktCMD == ALBATROSS_ALERT)
-            {
-                set_alert(true);
-                receive = false;
-                acknowledge = true;
-                
-#if DEBUG_LED
-                LED1 = 0;
-#endif
-
-#if DEBUG_LCD
-                LCD_Display((char *)"Rx:   Alert     Packet    ", 0, false);
-#endif
-            }
-            else if(pktCMD == ALBATROSS_ACK)
-            {
-                receive = false;
-                
-#if DEBUG_LED
-                LED1 = 0;
-#endif
-
-#if DEBUG_LCD
-                LCD_Display((char *)"Rx:   ACK       Packet      ", 0, false);
-#endif
-            }
-            else //unknown packet
-            {
-                receive = false;
-#if DEBUG_LCD
-                LCD_Display((char *)"Rx: Unknown     Packet: %02d    ", pktCMD, false);
-#endif
-            }
+            connected = true;
         }
         else
         {
@@ -408,23 +349,97 @@ void check_messages()
         }
     }
     
-    if(acknowledge)
-    {
 #if DEBUG_LED
-        LED1 = 1;
+    LED1 = 0;
 #endif
-        
-        uint8_t i = 0;
-        for(i = 0; i < 100; ++i)
+    
+    if(connected){
+        uint8_t pktCMD = 0;
+        bool receive = true;
+        while(receive)
         {
-           MiApp_FlushTx();
-           MiApp_WriteData(ALBATROSS_ACK);
-           MiApp_BroadcastPacket(false);   
-        }
-        
-#if DEBUG_LED
-        LED1 = 0;
+            //TODO: should we check for multiple messages
+            if(MiApp_MessageAvailable())
+            {
+                pktCMD = rxMessage.Payload[0];
+                MiApp_DiscardMessage();
+                if(pktCMD == ALBATROSS_INIT)
+                {   
+                    //TODO: another node is trying to join, respond correctly
+                    receive = true;
+#if DEBUG_LCD
+                    LCD_Display((char *)"Rx:   INIT      Packet          ", 0, false);
 #endif
+                }
+                else if (pktCMD == ALBATROSS_CONNECT)
+                {   
+                    receive = true;
+#if DEBUG_LCD
+                    LCD_Display((char *)"Rx: Connect     Packet          ", 0, false);
+#endif
+                }
+                else if(pktCMD == ALBATROSS_NO_ALERT)
+                {
+                    receive = false;
+
+#if DEBUG_LCD
+                    LCD_Display((char *)"Rx:  No Alert   Packet          ", 0, false);
+#endif
+                }
+                else if(pktCMD == ALBATROSS_ALERT)
+                {
+                    set_alert(true);
+                    receive = false;
+
+#if DEBUG_LCD
+                    LCD_Display((char *)"Rx:   Alert     Packet    ", 0, false);
+#endif
+                }
+                else if(pktCMD == ALBATROSS_ACK)
+                {
+                    receive = false;
+
+#if DEBUG_LCD
+                    LCD_Display((char *)"Rx:   ACK       Packet      ", 0, false);
+#endif
+                }
+                else //unknown packet
+                {
+                    receive = false;
+#if DEBUG_LCD
+                    LCD_Display((char *)"Rx: Unknown     Packet: %02d    ", pktCMD, false);
+#endif
+                }
+            }
+        }
+
+        bool acknowledged = false;
+        while(!acknowledged)
+        {   
+            MiApp_FlushTx();
+            MiApp_WriteData(ALBATROSS_ACK);
+            MiApp_BroadcastPacket(false);
+
+            if(MiApp_MessageAvailable())
+            {
+                uint8_t cmd = rxMessage.Payload[0];
+                MiApp_DiscardMessage();
+
+                //check if the packet is still being sent
+                if(cmd == pktCMD)
+                {
+                    acknowledged = false;
+                }
+                else
+                {
+                    //TODO: someone else sent a packet, is this an error or should we handle it?
+                }
+            }
+            else
+            {
+                acknowledged = true;
+            }
+        }
     }
     
 #if DEBUG_LCD
