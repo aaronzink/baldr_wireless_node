@@ -180,14 +180,14 @@ void set_alert(bool val)
     {
         alert = true;
 #if DEBUG_LED
-        LED1 = 1;
+        LED0 = LED1 = LED2 = 1;
 #endif
     }
     else
     {
         alert = false;
 #if DEBUG_LED
-        LED1 = 0;
+        LED1 = LED2 = 0;
 #endif
     }
 }
@@ -205,7 +205,7 @@ void setup_transceiver()
     if( MiApp_SetChannel(myChannel) == false )
     {
 #if DEBUG_LED
-        LED0 = 0;
+        LED0 = LED1 = 0;
         LED2 = 1;
 #endif
 #if DEBUG_LCD
@@ -266,13 +266,22 @@ void setup_network()
         /* There is an obvious issue, as this should be the only source of
            the network in this sector...
            In future could try a different channel */
-#if DEBUG_LED
-        LED0 = 0;
-        LED2 = 1;
-#endif
+
 #if DEBUG_LCD
         LCD_Display((char *)"Network Exists! Error!", 0, true);
 #endif
+        
+        //make sure the transceiver is sleeping, very important for power saving
+        MiApp_TransceiverPowerState(POWER_STATE_SLEEP);
+    
+#if DEBUG_LCD
+        DELAY_ms(100);
+        LCD_Erase();
+#endif
+#if DEBUG_LED
+        LED0 = LED1 = LED2 = 0;
+#endif
+    
         //a network already exists, sleep and try again
         enter_deep_sleep();
     }
@@ -285,10 +294,6 @@ void setup_network()
         MiApp_ProtocolInit(false);
         
         MiApp_StartConnection(START_CONN_DIRECT, 0, 0);
-
-#if DEBUG_LED
-        LED1 = 1;
-#endif
 #if DEBUG_LCD
         LCD_Erase();
         sprintf((char *)&(LCDText), (char*)"PANID:%02x%02x Ch:%02d",myPANID.v[1],myPANID.v[0],myChannel);
@@ -299,7 +304,13 @@ void setup_network()
 }
 
 void wait_for_connection()
-{   
+{
+#if DEBUG_LED
+    MIWI_TICK t1, t2;
+    t1 = MiWi_TickGet();
+    LED1 = 1;
+#endif
+    
     /*******************************************************************/
     // Wait for a Node to Join Network
     /*******************************************************************/
@@ -319,6 +330,15 @@ void wait_for_connection()
                 //TODO: this is an error, there should not be sensors already on this network
             }
         }
+        
+#if DEBUG_LED
+        t2 = MiWi_TickGet();
+        if( MiWi_TickGetDiff(t2, t1) > (HUNDRED_MILI_SECOND) )
+        {
+            LED1 ^= 1;
+            t1 = MiWi_TickGet();
+        }
+#endif
     }
     
 #if DEBUG_LED
@@ -332,12 +352,12 @@ void wait_for_connection()
 
 void check_messages()
 {
+    MIWI_TICK t1, t2;
 #if DEBUG_LED
+    MIWI_TICK t3, t4;
+    t3 = MiWi_TickGet();
     LED1 = 1;
 #endif
-    
-    MIWI_TICK t1, t2;
-    
     t1 = MiWi_TickGet();
     
     bool connected = false;
@@ -361,6 +381,15 @@ void check_messages()
         {
             break;
         }
+        
+#if DEBUG_LED
+        t4 = MiWi_TickGet();
+        if( MiWi_TickGetDiff(t4, t3) > (HUNDRED_MILI_SECOND) )
+        {
+            LED1 ^= 1;
+            t3 = MiWi_TickGet();
+        }
+#endif
     }
     
 #if DEBUG_LED
@@ -400,7 +429,6 @@ void check_messages()
                 else if(pktCMD == ALBATROSS_NO_ALERT)
                 {
                     receive = false;
-                    set_alert(false);
 
 #if DEBUG_LCD
                     LCD_Display((char *)"Rx:  No Alert   Packet          ", 0, false);
@@ -438,7 +466,8 @@ void check_messages()
 #endif
 
 #if DEBUG_LED
-    LED1 = 1;
+        t3 = MiWi_TickGet();
+        LED2 = 1;
 #endif
         t1 = MiWi_TickGet();
         
@@ -487,10 +516,19 @@ void check_messages()
                 timeout = true;
                 transmit = true;
             }
+            
+#if DEBUG_LED
+            t4 = MiWi_TickGet();
+            if(MiWi_TickGetDiff(t4, t3) > (HUNDRED_MILI_SECOND))
+            {   
+                LED2 ^= 1;
+                t3 = MiWi_TickGet();
+            }
+#endif
         }
         
 #if DEBUG_LED
-    LED1 = 0;
+    LED2 = 0;
 #endif
     }
 #if DEBUG_LCD
@@ -534,10 +572,11 @@ void check_messages()
 void main(void)
 {   
     /*******************************************************************
-     *LED0 = running / sleeping
-     *LED1 = status
-     *LED2 = error / no error
-     *All LEDs = first time setup
+     * LED0: ON = running, OFF = sleeping
+     * LED1: blink = waiting to connect, ON = Alert
+     * LED2: blink = transmitting, ON = waiting for packet
+     * 
+     * only LED2: ON = error
     *******************************************************************/
     bool ds_wake = false;
 
@@ -638,7 +677,7 @@ void main(void)
         } else {
             setup_transceiver();
             setup_network();
-            wait_for_connection();
+            check_messages();
             
             //put the transceiver to sleep, very important for power saving
             MiApp_TransceiverPowerState(POWER_STATE_SLEEP);
@@ -661,9 +700,6 @@ void main(void)
             //allow nodes to be added
             //send user feedback
 
-#if DEBUG_LED
-        LED0 = LED1 = LED2 = 1;
-#endif
         setup_transceiver();
         setup_network();
         wait_for_connection();

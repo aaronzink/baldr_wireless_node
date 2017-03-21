@@ -103,14 +103,14 @@ void set_alert(bool val)
 
         alert = true;
 #if DEBUG_LED
-        LED1 = 1;
+        LED2 = 1;
 #endif
     }
     else
     {
         alert = false;
 #if DEBUG_LED
-        LED1 = 0;
+        LED2 = 0;
 #endif
     }
 }
@@ -131,7 +131,7 @@ void setup_transceiver(bool restore)
         LCD_Display((char *)"ERROR: Unable toSet Channel..", 0, true);
 #endif
 #if DEBUG_LED
-        LED0 = 0;
+        LED0 = LED1 = 0;
         LED2 = 1;
 #endif
         //TODO: should we try something else here? Maybe notify the user of the error?
@@ -172,6 +172,12 @@ uint8_t scan_for_network()
 
 void connect_to_network(bool first_time)
 {
+#if DEBUG_LED
+    MIWI_TICK t1, t2;
+    t1 = MiWi_TickGet();
+    LED1 = 1;
+#endif
+    
     uint8_t scanresult;
 
 #if DEBUG_LCD
@@ -264,7 +270,7 @@ void connect_to_network(bool first_time)
                     LCD_Display((char *)"Join Failed!!!", 0, true);
 #endif
 #if DEBUG_LED
-                    LED2 = 1;
+                    LED0 = 0;
 #endif
                     connected = false;
                     //TODO: this currently just loops and tries again, should we do something more intelligent?
@@ -275,7 +281,7 @@ void connect_to_network(bool first_time)
                     LCD_Display((char *)"Joined  Network Successfully..", 0, true);
 #endif
 #if DEBUG_LED
-                    LED2 = 0;
+                    LED0 = 1;
 #endif
 
                     connected = true;
@@ -287,7 +293,20 @@ void connect_to_network(bool first_time)
             //TODO: there is no network, what do we do?
             connected = false;
         }
+        
+#if DEBUG_LED
+        t2 = MiWi_TickGet();
+        if( MiWi_TickGetDiff(t2, t1) > (HUNDRED_MILI_SECOND) )
+        {
+            LED1 ^= 1;
+            t1 = MiWi_TickGet();
+        }
+#endif
     }
+    
+#if DEBUG_LED
+    LED1 = 0;
+#endif
     
 #if DEBUG_LCD
     LCD_Erase();
@@ -330,6 +349,10 @@ bool check_acknowledge()
 
 void send_message()
 {
+#if DEBUG_LED
+    LED1 = 1;
+#endif
+    
     MIWI_TICK t1, t2;
     bool transmit = true;
     
@@ -374,6 +397,10 @@ void send_message()
             transmit = true;
         }
     }
+    
+#if DEBUG_LED
+    LED1 = 0;
+#endif
 
     set_alert(false);
 }
@@ -411,10 +438,12 @@ void main(void)
 {
     //TODO: update the LED meanings
     /*******************************************************************
-     *LED0 = running / sleeping
-     *LED1 = alert / no alert
-     *LED2 = error / no error
-     *All LEDs = first time setup
+     * all LEDs: OFF = sleeping
+     * LED0: ON = running, OFF = missed connection
+     * LED1: blink = waiting to connect, ON = transmitting
+     * LED2: Alert
+     * 
+     * only LED2: ON = error
     *******************************************************************/
     
     bool ds_wake = false;
@@ -502,9 +531,6 @@ void main(void)
         }
         else //first power on
         {
-#if DEBUG_LED
-            LED0 = LED1 = LED2 = 1;
-#endif
             setup_transceiver(false);
             connect_to_network(true);
 
