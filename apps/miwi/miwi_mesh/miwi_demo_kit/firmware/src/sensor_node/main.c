@@ -29,7 +29,7 @@
 #define MINOR_REV       3
 
 //use to activate LCD
-#define DEBUG_LCD 1
+#define DEBUG_LCD 0
 //use to activate LEDs
 #define DEBUG_LED 1
 

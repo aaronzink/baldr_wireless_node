@@ -33,9 +33,9 @@
 #define MINOR_REV       3
 
 //use to activate LCD
-#define DEBUG_LCD 1
+#define DEBUG_LCD 0
 //use to activate LEDs
-#define DEBUG_LED 1
+#define DEBUG_LED 0
 
 /*************************************************************************/
 // The variable myChannel defines the channel that the device
@@ -582,11 +582,16 @@ void main(void)
      * only LED2: ON = error
     *******************************************************************/
     bool ds_wake = false;
+    uint8_t persist0 = 0x00;
+    uint8_t persist1 = 0x00;
 
     if (WDTCONbits.DS)   // Woke up from deep sleep
     {
-        DSCONLbits.RELEASE = 0;    // release control and data bits for all I/O ports
         WDTCONbits.DS = 0;       // clear the deep-sleep status bit
+        persist0 = DSGPR0;
+        persist1 = DSGPR1;
+        DSCONLbits.RELEASE = 0;    // release control and data bits for all I/O ports
+        
         ds_wake = true;
     }
 
@@ -670,12 +675,21 @@ void main(void)
         
         
         
-        uint8_t sleep_counter = 0;
-        bool sleep_toggle = false;
-        //TODO: read sleep_toggle from the persisted registers
+        uint8_t sleep_counter = persist1;
+        bool sleep_toggle = (persist0 == 0xFF);
         
+        //sleep twice, then check sensors for any broadcast
         if(sleep_toggle) {
-            //TODO: store sleep_toggle == false in the persisted register
+            //store sleep_toggle == false in the persisted register
+            DSGPR0 = 0x00;
+#if DEBUG_LCD
+            DELAY_ms(100);
+            LCD_Erase();
+#endif
+    
+#if DEBUG_LED
+            LED0 = LED1 = LED2 = 0;
+#endif
             enter_deep_sleep();
         } else {
             setup_transceiver();
@@ -685,14 +699,18 @@ void main(void)
             //put the transceiver to sleep, very important for power saving
             MiApp_TransceiverPowerState(POWER_STATE_SLEEP);
             
-            if(alert || sleep_counter == 13) //2.1*2*13 = 54.6 second interval
+            if(alert || sleep_counter == 6) //2.1*2*6 = 25.2 second interval
             {
-                ARDAlert(alert);
+                //TODO: for testing
+                //ARDAlert(alert);
+                
+                sleep_counter = 0;
             } else {
                 ++sleep_counter;
             }
             
-            //TODO: store sleep_counter in the persisted register
+            //store sleep_counter in the persisted register
+            DSGPR1 = sleep_counter;
             
             set_alert(false);
         }
@@ -711,10 +729,11 @@ void main(void)
         MiApp_TransceiverPowerState(POWER_STATE_SLEEP);
     }
     
-    //TODO: store sleep_toggle == true in the persisted register
-    
     //make sure the transceiver is sleeping, very important for power saving
     MiApp_TransceiverPowerState(POWER_STATE_SLEEP);
+    
+    //store sleep_toggle == true in the persisted register
+    DSGPR0 = 0xFF;
     
 #if DEBUG_LCD
     DELAY_ms(100);
