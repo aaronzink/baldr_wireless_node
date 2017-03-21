@@ -172,35 +172,45 @@ void ARDAlert(bool alert)
 {
     //turn on the arduino/FONA
     AUX1_PORT = 1;
+    LED0 = LED2 = 0;
     LED1 = 1;
     
     //enable chip select
     ARD_nCS = 0;
-    DELAY_ms(10);
+    DELAY_ms(2000);
     
     //wait for Arduino to wake up and reply
     while(ARDCheckAwake() != SPI_ARD_IS_AWAKE);
+    LED0 = LED1 = 0;
+    LED2 = 1;
+    
+    DELAY_ms(2000);
     
     //send whether an alert was found or not
     uint8_t myReturn = 0;
     while(true)
     {
+        LED0 = 0;
+        LED2 = LED1 = 1;
         DELAY_ms(10);
         if(alert) SPIPut2(SPI_ARD_ALERT);
         else SPIPut2(SPI_ARD_NO_ALERT);
         DELAY_ms(10);
         myReturn = SPIGet2();
-        if(myReturn == SPI_ARD_FINISHED) break;
+        
+        //wait for Arduino to tell us it's finished
+        //TODO: use an interrupt or poll on a timer to avoid the power-expensive tight loop
+        if(AUX2_PORT == 1) break;
     }
+    
+    DELAY_ms(2000);
+    
+    LED2 = LED1 = LED0 = 0;
     
     //disable chip select
     DELAY_ms(10);
     ARD_nCS = 1;
     DELAY_ms(100);
-    
-    //wait for Arduino to tell us it's finished
-    //TODO: use an interrupt or poll on a timer to avoid the power-expensive tight loop
-    while(AUX2_PORT == 0);
     
     //turn off arduino system
     AUX1_PORT = 0;
