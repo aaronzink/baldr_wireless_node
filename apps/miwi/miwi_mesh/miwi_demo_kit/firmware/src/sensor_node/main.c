@@ -159,13 +159,16 @@ uint8_t scan_for_network()
     volatile uint8_t scanresult;
     
     if(myChannel < 8)
-        scanresult = MiApp_SearchConnection(8, (0x00000001 << myChannel));
+        scanresult = MiApp_SearchConnection(5, (0x00000001 << myChannel));
     else if(myChannel < 16)
-        scanresult = MiApp_SearchConnection(8, (0x00000100 << (myChannel-8)));
+        scanresult = MiApp_SearchConnection(5, (0x00000100 << (myChannel-8)));
     else if(myChannel < 24)
-        scanresult = MiApp_SearchConnection(8, (0x00010000 << (myChannel-16)));
+        scanresult = MiApp_SearchConnection(5, (0x00010000 << (myChannel-16)));
     else
-        scanresult = MiApp_SearchConnection(8, (0x01000000 << (myChannel-24)));
+    {
+        //scantime = 5 seems to be the fastest we can go while still connecting
+        scanresult = MiApp_SearchConnection(5, (0x01000000 << (myChannel-24)));
+    }
 
     return scanresult;
 }
@@ -173,8 +176,6 @@ uint8_t scan_for_network()
 void connect_to_network(bool first_time)
 {
 #if DEBUG_LED
-    MIWI_TICK t1, t2;
-    t1 = MiWi_TickGet();
     LED1 = 1;
 #endif
     
@@ -295,12 +296,8 @@ void connect_to_network(bool first_time)
         }
         
 #if DEBUG_LED
-        t2 = MiWi_TickGet();
-        if( MiWi_TickGetDiff(t2, t1) > (HUNDRED_MILI_SECOND) )
-        {
-            LED1 ^= 1;
-            t1 = MiWi_TickGet();
-        }
+        //blink speed is limited by network scan time
+        LED1 ^= 1;
 #endif
     }
     
@@ -358,7 +355,8 @@ void send_message()
     
     t1 = MiWi_TickGet();
     bool send = true;
-    while(send) {
+    while(send) 
+    {
         if(transmit)
         {
             transmit = false;
@@ -390,7 +388,7 @@ void send_message()
         }
         
         t2 = MiWi_TickGet();
-        if(MiWi_TickGetDiff(t2, t1) > (50 * TEN_MILI_SECOND))
+        if(MiWi_TickGetDiff(t2, t1) > (19 * ONE_MILI_SECOND))
         {
             //reset for the next timeout period
             t1 = MiWi_TickGet();
@@ -436,7 +434,6 @@ void send_message()
 **********************************************************************/
 void main(void)
 {
-    //TODO: update the LED meanings
     /*******************************************************************
      * all LEDs: OFF = sleeping
      * LED0: ON = running, OFF = missed connection

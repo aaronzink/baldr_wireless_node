@@ -236,13 +236,16 @@ uint8_t scan_for_network()
     volatile uint8_t scanresult;
     
     if(myChannel < 8)
-        scanresult = MiApp_SearchConnection(8, (0x00000001 << myChannel));
+        scanresult = MiApp_SearchConnection(5, (0x00000001 << myChannel));
     else if(myChannel < 16)
-        scanresult = MiApp_SearchConnection(8, (0x00000100 << (myChannel-8)));
+        scanresult = MiApp_SearchConnection(5, (0x00000100 << (myChannel-8)));
     else if(myChannel < 24)
-        scanresult = MiApp_SearchConnection(8, (0x00010000 << (myChannel-16)));
+        scanresult = MiApp_SearchConnection(5, (0x00010000 << (myChannel-16)));
     else
-        scanresult = MiApp_SearchConnection(8, (0x01000000 << (myChannel-24)));
+    {
+        //scantime = 5 seems to be the fastest we can go while still connecting
+        scanresult = MiApp_SearchConnection(5, (0x01000000 << (myChannel-24)));
+    }
 
     return scanresult;
 }
@@ -333,7 +336,7 @@ void wait_for_connection()
         
 #if DEBUG_LED
         t2 = MiWi_TickGet();
-        if( MiWi_TickGetDiff(t2, t1) > (HUNDRED_MILI_SECOND) )
+        if( MiWi_TickGetDiff(t2, t1) > (2 * TEN_MILI_SECOND) )
         {
             LED1 ^= 1;
             t1 = MiWi_TickGet();
@@ -377,14 +380,14 @@ void check_messages()
         
         //TODO: this might be able to go faster, may need to also shorten sensor scan time?
         t2 = MiWi_TickGet();
-        if( MiWi_TickGetDiff(t2, t1) > (5 * HUNDRED_MILI_SECOND) )
+        if( MiWi_TickGetDiff(t2, t1) > (13 * TEN_MILI_SECOND) )
         {
             break;
         }
         
 #if DEBUG_LED
         t4 = MiWi_TickGet();
-        if( MiWi_TickGetDiff(t4, t3) > (HUNDRED_MILI_SECOND) )
+        if( MiWi_TickGetDiff(t4, t3) > (2 * TEN_MILI_SECOND) )
         {
             LED1 ^= 1;
             t3 = MiWi_TickGet();
@@ -503,7 +506,7 @@ void check_messages()
             
             t2 = MiWi_TickGet();
             //TODO: shorten this timeout
-            if(MiWi_TickGetDiff(t2, t1) > (70 * TEN_MILI_SECOND))
+            if(MiWi_TickGetDiff(t2, t1) > (20 * ONE_MILI_SECOND))
             {   
                 if(timeout)
                 {
@@ -519,7 +522,7 @@ void check_messages()
             
 #if DEBUG_LED
             t4 = MiWi_TickGet();
-            if(MiWi_TickGetDiff(t4, t3) > (HUNDRED_MILI_SECOND))
+            if(MiWi_TickGetDiff(t4, t3) > (2 * TEN_MILI_SECOND))
             {   
                 LED2 ^= 1;
                 t3 = MiWi_TickGet();
