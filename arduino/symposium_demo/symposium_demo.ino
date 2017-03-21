@@ -18,7 +18,7 @@ char replybuffer[255];
 SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX);
 SoftwareSerial *fonaSerial = &fonaSS;
 
-char callerIDbuffer[32];  
+char callerIDbuffer[32];
 
 // Hardware serial is also possible!
 //  HardwareSerial *fonaSerial = &Serial1;
@@ -73,13 +73,13 @@ void setup (void) {
   // have to send on master in, *slave out*
   pinMode(MISO, OUTPUT);
 
-  setupFona(); 
+  setupFona();
 
 
   // reading the SMS that is online
   //boolean readSMS(uint8_t i, char *smsbuff, uint16_t max, uint16_t *readsize);
-  
-  while(!recieveSMS()){
+
+  while (!recieveSMS()) {
     delay(1000);
   }
 
@@ -95,12 +95,12 @@ void setup (void) {
 
 }
 
-char fonaInBuffer[64]; 
+char fonaInBuffer[64];
 
 bool recieveSMS() {
-  
+
   char* bufPtr = fonaInBuffer;    //handy buffer pointer
-  
+
   if (fona.available())      //any data available from the FONA?
   {
     int slot = 0;            //this will be the slot number of the SMS
@@ -110,22 +110,22 @@ bool recieveSMS() {
       *bufPtr = fona.read();
       Serial.write(*bufPtr);
       delay(1);
-    } while ((*bufPtr++ != '\n') && (fona.available()) && (++charCount < (sizeof(fonaInBuffer)-1)));
-    
+    } while ((*bufPtr++ != '\n') && (fona.available()) && (++charCount < (sizeof(fonaInBuffer) - 1)));
+
     //Add a terminal NULL to the notification string
     *bufPtr = 0;
-    
+
     //Scan the notification string for an SMS received notification.
     //  If it's an SMS message, we'll get the slot number in 'slot'
     if (1 == sscanf(fonaInBuffer, "+CMTI: \"SM\",%d", &slot)) {
       Serial.print("slot: "); Serial.println(slot);
-      
+
       // Retrieve SMS sender address/phone number.
       if (! fona.getSMSSender(slot, callerIDbuffer, 31)) {
         Serial.println("Didn't find SMS message in slot!");
       }
       Serial.print(F("FROM: ")); Serial.println(callerIDbuffer);
-      
+
       //Send back an automatic response
       Serial.println("Sending reponse...");
       if (!fona.sendSMS(callerIDbuffer, "This number has been added to receive text alerts.")) {
@@ -133,7 +133,7 @@ bool recieveSMS() {
       } else {
         Serial.println(F("Sent!"));
       }
-      
+
       // delete the original msg after it is processed
       //   otherwise, we will fill up all the slots
       //   and then we won't be able to receive SMS anymore
@@ -159,7 +159,7 @@ void setupFona() {
   fonaSerial->begin(4800);
   if (! fona.begin(*fonaSerial)) {
     Serial.println(F("Couldn't find FONA"));
-    while(1);
+    while (1);
   }
   Serial.println(F("FONA is OK"));
 
@@ -169,7 +169,7 @@ void setupFona() {
   if (imeiLen > 0) {
     Serial.print("SIM card IMEI: "); Serial.println(imei);
   }
-  
+
   Serial.println("FONA Ready");
 }
 
@@ -218,12 +218,16 @@ bool isValid( byte commandByte) {
     case SPI_ARD_SEND:
       Serial.println("SPI_ARD_SEND");
       break;
-//    case SPI_ARD_CHECK_AWAKE:
-//      Serial.println("SPI_ARD_CHECK_AWAKE");
-//      break;
-//    case SPI_ARD_IS_AWAKE:
-//      Serial.println("SPI_ARD_IS_AWAKE");
-//      break;
+    //    case SPI_ARD_CHECK_AWAKE:
+    //      Serial.println("SPI_ARD_CHECK_AWAKE");
+    //      break;
+    //    case SPI_ARD_IS_AWAKE:
+    //      Serial.println("SPI_ARD_IS_AWAKE");
+    //      break;
+    case SPI_ARD_ALERT:
+      Serial.println("SPI_ARD_ALERT");
+      break;
+
     case SPI_ARD_ALLDONE:
       Serial.println("SPI_ARD_ALLDONE");
       break;
@@ -289,12 +293,13 @@ void loop (void) {
       // send status SMS
       case SPI_ARD_READ:
         Serial.println(F("SPI_ARD_READ"));
-        sendSMS(callerIDbuffer,"Status: GOOD");
+        sendSMS(callerIDbuffer, "Status: GOOD");
         break;
       // take picture and email
       case SPI_ARD_ALERT:
         Serial.println(F("SPI_ARD_ALERT"));
-        sendSMS(callerIDbuffer,"Status: Security alert! Intrusion detected by Node 1 at the group 26 demo.");
+        sendSMS(callerIDbuffer, "Status: Security alert!");
+        //delay(10000);
         break;
       default:
         Serial.println(F("Wrong SPI Input"));
@@ -303,33 +308,34 @@ void loop (void) {
     }
 
     // then we do what user asked for
-//    if (userCommand != picCommand) {
-//      switch (userCommand) {
-//        // send status SMS
-//        case 1:
-//          sendSMS("Status: GOOD", "5195882516");
-//          break;
-//
-//        //take picture and email
-//        case 2:
-//
-//          break;
-//
-//        default:
-//          Serial.println("nothing done");
-//          break;
-//      }
-//    }
+    //    if (userCommand != picCommand) {
+    //      switch (userCommand) {
+    //        // send status SMS
+    //        case 1:
+    //          sendSMS("Status: GOOD", "5195882516");
+    //          break;
+    //
+    //        //take picture and email
+    //        case 2:
+    //
+    //          break;
+    //
+    //        default:
+    //          Serial.println("nothing done");
+    //          break;
+    //      }
+    //    }
 
 
     //after everything is done
     //renable the slave mode and send signal to tell pic all done
-    allDone = true;
-
-    SPCR &= 0b00000000;
-    SPCR |= 0b11001100;
+    //    allDone = true;
+    //
+    //    SPCR &= 0b00000000;
+    //    SPCR |= 0b11001100;
 
     // waiting to be turned off
+    //digitalWrite(1, HIGH);
     while (1);
   }
 }
