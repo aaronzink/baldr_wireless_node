@@ -35,7 +35,7 @@
 //use to activate LCD
 #define DEBUG_LCD 0
 //use to activate LEDs
-#define DEBUG_LED 0
+#define DEBUG_LED 1
 
 /*************************************************************************/
 // The variable myChannel defines the channel that the device
