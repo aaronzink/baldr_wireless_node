@@ -388,7 +388,7 @@ void send_message()
         }
         
         t2 = MiWi_TickGet();
-        if(MiWi_TickGetDiff(t2, t1) > (19 * ONE_MILI_SECOND))
+        if(MiWi_TickGetDiff(t2, t1) > (30 * ONE_MILI_SECOND))
         {
             //reset for the next timeout period
             t1 = MiWi_TickGet();

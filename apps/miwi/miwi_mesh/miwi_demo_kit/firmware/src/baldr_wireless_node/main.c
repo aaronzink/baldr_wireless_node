@@ -506,7 +506,7 @@ void check_messages()
             
             t2 = MiWi_TickGet();
             //TODO: shorten this timeout
-            if(MiWi_TickGetDiff(t2, t1) > (20 * ONE_MILI_SECOND))
+            if(MiWi_TickGetDiff(t2, t1) > (61 * ONE_MILI_SECOND))
             {   
                 if(timeout)
                 {
