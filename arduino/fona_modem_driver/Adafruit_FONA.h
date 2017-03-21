@@ -20,7 +20,8 @@
 #include "includes/FONAConfig.h"
 #include "includes/FONAExtIncludes.h"
 #include "includes/platform/FONAPlatform.h"
-
+#include <SD.h>
+#include <SPI.h>
 
 
 #define FONA800L 1
@@ -115,7 +116,13 @@ class Adafruit_FONA : public FONAStreamType {
 
   // MMS handling
   boolean MMS_initialization(void);
-  boolean MMS_sendMMS(void);
+  boolean MMS_sendMMS(char *smsaddr);
+
+  // File system handling
+  boolean Adafruit_FONA::FS_checkMem(void);
+
+  boolean Adafruit_FONA::TEST_1(char *packet);
+  boolean Adafruit_FONA::TEST_2(char* i);
 
   // EMAIL handling
   boolean Email_sendEmail(void);
