@@ -701,8 +701,7 @@ void main(void)
             
             if(alert || sleep_counter == 6) //2.1*2*6 = 25.2 second interval
             {
-                //TODO: for testing
-                //ARDAlert(alert);
+                ARDAlert(alert);
                 
                 sleep_counter = 0;
             } else {
